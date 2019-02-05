@@ -5,9 +5,3 @@ i add stuff zhou lu
 hello test 2
 
 Logan branch test 1
-
-adfasdf
-asdfasdf
-
-
-tests 1
