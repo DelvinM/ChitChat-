@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="keys_userkname">userkname</string>
+    <string name="keys_firstname">firstname</string>
+    <string name="keys_lastname">lastname</string>
+    <string name="keys_email">email</string>
+    <string name="keys_passowrd">password</string>
+    <string name="keys_repassowrd">repassword</string>
+    <string name="keys_json_register_success">success</string>
+
+</resources>
