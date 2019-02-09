@@ -1,6 +1,7 @@
 package edu.uw.chitchat;
 
 
+import android.animation.ObjectAnimator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -27,4 +28,13 @@ public class SplashFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_splash, container, false);
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        ObjectAnimator animation = ObjectAnimator.ofFloat(
+                getActivity().findViewById(R.id.editText_fragment_login_username),
+                "translationX", 100f);
+        animation.setDuration(2000);
+        animation.start();
+    }
 }
