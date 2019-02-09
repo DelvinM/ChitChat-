@@ -42,10 +42,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="116dp"
-        android:text="Register"
+        android:text="@string/fragment_login_register_button"
         app:layout_constraintTop_toBottomOf="@+id/editText_fragment_login_password"
-        tools:layout_editor_absoluteX="16dp"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="16dp" />
 
     <Button
         android:id="@+id/login_button"
@@ -53,7 +53,7 @@
         android:layout_height="47dp"
         android:layout_marginStart="152dp"
         android:layout_marginTop="116dp"
-        android:text="Login"
+        android:text="@string/fragment_login_login_button"
         app:layout_constraintStart_toEndOf="@+id/register_button"
         app:layout_constraintTop_toBottomOf="@+id/editText_fragment_login_password" />
 </android.support.constraint.ConstraintLayout>
