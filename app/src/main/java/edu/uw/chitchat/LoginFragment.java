@@ -19,14 +19,14 @@ import edu.uw.chitchat.Credentials.Credentials;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link LoginFragment.OnFragmentInteractionListener} interface
+ * {@link LoginFragment.OnLoginFragmentInteractionListener} interface
  * to handle interaction events.
  * @author Joe Lu
  * @2/5/2018
  */
                     public class LoginFragment extends Fragment implements View.OnClickListener {
 
-    private OnFragmentInteractionListener mListener;
+    private OnLoginFragmentInteractionListener mListener;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -38,25 +38,18 @@ import edu.uw.chitchat.Credentials.Credentials;
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_login , container, false);
         Button b = (Button) v.findViewById(R.id.login_button);
-        b.setOnClickListener(this);
+        b.setOnClickListener(this::login);
         b = (Button) v.findViewById(R.id.register_button);
         b.setOnClickListener(this);
 
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnLoginFragmentInteractionListener) {
+            mListener = (OnLoginFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -67,6 +60,10 @@ import edu.uw.chitchat.Credentials.Credentials;
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private void login(View view) {
+        mListener.onLoginClicked(); //for Logan's navigation testing.
     }
 
     @Override
@@ -82,6 +79,9 @@ import edu.uw.chitchat.Credentials.Credentials;
         if (mListener != null) {
             switch (view.getId()) {
                 case R.id.login_button:
+                    /*
+                    Commented out for navigation testing
+
                     if (username_Text.equals("")) {
                     } else {
                         usernameText.setError("Your Username is not valid");
@@ -122,6 +122,8 @@ import edu.uw.chitchat.Credentials.Credentials;
                     }
 
                     break;
+
+                    */
                 case R.id.register_button:
                     Log.wtf("yohei", "register_button");
                     mListener.onRegisterClicked();;
@@ -132,22 +134,9 @@ import edu.uw.chitchat.Credentials.Credentials;
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-
-
-    public interface OnFragmentInteractionListener {
+    public interface OnLoginFragmentInteractionListener {
         void onRegisterClicked();
-        void onLoginFragmentInteraction(Uri uri);
-
-        void onFragmentInteraction(Uri uri);
+        void onLoginClicked(); //for Logan's testing navigation
+        void onLoginSuccess(Credentials mCredentials, String string);
     }
 }

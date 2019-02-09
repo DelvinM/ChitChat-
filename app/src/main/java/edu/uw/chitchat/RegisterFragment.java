@@ -27,19 +27,30 @@ import edu.uw.chitchat.Credentials.Credentials;
  */
 public class RegisterFragment extends Fragment implements View.OnClickListener {
 
-    private OnFragmentInteractionListener mListener;
+    private OnRegisterFragmentInteractionListener mListener;
     public Credentials mCredentials;
     View v;
     public RegisterFragment() {
         // Required empty public constructor
     }
 
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+
+        v = inflater.inflate(R.layout.fragment_register, container, false);
+        Button b = (Button) v.findViewById(R.id.actual_register_button);
+        b.setOnClickListener(this);
+
+        return v;
+    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof LoginFragment.OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof OnRegisterFragmentInteractionListener) {
+            mListener = (OnRegisterFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -56,19 +67,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         Credentials credentials = new Credentials.Builder(usernameText.getText().toString(),
                 passwordText.getText().toString()).build();
 
-    }
-
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
-        v = inflater.inflate(R.layout.fragment_register, container, false);
-        Button b = (Button) v.findViewById(R.id.actual_register_button);
-        b.setOnClickListener(this);
-
-        return v;
     }
 
     @Override
@@ -216,12 +214,9 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    public interface OnFragmentInteractionListener {
+    public interface OnRegisterFragmentInteractionListener {
         void onRegisterSuccess(Credentials a);
-
         void onWaitFragmentInteractionShow();
-        void onLoginSuccess(Credentials mCredentials, String string);
-
         void onWaitFragmentInteractionHide();
     }
 }

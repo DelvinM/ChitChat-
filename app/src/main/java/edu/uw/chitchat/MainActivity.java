@@ -12,7 +12,10 @@ import android.view.WindowManager;
 
 import edu.uw.chitchat.Credentials.Credentials;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener, RegisterFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements
+        LoginFragment.OnLoginFragmentInteractionListener,
+        RegisterFragment.OnRegisterFragmentInteractionListener,
+        HomeFragment.OnHomeFragmentInteractionListener {
 
     private static final int SPLASH_TIME_OUT = 1500;
 
@@ -56,15 +59,16 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnF
     }
 
     @Override
-    public void onLoginFragmentInteraction(Uri uri) {
-
+    /*
+     * This method is for Logan's navigation testing. It will not be in the final version.
+     */
+    public void onLoginClicked() { //for now this just leads to the home fragment directly
+        HomeFragment homeFragment = new HomeFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.frame_main_container, homeFragment)
+                .addToBackStack(null)
+                .commit();
     }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-
 
     @Override
     public void onRegisterSuccess(Credentials a) {

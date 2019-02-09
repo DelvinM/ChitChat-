@@ -5,55 +5,108 @@
     android:id="@+id/fragment_login"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/holo_red_light"
     tools:context=".LoginFragment">
 
-
-    <EditText
-        android:id="@+id/editText_fragment_login_username"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+    <pl.droidsonroids.gif.GifImageView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="370dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:ems="10"
-        android:hint="@string/fragment_login_username"
-        android:inputType="text"
+        android:layout_marginBottom="8dp"
+        android:src="@drawable/hello"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/editText_fragment_login_password"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:ems="10"
-        android:hint="@string/fragment_login_password"
-        android:inputType="textPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_fragment_login_username" />
+        android:layout_marginBottom="16dp"
+        android:orientation="vertical"
+        android:paddingTop="4dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/register_button"
+        tools:layout_editor_absoluteX="0dp">
 
-    <Button
-        android:id="@+id/register_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="116dp"
-        android:text="@string/fragment_login_register_button"
-        app:layout_constraintTop_toBottomOf="@+id/editText_fragment_login_password"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="16dp" />
+        <EditText
+            android:id="@+id/editText_fragment_login_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:ems="10"
+            android:hint="@string/fragment_login_username"
+            android:inputType="text"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:shadowRadius="@android:integer/config_longAnimTime"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:animateLayoutChanges="true"
+            android:backgroundTint="@android:color/white"
+            style="@android:style/Widget.Holo.Light.AutoCompleteTextView" />
+
+        <EditText
+            android:id="@+id/editText_fragment_login_password"
+            style="@android:style/Widget.Holo.Light.AutoCompleteTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:animateLayoutChanges="true"
+            android:backgroundTint="@android:color/white"
+            android:ems="10"
+            android:hint="@string/fragment_login_password"
+            android:inputType="textPassword"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:shadowRadius="@android:integer/config_longAnimTime"
+            android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editText_fragment_login_username" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/login_button"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="wrap_content"
-        android:layout_height="47dp"
-        android:layout_marginStart="152dp"
-        android:layout_marginTop="116dp"
-        android:text="@string/fragment_login_login_button"
-        app:layout_constraintStart_toEndOf="@+id/register_button"
-        app:layout_constraintTop_toBottomOf="@+id/editText_fragment_login_password" />
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:color/white"
+        android:text="Login"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/register_button"
+        style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="24dp"
+        android:animateLayoutChanges="true"
+        android:background="@android:color/background_light"
+        android:text="Register"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
 </android.support.constraint.ConstraintLayout>
