@@ -51,8 +51,8 @@
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="47dp"
-        android:layout_marginStart="396dp"
-        android:layout_marginTop="124dp"
+        android:layout_marginStart="152dp"
+        android:layout_marginTop="116dp"
         android:text="Login"
         app:layout_constraintStart_toEndOf="@+id/register_button"
         app:layout_constraintTop_toBottomOf="@+id/editText_fragment_login_password" />
