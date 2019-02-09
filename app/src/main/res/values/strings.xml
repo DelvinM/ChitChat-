@@ -8,6 +8,9 @@
     <string name="fragment_register_repassword">RePassword</string>
     <string name="fragment_register_email">E-mail</string>
 
+    <string name="fragment_login_register_button">register</string>
+    <string name="fragment_login_login_button">login</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="fragment_home_title">Welcome Back</string>
     <string name="fragment_home_weather_card_title">Weather</string>
