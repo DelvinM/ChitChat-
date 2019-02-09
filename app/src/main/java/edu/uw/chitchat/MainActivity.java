@@ -17,7 +17,7 @@ import edu.uw.chitchat.Credentials.Credentials;
 
 public class MainActivity extends AppCompatActivity implements
         LoginFragment.OnLoginFragmentInteractionListener,
-        RegisterFragment.OnFragmentInteractionListener {
+        RegisterFragment.OnRegisterFragmentInteractionListener {
 
     private static final int SPLASH_TIME_OUT = 1500;
 
