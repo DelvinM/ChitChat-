@@ -38,7 +38,11 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof LoginFragment.OnFragmentInteractionListener) {
+
+/////////Author delvin: i changed LoginFragment.OnFragmentInteractionListener
+// to just OnFragmentInteractionListener
+
+        if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()

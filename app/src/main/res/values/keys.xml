@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    tools:ignore="ExtraTranslation" xmlns:tools="http://schemas.android.com/tools">
     <string name="keys_userkname">userkname</string>
     <string name="keys_firstname">firstname</string>
     <string name="keys_lastname">lastname</string>
@@ -7,5 +8,19 @@
     <string name="keys_passowrd">password</string>
     <string name="keys_repassowrd">repassword</string>
     <string name="keys_json_register_success">success</string>
+
+    <string name="keys_prefs_stay_logged_in">loggedIn</string>
+    <string name="keys_fragment_login">loginFragmentTag</string>
+    <string name="keys_fragment_register">registerFragmentTag</string>
+    <string name="keys_intent_credentials">intent key for creds</string>
+    <string name="keys_intent_jwt">intent key for jwt</string>
+    <string name="keys_json_login_success">success</string>
+    <string name="keys_json_login_jwt">token</string>
+    <string name="keys_json_blogs_response">response</string>
+    <string name="keys_json_blogs_data">data</string>
+    <string name="keys_json_blogs_pubdate">pubdate</string>
+    <string name="keys_json_blogs_title">title</string>
+    <string name="keys_json_blogs_teaser">teaser</string>
+    <string name="keys_json_blogs_url">url</string>
 
 </resources>

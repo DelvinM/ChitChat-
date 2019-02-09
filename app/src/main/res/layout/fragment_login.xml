@@ -18,6 +18,7 @@
         android:ems="10"
         android:hint="@string/fragment_login_username"
         android:inputType="text"
+        android:text="group8@test.com"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,6 +33,7 @@
         android:ems="10"
         android:hint="@string/fragment_login_password"
         android:inputType="textPassword"
+        android:text="Test123"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,7 +47,7 @@
         android:text="@string/fragment_login_register_button"
         app:layout_constraintTop_toBottomOf="@+id/editText_fragment_login_password"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="16dp" />
+        tools:layout_editor_absoluteX="32dp" />
 
     <Button
         android:id="@+id/login_button"

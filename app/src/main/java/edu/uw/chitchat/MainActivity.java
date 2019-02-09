@@ -1,6 +1,7 @@
 package edu.uw.chitchat;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
@@ -10,9 +11,13 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 
+import java.io.Serializable;
+
 import edu.uw.chitchat.Credentials.Credentials;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.OnFragmentInteractionListener, RegisterFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements
+        LoginFragment.OnLoginFragmentInteractionListener,
+        RegisterFragment.OnFragmentInteractionListener {
 
     private static final int SPLASH_TIME_OUT = 1500;
 
@@ -56,33 +61,38 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnF
     }
 
     @Override
-    public void onLoginFragmentInteraction(Uri uri) {
-
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-
-
-    @Override
     public void onRegisterSuccess(Credentials a) {
 
     }
 
     @Override
-    public void onWaitFragmentInteractionShow() {
+    public void onLoginSuccess(Credentials credentials, String jwt) {
+        //if (findViewById(R.id.frame_main_container) != null) {
 
+            //load chat screen activity from here
+            //attach any intent(s) needed here
+            Intent i = new Intent(this, HomeActivity.class);
+            i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
+            i.putExtra(getString(R.string.keys_intent_jwt), jwt);
+            startActivity(i);
+            finish();
+        //}
     }
 
     @Override
-    public void onLoginSuccess(Credentials mCredentials, String string) {
-
+    public void onWaitFragmentInteractionShow() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.frame_main_container, new WaitFragment(), "WAIT")
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
     public void onWaitFragmentInteractionHide() {
-
+        getSupportFragmentManager()
+                .beginTransaction()
+                .remove(getSupportFragmentManager().findFragmentByTag("WAIT"))
+                .commit();
     }
 }
