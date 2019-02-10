@@ -62,7 +62,21 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onRegisterSuccess(Credentials a) {
-
+        Bundle args = new Bundle();
+        LoginFragment loginfragment;
+        loginfragment = new LoginFragment();
+        args.putSerializable(getString(R.string.keys_email), a.getEmail());
+        args.putSerializable(getString(R.string.keys_passowrd), a.getPassword());
+        args.putSerializable(getString(R.string.keys_repassowrd), a.getRePassword());
+        args.putSerializable(getString(R.string.keys_username_stored_onRegister), a.getUsername());
+        args.putSerializable(getString(R.string.keys_firstname_stored_onRegister),a.getFirstName());
+        args.putSerializable(getString(R.string.keys_lastname_stored_onRegister),a.getLastName());
+        loginfragment.setArguments(args);
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frame_main_container, loginfragment)
+                .addToBackStack(null);
+        transaction.commit();
     }
 
     @Override
