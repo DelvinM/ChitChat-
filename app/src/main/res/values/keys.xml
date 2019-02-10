@@ -23,4 +23,6 @@
     <string name="keys_json_blogs_teaser">teaser</string>
     <string name="keys_json_blogs_url">url</string>
 
+    <string name="keys_lock_out_end">0</string>
+
 </resources>

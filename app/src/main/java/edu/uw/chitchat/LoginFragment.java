@@ -1,6 +1,7 @@
 package edu.uw.chitchat;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -33,9 +34,31 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private OnLoginFragmentInteractionListener mListener;
     private Credentials mCredentials;
 
+    //for lockout mechanism
+    private final int mMaxLoginAttempts = 6; //set maximum lock out attempts until user is locked out
+    private int mLockOutCount = mMaxLoginAttempts;
+
+    //store system time
+    private long mLockOutStart;
+    private long lockoutEnd;
+    private long mLockoutDuration = 900; //lock out duration in seconds
+
+
     public LoginFragment() {
         // Required empty public constructor
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        //load lockoutEnd from keys.xml
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(
+                getString(R.string.keys_lock_out_end), Context.MODE_PRIVATE);
+        lockoutEnd = Long.parseLong(sharedPref.getString(getString(R.string.keys_lock_out_end), "0"));
+    }
+
+
 
 
     @Override
@@ -80,7 +103,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     break;
                 case R.id.register_button:
                     Log.wtf("yohei", "register_button");
-                    mListener.onRegisterClicked();;
+                    mListener.onRegisterClicked();
                     break;
                 default:
                     Log.wtf("", "Didn't expect to see me...");
@@ -154,31 +177,66 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
      * @param result the JSON formatted String response from the web service
      */
     private void handleLoginOnPost(String result) {
-        try {
-            JSONObject resultsJSON = new JSONObject(result);
-            boolean success =
-                    resultsJSON.getBoolean(getString(R.string.keys_json_login_success));
-            if (success) {
-                //Login was successful. Switch to the loadSuccessFragment.
-                mListener.onLoginSuccess(mCredentials,
-                        resultsJSON.getString(
-                                getString(R.string.keys_json_login_jwt)));
-                return;
-            } else {
+        //return if user lockout duration hasn't expired
 
-                //Login was unsuccessful. Don’t switch fragments and
-                // inform the user
+            try {
+                long currentTime = System.currentTimeMillis()/1000;
+                if(lockoutEnd > currentTime) {
+                    ((TextView) getView().findViewById(R.id.editText_fragment_login_username))
+                            .setError("User locked out for 15 minutes for too many attempts");
+
+                } else {
+                    JSONObject resultsJSON = new JSONObject(result);
+                    boolean success =
+                            resultsJSON.getBoolean(getString(R.string.keys_json_login_success));
+                    if (success) {
+                        mLockOutCount = mMaxLoginAttempts; //reset count
+                        //Login was successful. Switch to the loadSuccessFragment.
+                        mListener.onLoginSuccess(mCredentials,
+                                resultsJSON.getString(
+                                        getString(R.string.keys_json_login_jwt)));
+
+                        //set lockoutCount to default
+
+                        return;
+                    } else {
+                        //check to see how many login attempt there have been
+                        lockOutLogin();
+                    }
+                }
+                mListener.onWaitFragmentInteractionHide();
+            } catch (JSONException e) {
+                //It appears that the web service did not return a JSON formatted
+                // String or it did not have what we expected in it.
+                Log.e("JSON_PARSE_ERROR", result + System.lineSeparator() + e.getMessage());
+                mListener.onWaitFragmentInteractionHide();
                 ((TextView) getView().findViewById(R.id.editText_fragment_login_username))
                         .setError("Login Unsuccessful");
             }
-            mListener.onWaitFragmentInteractionHide();
-        } catch (JSONException e) {
-            //It appears that the web service did not return a JSON formatted
-            // String or it did not have what we expected in it.
-            Log.e("JSON_PARSE_ERROR", result + System.lineSeparator() + e.getMessage());
-            mListener.onWaitFragmentInteractionHide();
-            ((TextView) getView().findViewById(R.id.editText_fragment_login_username))
-                    .setError("Login Unsuccessful");
+
+    }
+
+    private void lockOutLogin() {
+        mLockOutCount -= 1;
+
+        //Login was unsuccessful. Don’t switch fragments and
+        //inform user of remaining attempts of login until lockout
+        ((TextView) getView().findViewById(R.id.editText_fragment_login_username))
+                .setError("Login Unsuccessful " + mLockOutCount + " remaining Attempts");
+
+        //after 6 attempts lockout user
+        if (mLockOutCount <= 0) {
+            mLockOutCount = mMaxLoginAttempts; //reset to 6
+            mLockOutStart = System.currentTimeMillis()/1000; //current system time
+            lockoutEnd = mLockOutStart + mLockoutDuration; // start + 900 seconds
+
+            //get sharedpref & log lockout end time in keys.xml
+            SharedPreferences sharedPref = getActivity().getSharedPreferences(
+                    getString(R.string.keys_lock_out_end), Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            String stringLockout = Long.toString(lockoutEnd);
+            editor.putString(getString(R.string.keys_lock_out_end), stringLockout);
+            editor.commit();
         }
     }
 
