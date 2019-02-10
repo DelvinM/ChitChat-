@@ -12,8 +12,8 @@
     <string name="fragment_login_login_button">login</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="fragment_home_title">Welcome Back</string>
+    <string name="fragment_home_title">Welcome Back, </string>
     <string name="fragment_home_weather_card_title">Weather</string>
-    <string name="fragment_home_notifications_card_title">Notifications</string>
-    <string name="fragment_home_chats_card_title">Chats</string>
+    <string name="fragment_home_connect">Connect</string>
+    <string name="fragment_home_chats">Chats</string>
 </resources>
