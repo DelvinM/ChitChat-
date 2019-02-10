@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import edu.uw.chitchat.Credentials.Credentials;
 
@@ -26,17 +27,30 @@ import edu.uw.chitchat.Credentials.Credentials;
 public class HomeFragment extends Fragment {
 
     private OnHomeFragmentInteractionListener mListener;
+    private Credentials mCredentials;
 
     public HomeFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_home , container, false);
-        return v;
+        mCredentials = (Credentials) getArguments()
+                .getSerializable(getString(R.string.keys_intent_credentials));
+        return inflater.inflate(R.layout.fragment_home , container, false);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        String welcome = "Welcome Back, ";
+        String[] emailArr = mCredentials.getEmail().split("@");
+        welcome += emailArr[0] + "!";
+        if(((TextView) getActivity().findViewById(R.id.textView_home_welcome)) == null) {
+            Log.d("--------Logan--------", "NULL");
+        }
+        ((TextView) getActivity().findViewById(R.id.textView_home_welcome)).setText(welcome);
     }
 
     @Override
