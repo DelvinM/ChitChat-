@@ -196,8 +196,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             try {
                 long currentTime = System.currentTimeMillis()/1000;
                 if(lockoutEnd > currentTime) {
-                    ((TextView) getView().findViewById(R.id.editText_fragment_login_username))
-                            .setError("User locked out for 15 minutes for too many attempts");
+
+                    TextView loginView = ((TextView) getView().findViewById(R.id.editText_fragment_login_username));
+                    loginView.setError("User locked out for 15 minutes for too many attempts");
+                    loginView.requestFocus();
 
                 } else {
                     JSONObject resultsJSON = new JSONObject(result);
@@ -235,8 +237,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         //Login was unsuccessful. Don’t switch fragments and
         //inform user of remaining attempts of login until lockout
-        ((TextView) getView().findViewById(R.id.editText_fragment_login_username))
-                .setError("Login Unsuccessful " + mLockOutCount + " remaining Attempts");
+        TextView loginView = ((TextView) getView().findViewById(R.id.editText_fragment_login_username));
+                loginView.setError("Login Unsuccessful " + mLockOutCount + " remaining Attempts");
+                loginView.requestFocus();
+
 
         //after 6 attempts lockout user
         if (mLockOutCount <= 0) {
