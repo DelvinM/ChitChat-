@@ -37,6 +37,21 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         // Required empty public constructor
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (getArguments() != null) {
+            EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_username);
+            EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_password);
+            String emailTextRegister = getArguments().getString(getString(R.string.keys_email));
+            String passTextRegister = getArguments().getString(getString(R.string.keys_passowrd));
+            emailText.setText(emailTextRegister);
+            passwordText.setText(passTextRegister);
+            Credentials credentials = new Credentials.Builder(emailText.getText().toString(),
+                    passwordText.getText().toString()).build();
+        }
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,6 +76,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -79,7 +96,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     attemptLogin(view);
                     break;
                 case R.id.register_button:
-                    Log.wtf("yohei", "register_button");
                     mListener.onRegisterClicked();;
                     break;
                 default:

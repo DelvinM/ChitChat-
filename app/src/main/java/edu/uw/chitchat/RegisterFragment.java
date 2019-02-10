@@ -19,7 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import edu.uw.chitchat.Credentials.Credentials;
-
+import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 
 /**
@@ -34,17 +34,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         // Required empty public constructor
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
-        v = inflater.inflate(R.layout.fragment_register, container, false);
-        Button b = (Button) v.findViewById(R.id.actual_register_button);
-        b.setOnClickListener(this);
-
-        return v;
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -62,11 +51,23 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     public void onStart() {
         super.onStart();
         //System.out.println("YOHEI!!!!!!!!!!"+ getView());
-        EditText usernameText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_username);
+        EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_email);
         EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_password);
-        Credentials credentials = new Credentials.Builder(usernameText.getText().toString(),
+        Credentials credentials = new Credentials.Builder(emailText.getText().toString(),
                 passwordText.getText().toString()).build();
+    }
 
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+
+        v = inflater.inflate(R.layout.fragment_register, container, false);
+        Button b = (Button) v.findViewById(R.id.actual_register_button);
+        b.setOnClickListener(this);
+
+        return v;
     }
 
     @Override
@@ -87,7 +88,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         Bundle args = new Bundle();
 
         loginFragment.setArguments(args);
-        boolean hasError = true;
+        boolean hasError = false;
         // String repassward = getArguments().getString("repasskey");
 
 
@@ -100,60 +101,59 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         if (mListener != null) {
             if (firstname.length()>=1) {
             } else {
-                hasError = false;
+                hasError = true;
                 firstnameText.setError("Your firstname is not valid");
             }
             if (lastname.length()>=1) {
             } else {
-                hasError = false;
+                hasError = true;
                 lastnameText.setError("Your lastname is not valid");
             }
             if (email_Text != null && email_Text.contains("@")) {
             } else {
-                hasError = false;
+                hasError = true;
                 emailText.setError("Your Email is not valid");
             }
             if (password.length() >= 6) {
             } else {
-                hasError = false;
+                hasError = true;
                 passwordText.setError("Your password is not valid");
             }
             if (password.equals(repassword)) {
             } else {
-                hasError = false;
+                hasError = true;
                 repasswordText.setError("Your password and retyped one do not match");
             }
             if (username.length()>=1) {
             } else {
-                hasError = false;
+                hasError = true;
                 usernameText.setError("Your username is not valid");
             }
 
-            if (hasError) {
+            if (!hasError) {
                 Uri uri = new Uri.Builder()
                         .scheme("https")
-                        //.appendPath(getString(R.string.ep_base_url))
-                        //.appendPath(getString(R.string.ep_register))
+                        .appendPath(getString(R.string.ep_base_url))
+                        .appendPath(getString(R.string.ep_register))
                         .build();
-//                switch (view.getId()) {
-//                    //case R.id.actualRegisterButton:
-//                        //mListener.onRegisterSuccess(credentials);
-//                        //build the web service URL
-//
-//                        //build the JSONObject
-//                        JSONObject msg = credentials.asJSONObject();
-//                        mCredentials = credentials;
-//                        //instantiate and execute the AsyncTask.
-//                        new SendPostAsyncTask.Builder(uri.toString(), msg)
-//                                .onPreExecute(this::handleLoginOnPre)
-//                                .onPostExecute(this::handleLoginOnPost)
-//                                .onCancelled(this::handleErrorsInTask)
-//                                .build().execute();
-//                        Log.v("login", "onClickHere");
-//                        break;
-//                    default:
-//                        Log.wtf("", "Didn't expect to see me...");
-//                }
+                switch (view.getId()) {
+                    case R.id.actual_register_button:
+                        //mListener.onRegisterSuccess(credentials);
+                        //build the web service URL
+                        //build the JSONObject
+                        JSONObject msg = credentials.asJSONObject();
+                        mCredentials = credentials;
+                        //instantiate and execute the AsyncTask.
+                        new SendPostAsyncTask.Builder(uri.toString(), msg)
+                                .onPreExecute(this::handleLoginOnPre)
+                                .onPostExecute(this::handleLoginOnPost)
+                                .onCancelled(this::handleErrorsInTask)
+                                .build().execute();
+                        Log.v("login", "onClickHere");
+                        break;
+                    default:
+                        Log.wtf("", "Didn't expect to see me...");
+                }
             } else {
                 return;
             }
@@ -187,13 +187,11 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         //mListener.onRegisterSuccess(mCredentials);
         try {
             JSONObject resultsJSON = new JSONObject(result);
-            System.out.println("yohei" + resultsJSON);
             boolean success =
                     resultsJSON.getBoolean(
                             getString(R.string.keys_json_register_success));
             if (success) {
                 //Login was successful. Switch to the loadSuccessFragment.
-                System.out.println("Nyotengu");
                 mListener.onRegisterSuccess(mCredentials);
                 return;
             } else {
