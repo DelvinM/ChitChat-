@@ -9,6 +9,15 @@
     <string name="keys_repassowrd">repassword</string>
     <string name="keys_json_register_success">success</string>
 
+
+    <string name="keys_username_stored_onRegister">usernamestored</string>
+    <string name="keys_firstname_stored_onRegister">firstnamestored</string>
+    <string name="keys_lastname_stored_onRegister">lastnamestored</string>
+    <string name="keys_email_stored_onRegister">emailtored</string>
+    <string name="keys_password_stored_onRegister">passwordstored</string>
+    <string name="keys_repassword_stored_onRegister">repasswordstored</string>
+
+
     <string name="keys_prefs_stay_logged_in">loggedIn</string>
     <string name="keys_fragment_login">loginFragmentTag</string>
     <string name="keys_fragment_register">registerFragmentTag</string>
