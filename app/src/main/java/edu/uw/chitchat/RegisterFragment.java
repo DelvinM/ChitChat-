@@ -7,7 +7,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,8 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.regex.Pattern;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
@@ -98,34 +102,44 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 passwordText.getText().toString(), repasswordText.getText().toString(),
                 usernameText.getText().toString(), firstnameText.getText().toString(),
                 lastnameText.getText().toString()).build();
+
+        //regex used for names to not allow special characters in text fields
+        //allows input anything outside of below characters
+        Pattern StringRegex = Pattern.compile("^[^±!@£$%^&*_+§¡~€#¢§¶•ªº«\\[\\]\\/<>?:;|=.,]+$");
+
+        //password regex, cannot start with . or -, has at least 1 cap letter and number
+        //allows the listed special characters, with a minimum length of 6
+        Pattern passwordRegex = Pattern.compile(
+                "^(?=.*[0-9])(?=.*[A-Z])[^.\\-][A-Z0-9a-z!()?_'~;:.\\]\\[\\-!#@$%^&*+=]{6,}$"
+                );
+
         if (mListener != null) {
-            if (firstname.length()>=1) {
-            } else {
+            if (!StringRegex.matcher(firstname).matches()) {
                 hasError = true;
-                firstnameText.setError("Your firstname is not valid");
+                firstnameText.setError("First name is not valid");
             }
-            if (lastname.length()>=1) {
-            } else {
+            if (!StringRegex.matcher(lastname).matches()) {
                 hasError = true;
-                lastnameText.setError("Your lastname is not valid");
+                lastnameText.setError("Last name is not valid");
             }
-            if (email_Text != null && email_Text.contains("@")) {
-            } else {
+            //email check
+            if (!Patterns.EMAIL_ADDRESS.matcher(email_Text).matches()) {
                 hasError = true;
-                emailText.setError("Your Email is not valid");
+                emailText.setError("Email is not valid");
             }
-            if (password.length() >= 6) {
-            } else {
+            if (TextUtils.isEmpty(email_Text)) {
+                hasError = true;
+                emailText.setError("Email is empty");
+            }
+            if (!passwordRegex.matcher(password).matches()) {
                 hasError = true;
                 passwordText.setError("Your password is not valid");
             }
-            if (password.equals(repassword)) {
-            } else {
+            if (!password.equals(repassword)) {
                 hasError = true;
                 repasswordText.setError("Your password and retyped one do not match");
             }
-            if (username.length()>=1) {
-            } else {
+            if (!(username.length()>=1)) {
                 hasError = true;
                 usernameText.setError("Your username is not valid");
             }
@@ -158,11 +172,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 return;
             }
         }
-
-
-
-
-
     }
 
     private void handleLoginOnPre() {
