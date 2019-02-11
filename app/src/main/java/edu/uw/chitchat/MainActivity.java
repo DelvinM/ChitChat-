@@ -27,24 +27,25 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //accesses email and password from shared pref...
-        //refactor this later...shouldn't need to make 2 calls
         Credentials credentials = getAllCredentialsPref();
         String email = credentials.getEmail();
         String password = credentials.getPassword();
         String jwt = getString(R.string.keys_intent_jwt);
+
         //persistant login. If username and password are not empty
         if (!email.isEmpty() && !password.isEmpty() && !jwt.isEmpty()) {
 
-            //uncomment once logout button is implemented
-            /*Intent i = new Intent(this, HomeActivity.class);
+//uncomment once logout button is implemented
+/*          Intent i = new Intent(this, HomeActivity.class);
             i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
             i.putExtra(getString(R.string.keys_intent_jwt), jwt);
             startActivity(i);
             finish();
 */
             //if sharedpref is corrupt, send user back to login screen
-            setUpLoginScreen();
+            //could do asynctask for check?
+
+            setUpLoginScreen();//comment this out later after logout button works
         } else {
             setUpLoginScreen();
         }
