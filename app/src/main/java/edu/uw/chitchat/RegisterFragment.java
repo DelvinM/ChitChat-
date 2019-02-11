@@ -83,12 +83,15 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         EditText usernameText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_username);
         EditText firstnameText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_firstname);
         EditText lastnameText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_lastname);
-        String email_Text = emailText.getText().toString();
-        String password =  passwordText.getText().toString();
-        String repassword = repasswordText.getText().toString();
-        String username = usernameText.getText().toString();
-        String firstname = firstnameText.getText().toString();
-        String lastname = lastnameText.getText().toString();
+        EditText reemailText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_email_verification);
+        String email_Text = emailText.getText().toString().trim();
+        String password =  passwordText.getText().toString().trim();
+        String repassword = repasswordText.getText().toString().trim();
+        String username = usernameText.getText().toString().trim();
+        String firstname = firstnameText.getText().toString().trim();
+        String lastname = lastnameText.getText().toString().trim();
+        String reemail = reemailText.getText().toString().trim();
+
         LoginFragment loginFragment = new LoginFragment();
         Bundle args = new Bundle();
 
@@ -117,11 +120,11 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         if (mListener != null) {
             if (!StringRegex.matcher(firstname).matches()) {
                 hasError = true;
-                firstnameText.setError("First name is not valid");
+                firstnameText.setError("First name is not in a valid format");
             }
             if (!StringRegex.matcher(lastname).matches()) {
                 hasError = true;
-                lastnameText.setError("Last name is not valid");
+                lastnameText.setError("Last name is not in a valid format");
             }
             //email check
             if (!Patterns.EMAIL_ADDRESS.matcher(email_Text).matches()) {
@@ -132,9 +135,14 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 hasError = true;
                 emailText.setError("Email is empty");
             }
+            if (!email_Text.equals(reemail)){
+                hasError = true;
+                reemailText.setError("Your email and retyped one do not match");
+            }
+
             if (!passwordRegex.matcher(password).matches()) {
                 hasError = true;
-                passwordText.setError("Your password is not valid");
+                passwordText.setError("Please enter a minimum of 6 characters with 1 upper case and 1 digit");
             }
             if (!password.equals(repassword)) {
                 hasError = true;
