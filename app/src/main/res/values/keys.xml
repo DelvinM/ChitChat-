@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     tools:ignore="ExtraTranslation" xmlns:tools="http://schemas.android.com/tools">
+
+    <!--refactor these...duplicates -->
     <string name="keys_userkname">userkname</string>
     <string name="keys_firstname">firstname</string>
     <string name="keys_lastname">lastname</string>

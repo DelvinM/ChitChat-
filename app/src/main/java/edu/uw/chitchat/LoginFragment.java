@@ -64,18 +64,29 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
+
+        EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_username);
+        EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_password);
+
+        String prefEmail = getSharedPreference(getString(R.string.keys_email_stored_onRegister));
+        String prefPassword = getSharedPreference(getString(R.string.keys_password_stored_onRegister));
+
+        //if credentials are not null then keep user logged in
+
+
+        emailText.setText(prefEmail);
+        passwordText.setText(prefPassword);
+
+        //loads arguments from registration success
         if (getArguments() != null) {
-            EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_username);
-            EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_password);
-            String emailTextRegister = getArguments().getString(getString(R.string.keys_email));
-            String passTextRegister = getArguments().getString(getString(R.string.keys_passowrd));
+            String emailTextRegister = getArguments().getString(getString(R.string.keys_email_stored_onRegister));
+            String passTextRegister = getArguments().getString(getString(R.string.keys_password_stored_onRegister));
             emailText.setText(emailTextRegister);
             passwordText.setText(passTextRegister);
             Credentials credentials = new Credentials.Builder(emailText.getText().toString(),
                     passwordText.getText().toString()).build();
         }
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -87,6 +98,13 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         b.setOnClickListener(this);
 
         return v;
+    }
+
+    //refactor later make this a class
+    private String getSharedPreference (String key) {
+        SharedPreferences sharedPref =
+                getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);
+        return sharedPref.getString(key, null);
     }
 
     @Override
