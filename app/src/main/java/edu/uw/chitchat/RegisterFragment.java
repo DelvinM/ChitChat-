@@ -167,8 +167,8 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                         JSONObject msg = credentials.asJSONObject();
                         mCredentials = credentials;
                         //instantiate and execute the AsyncTask.
-                        Toast.makeText(getActivity(), "Check your email to verify account",
-                                Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getActivity(), "Check your email to verify account",
+//                                Toast.LENGTH_LONG).show();
                         new SendPostAsyncTask.Builder(uri.toString(), msg)
                                 .onPreExecute(this::handleLoginOnPre)
                                 .onPostExecute(this::handleLoginOnPost)

@@ -19,9 +19,11 @@ import edu.uw.chitchat.Credentials.Credentials;
 
 public class MainActivity extends AppCompatActivity implements
         LoginFragment.OnLoginFragmentInteractionListener,
-        RegisterFragment.OnRegisterFragmentInteractionListener {
+        RegisterFragment.OnRegisterFragmentInteractionListener,
+        VerifyFragment.OnVerifyFragmentInteractionListener {
 
     private static final int SPLASH_TIME_OUT = 1500;
+    private Credentials mCredentials;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,29 +90,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onRegisterSuccess(Credentials credentials) {
-
-        //put to shared pref here
-        putAllCredentialsToPref(credentials);
-
-        Bundle args = new Bundle();
-        LoginFragment loginfragment;
-        loginfragment = new LoginFragment();
-
-        args.putSerializable(getString(R.string.keys_email_stored_onRegister), credentials.getEmail());
-        args.putSerializable(getString(R.string.keys_password_stored_onRegister), credentials.getPassword());
-        //refactor all these are not used
-        args.putSerializable(getString(R.string.keys_password_stored_onRegister), credentials.getRePassword());
-        args.putSerializable(getString(R.string.keys_username_stored_onRegister), credentials.getUsername());
-        args.putSerializable(getString(R.string.keys_firstname_stored_onRegister),credentials.getFirstName());
-        args.putSerializable(getString(R.string.keys_lastname_stored_onRegister),credentials.getLastName());
-        loginfragment.setArguments(args);
-
-        FragmentTransaction transaction = getSupportFragmentManager()
+    public void onRegisterSuccess(Credentials a) {
+        mCredentials = a;
+        getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.frame_main_container, loginfragment)
-                .addToBackStack(null);
-        transaction.commit();
+                .replace(R.id.frame_main_container, new VerifyFragment())
+                .commit();
     }
 
     //adds single value to shared preferences
@@ -198,5 +183,23 @@ public class MainActivity extends AppCompatActivity implements
                 .beginTransaction()
                 .remove(getSupportFragmentManager().findFragmentByTag("WAIT"))
                 .commit();
+    }
+
+    @Override
+    public void onNextClicked() {
+        Bundle args = new Bundle();
+        LoginFragment loginfragment;
+        loginfragment = new LoginFragment();
+        args.putSerializable(getString(R.string.keys_email), mCredentials.getEmail());
+        args.putSerializable(getString(R.string.keys_passowrd), mCredentials.getPassword());
+        args.putSerializable(getString(R.string.keys_repassowrd), mCredentials.getRePassword());
+        args.putSerializable(getString(R.string.keys_username_stored_onRegister), mCredentials.getUsername());
+        args.putSerializable(getString(R.string.keys_firstname_stored_onRegister),mCredentials.getFirstName());
+        args.putSerializable(getString(R.string.keys_lastname_stored_onRegister),mCredentials.getLastName());
+        loginfragment.setArguments(args);
+        FragmentTransaction transaction = getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.frame_main_container, loginfragment);
+        transaction.commit();
     }
 }
