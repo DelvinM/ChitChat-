@@ -175,6 +175,8 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
+    //loads activity with intent
+    //refactor? class?
     private void loadActivityWithCredentials(Class activity, Credentials credentials, String jwt) {
         Intent i = new Intent(this, activity);
         i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);

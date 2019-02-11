@@ -53,13 +53,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //load lockoutEnd from keys.xml
+        //load lockout end time from keys.xml
         SharedPreferences sharedPref = getActivity().getSharedPreferences(
                 getString(R.string.keys_lock_out_end), Context.MODE_PRIVATE);
         lockoutEnd = Long.parseLong(sharedPref.getString(getString(R.string.keys_lock_out_end), "0"));
     }
-
-
 
     @Override
     public void onStart() {
@@ -67,25 +65,18 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_username);
         EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_password);
-
-        String prefEmail = getSharedPreference(getString(R.string.keys_email_stored_onRegister));
-        String prefPassword = getSharedPreference(getString(R.string.keys_password_stored_onRegister));
-
-        //if credentials are not null then keep user logged in
-
-
-        emailText.setText(prefEmail);
-        passwordText.setText(prefPassword);
-
-        //loads arguments from registration success
-        if (getArguments() != null) {
-            String emailTextRegister = getArguments().getString(getString(R.string.keys_email_stored_onRegister));
-            String passTextRegister = getArguments().getString(getString(R.string.keys_password_stored_onRegister));
-            emailText.setText(emailTextRegister);
-            passwordText.setText(passTextRegister);
-            Credentials credentials = new Credentials.Builder(emailText.getText().toString(),
-                    passwordText.getText().toString()).build();
+        String email;
+        String password;
+        if (getArguments() != null) {//loads email/password arguments from registration success
+            email = getArguments().getString(getString(R.string.keys_email_stored_onRegister));
+            password = getArguments().getString(getString(R.string.keys_password_stored_onRegister));
         }
+        else {//loads email/password from keys.xml
+            email = getSharedPreference(getString(R.string.keys_email_stored_onRegister));
+            password = getSharedPreference(getString(R.string.keys_password_stored_onRegister));
+        }
+        emailText.setText(email);
+        passwordText.setText(password);
     }
 
     @Override
@@ -126,8 +117,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-
-        Log.wtf("test", "testte");
         if (mListener != null) {
             switch (view.getId()) {
                 case R.id.login_button:
@@ -187,7 +176,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-
     /**
      * * Handle errors that may occur during the AsyncTask.*
      * * @param result the error message provide from the AsyncTask
@@ -210,11 +198,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
      * @param result the JSON formatted String response from the web service
      */
     private void handleLoginOnPost(String result) {
-        //return if user lockout duration hasn't expired
 
             try {
                 long currentTime = System.currentTimeMillis()/1000;
-                if(lockoutEnd > currentTime) {
+                if(lockoutEnd > currentTime) { //if user lockout duration hasn't expired
 
                     TextView loginView = ((TextView) getView().findViewById(R.id.editText_fragment_login_username));
                     loginView.setError("User locked out for 15 minutes for too many attempts");
@@ -230,9 +217,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                         mListener.onLoginSuccess(mCredentials,
                                 resultsJSON.getString(
                                         getString(R.string.keys_json_login_jwt)));
-
-                        //set lockoutCount to default
-
                         return;
                     } else {
                         //check to see how many login attempt there have been
@@ -251,6 +235,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
     }
 
+    //called each time an invalid login attempt is made
+    //locks out user for 15 minutes after 6 attempts
     private void lockOutLogin() {
         mLockOutCount -= 1;
 
@@ -259,7 +245,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         TextView loginView = ((TextView) getView().findViewById(R.id.editText_fragment_login_username));
                 loginView.setError("Login Unsuccessful " + mLockOutCount + " remaining Attempts");
                 loginView.requestFocus();
-
 
         //after 6 attempts lockout user
         if (mLockOutCount <= 0) {
@@ -277,25 +262,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-
-
-
-
     public interface OnLoginFragmentInteractionListener extends WaitFragment.OnFragmentInteractionListener {
         void onRegisterClicked();
         void onLoginSuccess(Credentials credentials, String jwt);
-
-        //void onLoginFragmentInteraction(Uri uri);
-        //void onFragmentInteraction(Uri uri);
     }
 }
