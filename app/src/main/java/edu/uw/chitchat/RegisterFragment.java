@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -158,6 +159,8 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                         JSONObject msg = credentials.asJSONObject();
                         mCredentials = credentials;
                         //instantiate and execute the AsyncTask.
+                        Toast.makeText(getActivity(), "Check your email to verify account",
+                                Toast.LENGTH_LONG).show();
                         new SendPostAsyncTask.Builder(uri.toString(), msg)
                                 .onPreExecute(this::handleLoginOnPre)
                                 .onPostExecute(this::handleLoginOnPost)
