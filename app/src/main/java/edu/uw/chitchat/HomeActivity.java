@@ -1,5 +1,6 @@
 package edu.uw.chitchat;
 
+import android.content.Intent;
 import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentTransaction;
@@ -9,6 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.Serializable;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
@@ -81,6 +84,13 @@ public class HomeActivity extends AppCompatActivity implements
                 .beginTransaction()
                 .replace(R.id.activity_home, homeFragment)
                 .commit();
+    }
+
+    //logs user out and loads HomeActivity with LoginFragment
+    public void goToLogin() {
+        Intent i = new Intent(this, HomeActivity.class);
+        startActivity(i);
+        finish();
     }
 
     @Override
