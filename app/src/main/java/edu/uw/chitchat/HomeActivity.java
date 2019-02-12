@@ -22,7 +22,8 @@ import edu.uw.chitchat.chat.Chat;
 public class HomeActivity extends AppCompatActivity implements
         TabLayout.OnTabSelectedListener,
         ChatFragment.OnChatFragmentInteractionListener,
-        HomeFragment.OnHomeFragmentInteractionListener {
+        HomeFragment.OnHomeFragmentInteractionListener,
+        ResetFragment.OnResetFragmentInteractionListener {
 
     private Credentials mCredentials;
 
@@ -58,6 +59,21 @@ public class HomeActivity extends AppCompatActivity implements
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(key, value);
         editor.commit();
+    }
+
+    @Override
+    public void onResetClicked() {
+        //TODO: Implement Reset Password
+        Log.d("Logan", "Reset Password Button Pressed");
+        changeTab(new ResetFragment());
+        findViewById(R.id.appbar).setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onPasswordUpdate() {
+        Log.d("Logan", "Password Updated");
+        ((TabLayout) findViewById(R.id.tabs)).getTabAt(0).select();
+        findViewById(R.id.appbar).setVisibility(View.VISIBLE);
     }
 
     public void changeTab(Fragment f) {

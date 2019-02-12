@@ -10,7 +10,7 @@
 
 
     <EditText
-        android:id="@+id/editText_fragment_register_email"
+        android:id="@+id/editText_fragment_reset_password"
         style="@android:style/Widget.Holo.Light.AutoCompleteTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
         android:textColor="@android:color/white"
         android:textColorHint="@android:color/white"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/editText_fragment_register_email"
+        app:layout_constraintBottom_toTopOf="@+id/editText_fragment_reset_password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
