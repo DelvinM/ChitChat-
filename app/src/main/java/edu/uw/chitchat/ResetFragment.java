@@ -53,5 +53,6 @@ public class ResetFragment extends Fragment {
 
     public interface OnResetFragmentInteractionListener {
         void onPasswordUpdate();
+        void onResetCancel();
     }
 }
