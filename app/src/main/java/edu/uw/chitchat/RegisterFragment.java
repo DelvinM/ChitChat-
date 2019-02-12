@@ -120,37 +120,37 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         if (mListener != null) {
             if (!StringRegex.matcher(firstname).matches()) {
                 hasError = true;
-                firstnameText.setError("First name is not in a valid format");
+                firstnameText.setError("First name has certain characters that aren't allowed.");
             }
             if (!StringRegex.matcher(lastname).matches()) {
                 hasError = true;
-                lastnameText.setError("Last name is not in a valid format");
+                lastnameText.setError("Last name has certain characters that aren't allowed.");
             }
             //email check
             if (!Patterns.EMAIL_ADDRESS.matcher(email_Text).matches()) {
                 hasError = true;
-                emailText.setError("Email is not valid");
+                emailText.setError("Email is not valid.");
             }
             if (TextUtils.isEmpty(email_Text)) {
                 hasError = true;
-                emailText.setError("Email is empty");
+                emailText.setError("Email is empty.");
             }
             if (!email_Text.equals(reemail)){
                 hasError = true;
-                reemailText.setError("Your email and retyped one do not match");
+                reemailText.setError("Your email and retyped one do not match.");
             }
 
             if (!passwordRegex.matcher(password).matches()) {
                 hasError = true;
-                passwordText.setError("Please enter a minimum of 6 characters with 1 upper case and 1 digit");
+                passwordText.setError("Please enter a minimum of 6 characters with 1 upper case and 1 digit.");
             }
             if (!password.equals(repassword)) {
                 hasError = true;
-                repasswordText.setError("Your password and retyped one do not match");
+                repasswordText.setError("Your password and retyped one do not match.");
             }
             if (!(username.length()>=1)) {
                 hasError = true;
-                usernameText.setError("Your username is not valid");
+                usernameText.setError("Username has certain characters that aren't allowed.");
             }
 
             if (!hasError) {

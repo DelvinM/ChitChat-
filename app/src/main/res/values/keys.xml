@@ -18,6 +18,7 @@
     <string name="keys_email_stored_onRegister">emailtored</string>
     <string name="keys_password_stored_onRegister">passwordstored</string>
     <string name="keys_repassword_stored_onRegister">repasswordstored</string>
+    <string name="keys_persistent_login">persistentloginstored</string>
 
 
     <string name="keys_prefs_stay_logged_in">loggedIn</string>

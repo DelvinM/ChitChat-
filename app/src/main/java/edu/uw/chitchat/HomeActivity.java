@@ -1,6 +1,8 @@
 package edu.uw.chitchat;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -40,8 +42,22 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onLogOut() {
-        //TODO: Implement Logout
-        Log.d("Logan", "Logout Button Pressed");
+        //putSharedPreference(getString(R.string.keys_persistent_login), "false");
+        putSharedPreference(getString(R.string.keys_persistent_login), "false");
+
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        //finish();
+    }
+
+    //adds single value to shared preferences
+    //refactor later make this a class
+    private void putSharedPreference (String key, String value) {
+        SharedPreferences sharedPref = getSharedPreferences(
+                key, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(key, value);
+        editor.commit();
     }
 
     public void changeTab(Fragment f) {
@@ -75,13 +91,6 @@ public class HomeActivity extends AppCompatActivity implements
         args.putSerializable(getString(R.string.keys_intent_credentials), mCredentials);
         homeFragment.setArguments(args);
         changeTab(homeFragment);
-    }
-
-    //logs user out and loads HomeActivity with LoginFragment
-    public void goToLogin() {
-        Intent i = new Intent(this, HomeActivity.class);
-        startActivity(i);
-        finish();
     }
 
     @Override

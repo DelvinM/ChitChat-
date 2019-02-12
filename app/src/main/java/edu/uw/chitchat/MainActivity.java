@@ -30,31 +30,26 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         Credentials credentials = getAllCredentialsPref();
-        String email = "", password = "", jwt = "";
+        //String email = "", password = "", jwt = "";
 
         //Was breaking if you didn't have saved credentials in your Shared Preferences.
         //I added null checks for email and password. @author Logan
-        if(credentials.getEmail() != null && credentials.getPassword() != null) {
+       //if(credentials.getEmail() != null && credentials.getPassword() != null) {
 
-            email = credentials.getEmail();
-            password = credentials.getPassword();
-            jwt = getString(R.string.keys_intent_jwt);
-        }
+        String email = credentials.getEmail();
+        String password = credentials.getPassword();
+        String jwt = getSharedPreference(getString(R.string.keys_intent_jwt));
+        String persistentLogin = getSharedPreference(getString(R.string.keys_persistent_login));
+       // }
 
         //persistant login. If username and password are not empty
-        if (!email.isEmpty() && !password.isEmpty() && !jwt.isEmpty()) {
-
-//uncomment once logout button is implemented
-/*          Intent i = new Intent(this, HomeActivity.class);
+        if (email != null && password != null && jwt != null && persistentLogin.contentEquals("true")) {
+          Intent i = new Intent(this, HomeActivity.class);
             i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
             i.putExtra(getString(R.string.keys_intent_jwt), jwt);
             startActivity(i);
             finish();
-*/
-            //if sharedpref is corrupt, send user back to login screen
-            //could do asynctask for check?
 
-            setUpLoginScreen();//comment this out later after logout button works
         } else {
             setUpLoginScreen();
         }
@@ -160,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements
             //add credentials for most recent user
             putAllCredentialsToPref(credentials);
             putSharedPreference(getString(R.string.keys_intent_jwt), jwt);
+            putSharedPreference(getString(R.string.keys_persistent_login), "true");
 
             //load chat screen activity from here
             //attach any intent(s) needed here
