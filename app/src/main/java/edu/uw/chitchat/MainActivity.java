@@ -30,9 +30,16 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
         Credentials credentials = getAllCredentialsPref();
-        String email = credentials.getEmail();
-        String password = credentials.getPassword();
-        String jwt = getString(R.string.keys_intent_jwt);
+        String email = "", password = "", jwt = "";
+
+        //Was breaking if you didn't have saved credentials in your Shared Preferences.
+        //I added null checks for email and password. @author Logan
+        if(credentials.getEmail() != null && credentials.getPassword() != null) {
+
+            email = credentials.getEmail();
+            password = credentials.getPassword();
+            jwt = getString(R.string.keys_intent_jwt);
+        }
 
         //persistant login. If username and password are not empty
         if (!email.isEmpty() && !password.isEmpty() && !jwt.isEmpty()) {
