@@ -27,6 +27,7 @@ import edu.uw.chitchat.Credentials.Credentials;
 public class HomeFragment extends Fragment {
 
     private Credentials mCredentials;
+    private OnHomeFragmentInteractionListener mListener;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -38,19 +39,46 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home , container, false);
         mCredentials = (Credentials) getArguments()
                 .getSerializable(getString(R.string.keys_intent_credentials));
+        ((ImageView) v.findViewById(R.id.imageView_home_logout)).setOnClickListener(this::logOut);
         return v;
+    }
+
+    public void logOut(View view) {
+        mListener.onLogOut();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         String welcome = "Welcome Back, ";
-        String[] emailArr = mCredentials.getEmail().split("@");
-        welcome += emailArr[0] + "!";
-        if(((TextView) getActivity().findViewById(R.id.textView_home_welcome)) == null) {
-            Log.d("--------Logan--------", "NULL");
+        if(mCredentials.getFirstName() == null || mCredentials.getFirstName().isEmpty()) {
+            String[] emailArr = mCredentials.getEmail().split("@");
+            welcome += emailArr[0] + "!";
+        } else {
+            welcome += mCredentials.getFirstName() + "!";
         }
         ((TextView) getActivity().findViewById(R.id.textView_home_welcome)).setText(welcome);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnHomeFragmentInteractionListener) {
+            mListener = (OnHomeFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public interface OnHomeFragmentInteractionListener {
+        void onLogOut();
     }
 
 }

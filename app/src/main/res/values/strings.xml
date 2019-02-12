@@ -17,6 +17,7 @@
     <string name="fragment_home_update">You Have 0 New Messages And 0 Invites.</string>
     <string name="fragment_home_weather_card_title">Weather</string>
     <string name="fragment_home_connect">Connect</string>
+    <string name="fragment_home_logout">Logout</string>
     <string name="fragment_home_chats">Chats</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
