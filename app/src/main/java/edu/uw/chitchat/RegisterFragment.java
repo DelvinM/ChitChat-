@@ -1,10 +1,7 @@
 package edu.uw.chitchat;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -16,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -56,7 +52,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     public void onStart() {
         super.onStart();
         //System.out.println("YOHEI!!!!!!!!!!"+ getView());
-        EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_email);
+        EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_reset_password);
         EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_password);
         Credentials credentials = new Credentials.Builder(emailText.getText().toString(),
                 passwordText.getText().toString()).build();
@@ -77,7 +73,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_email);
+        EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_reset_password);
         EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_password);
         EditText repasswordText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_repassword);
         EditText usernameText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_username);
@@ -203,7 +199,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     //@RequiresApi(api = Build.VERSION_CODES.KITKAT)
     //@TargetApi(Build.VERSION_CODES.KITKAT)
     private void handleLoginOnPost(String result) {
-        TextView view = (TextView) v.findViewById(R.id.editText_fragment_register_email);
+        TextView view = (TextView) v.findViewById(R.id.editText_fragment_reset_password);
         //mListener.onRegisterSuccess(mCredentials);
         try {
             JSONObject resultsJSON = new JSONObject(result);

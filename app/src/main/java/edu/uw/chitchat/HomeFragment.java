@@ -1,15 +1,13 @@
 package edu.uw.chitchat;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,14 +15,11 @@ import edu.uw.chitchat.Credentials.Credentials;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * to handle interaction events.
  * @author Logan Jenny
  * @2/5/2018
  */
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements PopupMenu.OnMenuItemClickListener{
 
     private Credentials mCredentials;
     private OnHomeFragmentInteractionListener mListener;
@@ -39,8 +34,27 @@ public class HomeFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_home , container, false);
         mCredentials = (Credentials) getArguments()
                 .getSerializable(getString(R.string.keys_intent_credentials));
+        ((ImageView) v.findViewById(R.id.imageView_home_settings)).setOnClickListener(this::showSettings);
         ((ImageView) v.findViewById(R.id.imageView_home_logout)).setOnClickListener(this::logOut);
         return v;
+    }
+
+    public void showSettings(View v) {
+        PopupMenu popup = new PopupMenu(getContext(), v);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.menu_home);
+        popup.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.home_reset_password:
+                mListener.onResetClicked();
+                return true;
+            default:
+                return false;
+        }
     }
 
     public void logOut(View view) {
@@ -79,6 +93,7 @@ public class HomeFragment extends Fragment {
 
     public interface OnHomeFragmentInteractionListener {
         void onLogOut();
+        void onResetClicked();
     }
 
 }
