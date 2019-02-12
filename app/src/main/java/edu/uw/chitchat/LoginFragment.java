@@ -65,16 +65,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
         EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_username);
         EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_password);
-        String email;
-        String password;
-        if (getArguments() != null) {//loads email/password arguments from registration success
-            email = getArguments().getString(getString(R.string.keys_email_stored_onRegister));
-            password = getArguments().getString(getString(R.string.keys_password_stored_onRegister));
-        }
-        else {//loads email/password from keys.xml
-            email = getSharedPreference(getString(R.string.keys_email_stored_onRegister));
-            password = getSharedPreference(getString(R.string.keys_password_stored_onRegister));
-        }
+//        if (getArguments() != null) {//loads email/password arguments from registration success
+//            email = getArguments().getString(getString(R.string.keys_email_stored_onRegister));
+//            password = getArguments().getString(getString(R.string.keys_password_stored_onRegister));
+ //       }
+//        else {//loads email/password from keys.xml
+        String email = getSharedPreference(getString(R.string.keys_email_stored_onRegister));
+        String password = getSharedPreference(getString(R.string.keys_password_stored_onRegister));
+//        }
         emailText.setText(email);
         passwordText.setText(password);
     }

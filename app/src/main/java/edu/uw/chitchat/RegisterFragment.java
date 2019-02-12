@@ -117,7 +117,21 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 "^(?=.*[0-9])(?=.*[A-Z])[^.\\-][A-Z0-9a-z!()?_'~;:.\\]\\[\\-!#@$%^&*+=]{6,}$"
                 );
 
+        //TODO: refactor
+        //refactor
         if (mListener != null) {
+            if (TextUtils.isEmpty(lastname)) {
+                hasError = true;
+                emailText.setError("Last name is empty.");
+            }
+            if (TextUtils.isEmpty(firstname)) {
+                hasError = true;
+                emailText.setError("First name is empty.");
+            }
+            if (TextUtils.isEmpty(username)) {
+                hasError = true;
+                emailText.setError("Username is empty.");
+            }
             if (!StringRegex.matcher(firstname).matches()) {
                 hasError = true;
                 firstnameText.setError("First name has certain characters that aren't allowed.");

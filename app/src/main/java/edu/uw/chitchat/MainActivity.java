@@ -93,6 +93,10 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onRegisterSuccess(Credentials a) {
+
+        //add all credentials to shared preferences
+        putAllCredentialsToPref(a);
+
         mCredentials = a;
         getSupportFragmentManager()
                 .beginTransaction()
