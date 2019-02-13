@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements
        // }
 
         //persistant login. If username and password are not empty
-        if (email != null && password != null && jwt != null && persistentLogin.contentEquals("true")) {
+        if (email != null && password != null && jwt != null && persistentLogin != null && persistentLogin.contentEquals("true")) {
           Intent i = new Intent(this, HomeActivity.class);
             i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
             i.putExtra(getString(R.string.keys_intent_jwt), jwt);
