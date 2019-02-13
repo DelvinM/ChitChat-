@@ -87,8 +87,6 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
 
-
-
     public void showTabs() {
         ((TabLayout) findViewById(R.id.tabs)).getTabAt(0).select();
         findViewById(R.id.appbar).setVisibility(View.VISIBLE);

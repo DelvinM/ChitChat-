@@ -92,7 +92,7 @@ public class ResetFragment extends Fragment implements View.OnClickListener{
         } else {
             return;
         }
-
+        mListener.onPasswordUpdate();
     }
 
     private void handleUpDatePasswordOnPost(String result) {
@@ -138,6 +138,12 @@ public class ResetFragment extends Fragment implements View.OnClickListener{
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mListener.onResetCancel();
     }
 
     @Override
