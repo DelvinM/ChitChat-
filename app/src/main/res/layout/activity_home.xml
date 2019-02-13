@@ -13,6 +13,7 @@
             android:id="@+id/appbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
             app:layout_constraintTop_toTopOf="parent">
 
             <android.support.design.widget.TabLayout
@@ -21,6 +22,7 @@
                 android:layout_height="wrap_content"
                 app:layout_scrollFlags="scroll|enterAlways"
                 app:tabBackground="@color/colorAccent"
+                app:tabGravity="fill"
                 app:tabIndicatorColor="@android:color/white"
                 app:tabIndicatorGravity="bottom"
                 app:tabMode="fixed"
