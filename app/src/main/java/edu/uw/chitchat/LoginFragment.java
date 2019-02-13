@@ -96,8 +96,14 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         b.setOnClickListener(this);
         b = (Button) v.findViewById(R.id.register_button);
         b.setOnClickListener(this);
+        ((TextView) v.findViewById(R.id.textView_login_recover)).setOnClickListener(this::recover);
 
         return v;
+    }
+
+    private void recover(View view) {
+        Log.d("Logan", "recover password clicked");
+        //TODO: Implement recover password.
     }
 
     //refactor later make this a class
