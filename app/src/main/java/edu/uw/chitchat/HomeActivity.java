@@ -72,6 +72,7 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     public void onPasswordUpdate() {
         Log.d("Logan", "Password Updated");
+
         showTabs();
     }
 
@@ -79,6 +80,14 @@ public class HomeActivity extends AppCompatActivity implements
     public void onResetCancel() {
         showTabs();
     }
+
+    @Override
+    public void onWaitFragmentInteractionHide() {
+
+    }
+
+
+
 
     public void showTabs() {
         ((TabLayout) findViewById(R.id.tabs)).getTabAt(0).select();
