@@ -18,12 +18,16 @@ import java.io.Serializable;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
+import edu.uw.chitchat.contactlist.ContactList;
 
 public class HomeActivity extends AppCompatActivity implements
         TabLayout.OnTabSelectedListener,
         ChatFragment.OnChatFragmentInteractionListener,
         HomeFragment.OnHomeFragmentInteractionListener,
-        ResetFragment.OnResetFragmentInteractionListener {
+        ResetFragment.OnResetFragmentInteractionListener,
+        ConnectFragment.OnFragmentInteractionListener,
+        ContactListFragment.OnListFragmentInteractionListener,
+        AddContactFragment.OnAddContactFragmentInteractionListener{
 
     private Credentials mCredentials;
 
@@ -163,4 +167,20 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
 
+    @Override
+    public void onContactListClicked() {
+        Log.wtf("yohei", "onContactListClickedHome");
+        changeTab(new ContactListFragment()).commit();
+    }
+
+    @Override
+    public void onAddContactClicked() {
+        Log.wtf("yohei", "onContactListClickedHome");
+        changeTab(new AddContactFragment()).commit();
+    }
+
+    @Override
+    public void onListFragmentInteraction(ContactList mItem) {
+
+    }
 }

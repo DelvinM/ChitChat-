@@ -6,4 +6,6 @@
     <string name="ep_register">register</string>
     <string name="ep_confirm">confirm</string>
     <string name="ep_reset">reset</string>
+    <string name="ep_contact">contact</string>
+    <string name="ep_add">add</string>
 </resources>

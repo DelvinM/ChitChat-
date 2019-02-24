@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import edu.uw.chitchat.Credentials.Credentials;
+import edu.uw.chitchat.contactlist.ContactList;
 
 
 /**
@@ -31,6 +33,7 @@ public class HomeFragment extends Fragment implements PopupMenu.OnMenuItemClickL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.wtf("Yohei","test");
         View v = inflater.inflate(R.layout.fragment_home , container, false);
         mCredentials = (Credentials) getArguments()
                 .getSerializable(getString(R.string.keys_intent_credentials));
@@ -90,6 +93,10 @@ public class HomeFragment extends Fragment implements PopupMenu.OnMenuItemClickL
         super.onDetach();
         mListener = null;
     }
+
+
+
+
 
     public interface OnHomeFragmentInteractionListener {
         void onLogOut();

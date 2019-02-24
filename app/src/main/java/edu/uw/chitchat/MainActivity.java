@@ -16,11 +16,13 @@ import android.view.WindowManager;
 import java.io.Serializable;
 
 import edu.uw.chitchat.Credentials.Credentials;
+import edu.uw.chitchat.contactlist.ContactList;
 
 public class MainActivity extends AppCompatActivity implements
         LoginFragment.OnLoginFragmentInteractionListener,
         RegisterFragment.OnRegisterFragmentInteractionListener,
-        VerifyFragment.OnVerifyFragmentInteractionListener {
+        VerifyFragment.OnVerifyFragmentInteractionListener,
+        ContactListFragment.OnListFragmentInteractionListener{
 
     private static final int SPLASH_TIME_OUT = 1500;
     private Credentials mCredentials;
@@ -88,6 +90,12 @@ public class MainActivity extends AppCompatActivity implements
                 .addToBackStack(null);
         // Commit the transaction
         transaction.commit();
+
+    }
+
+
+    @Override
+    public void onListFragmentInteraction(ContactList mItem) {
 
     }
 
@@ -211,4 +219,5 @@ public class MainActivity extends AppCompatActivity implements
                 .replace(R.id.frame_main_container, loginfragment);
         transaction.commit();
     }
+
 }
