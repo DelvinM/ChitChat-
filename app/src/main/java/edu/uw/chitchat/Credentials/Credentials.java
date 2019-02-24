@@ -14,7 +14,6 @@ import java.io.Serializable;
  *
  * @author Charles Bryan
  * @author Yohei Sato
- * @version 1 October 2018
  */
 public class Credentials implements Serializable {
     private static final long serialVersionUID = -1634677417576883013L;
