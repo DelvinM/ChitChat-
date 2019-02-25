@@ -41,6 +41,8 @@ public class PushReceiver extends BroadcastReceiver {
             sender = "Pushy Broadcast";
         }
 
+        String chatId = intent.getStringExtra("chatId");
+
         String messageText = intent.getStringExtra("message");
 
         ActivityManager.RunningAppProcessInfo appProcessInfo = new ActivityManager.RunningAppProcessInfo();
@@ -53,6 +55,7 @@ public class PushReceiver extends BroadcastReceiver {
             //create an Intent to broadcast a message to other parts of the app.
             Intent i = new Intent(RECEIVED_NEW_MESSAGE);
             i.putExtra("SENDER", sender);
+            i.putExtra("CHATID", chatId);
             i.putExtra("MESSAGE", messageText);
             i.putExtras(intent.getExtras());
 
