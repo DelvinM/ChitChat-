@@ -150,15 +150,10 @@ public class HomeActivity extends AppCompatActivity implements
 //                .build().execute();
 //
 //
-        Chat[] chats = {new Chat("Charles", "now", "This is the best app I've ever seen! You get a 4.0."),
-                new Chat("Marquez", "yesterday", "Hey man"),
-                new Chat("Lara", "2/10/2019", "Whats up"),
-                new Chat("Brenna", "2/7/2019", "Wow this is really cool"),
-                new Chat("Joe", "2/1/2019", ":)"),
-                new Chat("Amir", "1/28/2019", "Logan is the best"),
-                new Chat("Yohei", "1/28/2019", "Testing 123"),
-                new Chat("Hannah", "1/28/2019", "Cool app dude!"),
-                new Chat("Delvin", "1/28/2019", "Hows it going"),
+        Chat[] chats = {new Chat("Charles", "now", "This is the best app I've ever seen! You get a 4.0.", "1"),
+                new Chat("Marquez", "yesterday", "Hey man", "2"),
+                new Chat("Lara", "2/10/2019", "Whats up", "3"),
+                new Chat("Brenna", "2/7/2019", "Wow this is really cool", "4"),
         };
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
@@ -216,7 +211,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     public void goToFullChat() {
         //TODO: update to enter correct chat... currently static so doesn't matter
-        onChatFragmentInteraction(new Chat("","", ""));
+        onChatFragmentInteraction(new Chat("","", "", ""));
     }
 
     public void goToHome() {
@@ -255,7 +250,7 @@ public class HomeActivity extends AppCompatActivity implements
     public void onChatFragmentInteraction(Chat item) {
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
-        args.putSerializable("chat", item);
+        args.putString("chatId", item.getChatId());
         args.putString("email", mCredentials.getEmail());
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
