@@ -42,7 +42,7 @@ public class PushReceiver extends BroadcastReceiver {
             sender = "Pushy Broadcast";
         }
 
-        String chatId = intent.getStringExtra("chatId");
+
 
         String messageText = intent.getStringExtra("message");
 
