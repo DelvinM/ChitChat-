@@ -85,8 +85,45 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         b.setOnClickListener(this);
         b = (Button) v.findViewById(R.id.register_button);
         b.setOnClickListener(this);
+        ((TextView) v.findViewById(R.id.textView_login_recover)).setOnClickListener(this::recover);
 
         return v;
+    }
+
+    private void recover(View view) {
+        Log.d("Logan", "recover password clicked");
+        EditText emailEdit = getActivity().findViewById(R.id.editText_fragment_login_username);
+        boolean hasError = false;
+        if(emailEdit.getText().length() == 0) {
+            hasError = true;
+            emailEdit.setError("Field must not be empty.");
+        }  else if (emailEdit.getText().toString().chars().filter(ch -> ch == '@').count() != 1) {
+            hasError = true;
+            emailEdit.setError("Field must contain a valid email address.");
+        }
+        if(!hasError) {
+            Credentials credentials =
+                    new Credentials.Builder(
+                            emailEdit.getText().toString(),
+                            null)
+                            .build();
+
+            //build the web service URL
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_confirm))
+                    .build();
+
+            //build the JSONObject
+            JSONObject msg = credentials.asJSONObject();
+            mCredentials = credentials;
+            //instantiate and execute the AsyncTask.
+            new SendPostAsyncTask.Builder(uri.toString(), msg)
+                    .onPostExecute(this::handleRecoverOnPost)
+                    .build()
+                    .execute();
+        }
     }
 
     //refactor later make this a class
@@ -128,6 +165,32 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 default:
                     Log.wtf("", "Didn't expect to see me...");
             }
+        }
+    }
+
+
+
+    private void handleRecoverOnPost(String result) {
+        try {
+                JSONObject resultsJSON = new JSONObject(result);
+                boolean success =
+                        resultsJSON.getBoolean(getString(R.string.keys_json_login_success));
+                if (success) {
+                    Toast.makeText(getActivity(), "Sent the reset email to your email address",
+                            Toast.LENGTH_LONG).show();
+//                    mListener.onLoginSuccess(mCredentials,
+//                            resultsJSON.getString(
+//                                    getString(R.string.keys_json_login_jwt)));
+                    return;
+                }
+            mListener.onWaitFragmentInteractionHide();
+        } catch (JSONException e) {
+            //It appears that the web service did not return a JSON formatted
+            // String or it did not have what we expected in it.
+            Log.e("JSON_PARSE_ERROR", result + System.lineSeparator() + e.getMessage());
+            mListener.onWaitFragmentInteractionHide();
+            ((TextView) getView().findViewById(R.id.editText_fragment_login_username))
+                    .setError("Recovering password Unsuccessful");
         }
     }
 

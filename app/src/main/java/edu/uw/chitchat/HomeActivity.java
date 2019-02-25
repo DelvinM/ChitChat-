@@ -18,12 +18,16 @@ import java.io.Serializable;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
+import edu.uw.chitchat.contactlist.ContactList;
 
 public class HomeActivity extends AppCompatActivity implements
         TabLayout.OnTabSelectedListener,
         ChatFragment.OnChatFragmentInteractionListener,
         HomeFragment.OnHomeFragmentInteractionListener,
-        ResetFragment.OnResetFragmentInteractionListener {
+        ResetFragment.OnResetFragmentInteractionListener,
+        ConnectFragment.OnFragmentInteractionListener,
+        ContactListFragment.OnListFragmentInteractionListener,
+        AddContactFragment.OnAddContactFragmentInteractionListener{
 
     private Credentials mCredentials;
 
@@ -65,22 +69,45 @@ public class HomeActivity extends AppCompatActivity implements
     public void onResetClicked() {
         //TODO: Implement Reset Password
         Log.d("Logan", "Reset Password Button Pressed");
-        changeTab(new ResetFragment());
+        changeTab(new ResetFragment()).addToBackStack(null).commit();
         findViewById(R.id.appbar).setVisibility(View.GONE);
     }
 
     @Override
     public void onPasswordUpdate() {
         Log.d("Logan", "Password Updated");
+
+        showTabs();
+    }
+
+    @Override
+    public void onResetCancel() {
+        showTabs();
+    }
+
+    @Override
+    public void onWaitFragmentInteractionHide() {
+
+    }
+
+
+    public void showTabs() {
         ((TabLayout) findViewById(R.id.tabs)).getTabAt(0).select();
         findViewById(R.id.appbar).setVisibility(View.VISIBLE);
     }
 
-    public void changeTab(Fragment f) {
-        getSupportFragmentManager()
+    /*
+     * changeTab compacts the code for fragment swapping.
+     * Usage is changeTab(fragment).commit();
+     * Alternatively, changeTab(fragment).addToBackStack(null).commit();
+     * @param f is the fragment of the tab to swap to
+     * @return the fragment transaction for committing.
+     * @author Logan Jenny
+     */
+    public FragmentTransaction changeTab(Fragment f) {
+        return getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.activity_home, f)
-                .commit();
+                .replace(R.id.activity_home, f);
     }
 
     public void goToChat() {
@@ -98,7 +125,7 @@ public class HomeActivity extends AppCompatActivity implements
         Bundle args = new Bundle();
         args.putSerializable(ChatFragment.ARG_CHAT_LIST, chats);
         chatFragment.setArguments(args);
-        changeTab(chatFragment);
+        changeTab(chatFragment).commit();
     }
 
     public void goToHome() {
@@ -106,7 +133,7 @@ public class HomeActivity extends AppCompatActivity implements
         Bundle args = new Bundle();
         args.putSerializable(getString(R.string.keys_intent_credentials), mCredentials);
         homeFragment.setArguments(args);
-        changeTab(homeFragment);
+        changeTab(homeFragment).commit();
     }
 
     @Override
@@ -119,10 +146,10 @@ public class HomeActivity extends AppCompatActivity implements
                 goToChat();
                 break;
             case 2: //Connect
-                changeTab(new ConnectFragment());
+                changeTab(new ConnectFragment()).commit();
                 break;
             case 3: //Weather
-                changeTab(new WeatherFragment());
+                changeTab(new WeatherFragment()).commit();
                 break;
         }
     }
@@ -137,5 +164,23 @@ public class HomeActivity extends AppCompatActivity implements
     public void onChatFragmentInteraction(Chat item) {
         Toast.makeText(getBaseContext(),
                 "Display Conversation with " + item.getName(), Toast.LENGTH_SHORT).show();
+    }
+
+
+    @Override
+    public void onContactListClicked() {
+        Log.wtf("yohei", "onContactListClickedHome");
+        changeTab(new ContactListFragment()).commit();
+    }
+
+    @Override
+    public void onAddContactClicked() {
+        Log.wtf("yohei", "onContactListClickedHome");
+        changeTab(new AddContactFragment()).commit();
+    }
+
+    @Override
+    public void onListFragmentInteraction(ContactList mItem) {
+
     }
 }

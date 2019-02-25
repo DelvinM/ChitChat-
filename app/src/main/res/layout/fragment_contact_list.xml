@@ -2,13 +2,13 @@
 <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/chatlist"
-    android:name="edu.uw.chitchat.ChatFragment"
+    android:id="@+id/contactlist"
+    android:name="edu.uw.chitchat.ContactListFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".ChatFragment"
+    tools:context=".ContactListFragment"
     tools:itemCount="4"
-    tools:listitem="@layout/fragment_chat_list_item" />
+    tools:listitem="@layout/fragment_contact_list_item" />
