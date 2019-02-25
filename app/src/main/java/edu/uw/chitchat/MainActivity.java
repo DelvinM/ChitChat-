@@ -28,10 +28,19 @@ public class MainActivity extends AppCompatActivity implements
     private static final int SPLASH_TIME_OUT = 1500;
     private Credentials mCredentials;
 
+    private boolean mLoadFromChatNotification = false;
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Pushy.listen(this);
+
+        if (getIntent().getExtras() != null) {
+            if (getIntent().getExtras().containsKey("type")) {
+                mLoadFromChatNotification = getIntent().getExtras().getString("type").equals("msg");
+            }
+        }
 
         Credentials credentials = getAllCredentialsPref();
         //String email = "", password = "", jwt = "";
@@ -46,11 +55,17 @@ public class MainActivity extends AppCompatActivity implements
         String persistentLogin = getSharedPreference(getString(R.string.keys_persistent_login));
        // }
 
+
         //persistant login. If username and password are not empty
         if (email != null && password != null && jwt != null && persistentLogin != null && persistentLogin.contentEquals("true")) {
-          Intent i = new Intent(this, HomeActivity.class);
+            //TODO:remove / refactor inside "if" since this never runs. persistentLogin is always false
+            Intent i = new Intent(this, HomeActivity.class);
             i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
             i.putExtra(getString(R.string.keys_intent_jwt), jwt);
+
+            //
+            //i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
+
             startActivity(i);
             finish();
 
@@ -167,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements
         Intent i = new Intent(this, HomeActivity.class);
         i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
         i.putExtra(getString(R.string.keys_intent_jwt), jwt);
-        //i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
+        i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
         startActivity(i);
         finish();
 //        if (findViewById(R.id.frame_main_container) != null) {

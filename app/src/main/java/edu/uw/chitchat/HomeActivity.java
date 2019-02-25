@@ -43,7 +43,14 @@ public class HomeActivity extends AppCompatActivity implements
         mCredentials = (Credentials) getIntent()
                 .getSerializableExtra(getString(R.string.keys_intent_credentials));
 
-        goToHome();
+        //go to full chat fragment if entry point is notification. else load home fragment
+        if (getIntent().getBooleanExtra(getString(R.string.keys_intent_notification_msg), false)) {
+            goToFullChat();
+        } else {
+            goToHome();
+        }
+
+
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.addOnTabSelectedListener(this);
@@ -139,6 +146,11 @@ public class HomeActivity extends AppCompatActivity implements
         args.putSerializable(ChatFragment.ARG_CHAT_LIST, chats);
         chatFragment.setArguments(args);
         changeTab(chatFragment).commit();
+    }
+
+    public void goToFullChat() {
+        //TODO: update to enter correct chat... currently static so doesn't matter
+        onChatFragmentInteraction(new Chat("","", ""));
     }
 
     public void goToHome() {
