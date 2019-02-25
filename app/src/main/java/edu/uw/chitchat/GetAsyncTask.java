@@ -1,13 +1,10 @@
-package edu.uw.chitchat.utils;
+package edu.uw.chitchat;
 
 import android.os.AsyncTask;
-
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -15,8 +12,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * Implemented AsyncTask that sends a JSON string via POST to a web service.  Builds the Task
- * requiring a fully formed URL and JSON object.
+ * Implemented AsyncTask that makes a Get call to a web service.  Builds the Task
+ * requiring a fully formed URL.
  *
  * Optional parameters include actions for onPreExecute, onProgressUpdate, onPostExecute, and
  * onCancelled.
@@ -31,17 +28,16 @@ import java.util.function.Consumer;
  * Created by Charles Bryan on 3/22/2018.
  *
  * @author Charles Bryan
- * @version 4/15/2018
+ * @version 1 OCT 2018
  */
-public class SendPostAsyncTask extends AsyncTask<Void, String, String> {
+public class GetAsyncTask extends AsyncTask<Void, String, String> {
 
     private final String mUrl;
-    private final JSONObject mJsonMsg;
 
-    private Runnable mOnPre;
-    private Consumer<String[]> mOnProgress;
-    private Consumer<String> mOnPost;
-    private Consumer<String> mOnCancel;
+    private final Runnable mOnPre;
+    private final Consumer<String[]> mOnProgress;
+    private final Consumer<String> mOnPost;
+    private final Consumer<String> mOnCancel;
     private final Map<String, String> mHeaders;
 
     /**
@@ -53,7 +49,6 @@ public class SendPostAsyncTask extends AsyncTask<Void, String, String> {
 
         //Required Parameters
         private final String mUrl;
-        private final JSONObject mJsonMsg;
 
         //Optional Parameters
         private Runnable onPre = () -> {};
@@ -66,11 +61,9 @@ public class SendPostAsyncTask extends AsyncTask<Void, String, String> {
          * Constructs a new Builder.
          *
          * @param url the fully-formed url of the web service this task will connect to
-         * @param json the JSON message to send
          */
-        public Builder(final String url, final JSONObject json) {
+        public Builder(final String url) {
             mUrl = url;
-            mJsonMsg = json;
             headers = new HashMap<>();
         }
 
@@ -139,8 +132,8 @@ public class SendPostAsyncTask extends AsyncTask<Void, String, String> {
          *
          * @return a SendPostAsyncTask with the current attributes
          */
-        public SendPostAsyncTask build() {
-            return new SendPostAsyncTask(this);
+        public GetAsyncTask build() {
+            return new GetAsyncTask(this);
         }
 
     }
@@ -150,9 +143,8 @@ public class SendPostAsyncTask extends AsyncTask<Void, String, String> {
      *
      * @param builder the builder used to construct this object
      */
-    private SendPostAsyncTask(final Builder builder) {
+    private GetAsyncTask(final Builder builder) {
         mUrl = builder.mUrl;
-        mJsonMsg = builder.mJsonMsg;
 
         mOnPre = builder.onPre;
         mOnProgress = builder.onProg;
@@ -176,19 +168,10 @@ public class SendPostAsyncTask extends AsyncTask<Void, String, String> {
         try {
             URL urlObject = new URL(mUrl);
             urlConnection = (HttpURLConnection) urlObject.openConnection();
-            urlConnection.setRequestMethod("POST");
-            urlConnection.setRequestProperty("Content-Type", "application/json");
 
             for (final String key: mHeaders.keySet()) {
                 urlConnection.setRequestProperty(key, mHeaders.get(key));
             }
-
-            urlConnection.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(urlConnection.getOutputStream());
-
-            wr.write(mJsonMsg.toString());
-            wr.flush();
-            wr.close();
 
             InputStream content = urlConnection.getInputStream();
             BufferedReader buffer = new BufferedReader(new InputStreamReader(content));
@@ -206,8 +189,6 @@ public class SendPostAsyncTask extends AsyncTask<Void, String, String> {
                 urlConnection.disconnect();
             }
         }
-
-
         return response.toString();
     }
 

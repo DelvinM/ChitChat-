@@ -9,4 +9,9 @@
     <string name="ep_contact">contact</string>
     <string name="ep_add">add</string>
     <string name="ep_getall">getAll</string>
+    <string name="ep_messaging_base">messaging</string>
+    <string name="ep_messaging_send">send</string>
+    <string name="ep_messaging_getall">getAll</string>
+    <string name="ep_pushy">pushy</string>
+    <string name="ep_token">token</string>
 </resources>

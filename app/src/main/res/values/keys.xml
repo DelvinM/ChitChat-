@@ -37,4 +37,9 @@
 
     <string name="keys_lock_out_end">lockoutend</string>
 
+    <string name="keys_shared_prefs">edu.uw.chitchat.PREFS</string>
+    <string name="keys_prefs_email">traffic_light_wont_let_me_through</string>
+    <string name="keys_prefs_password">see_the_city_see_the_zoo</string>
+
+
 </resources>
