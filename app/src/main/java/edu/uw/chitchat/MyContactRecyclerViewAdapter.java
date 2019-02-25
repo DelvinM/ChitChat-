@@ -1,15 +1,16 @@
 package edu.uw.chitchat;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import edu.uw.chitchat.ContactListFragment.OnListFragmentInteractionListener;
 import edu.uw.chitchat.contactlist.ContactList;
-
-import java.util.List;
 
 /**
  * @author Yohei Sato
@@ -28,6 +29,7 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
 
     public MyContactRecyclerViewAdapter(List<ContactList> items, OnListFragmentInteractionListener listener) {
         mValues = items;
+        Log.wtf("yohei100",items.toString());
         mListener = listener;
     }
 
@@ -54,6 +56,8 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
             }
         });
     }
+
+
 
     @Override
     public int getItemCount() {
