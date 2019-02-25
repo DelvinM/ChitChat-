@@ -18,6 +18,8 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
@@ -47,6 +49,7 @@ public class FullChatFragment extends Fragment {
     private TextView mMessageOutputTextView;
     private EditText mMessageInputEditText;
     private String mSendUrl;
+    private String mGetAllUrl;
     private PushMessageReceiver mPushMessageReciever;
 
 
@@ -82,6 +85,16 @@ public class FullChatFragment extends Fragment {
                 .appendPath(getString(R.string.ep_messaging_send))
                 .build()
                 .toString();
+
+        mGetAllUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_messaging_base))
+                .appendPath(getString(R.string.ep_messaging_getall))
+                .build()
+                .toString();
+
+        doGetAll();
     }
 
     @Override
@@ -101,6 +114,80 @@ public class FullChatFragment extends Fragment {
         }
     }
 
+    private void doGetAll() {
+        Log.e("Logan", "test do get all");
+        JSONObject getJson = new JSONObject();
+        try {
+            getJson.put("chatId", CHAT_ID);
+            Log.e("Logan", "test do get all2");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(mGetAllUrl, getJson)
+                .onPostExecute(this::endOfDoGetAll)
+                .onCancelled(error -> Log.e(TAG, error))
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+        Log.e("Logan", "test do get all4");
+    }
+
+    private void endOfDoGetAll(final String result) {
+        Log.e("Logan", "test do get all3");
+        try {
+            //This is the result from the web service
+            JSONObject res = new JSONObject(result);
+            if(res.has("messages")) {
+
+                String messages = res.getString("messages");
+                ArrayList<String> formattedMessages = new ArrayList();
+                String currString = "";
+                int count = 1;
+                int quoteCount = 0;
+                for(int i = 0; i < messages.length(); i++) {
+                    if (count == 1) {
+                        if(messages.charAt(i) == '@') {
+                            count++;
+                            quoteCount = 0;
+                            currString += ": ";
+                        } else if(messages.charAt(i) == '"') {
+                            quoteCount++;
+                        } else if(quoteCount == 3) {
+                            currString += messages.charAt(i);
+                        }
+                    } else if (count == 2) {
+                        if(messages.charAt(i) == '"') {
+                            quoteCount++;
+                            if(quoteCount == 5) {
+                                count++;
+                                quoteCount = 0;
+                            }
+                        } else if (quoteCount == 4) {
+                            currString += messages.charAt(i);
+                        }
+                    } else if (count == 3) {
+                        if(messages.charAt(i) == '"') {
+                            quoteCount++;
+                        } else if (quoteCount == 4) {
+                            count = 1;
+                            quoteCount = 0;
+                            formattedMessages.add(currString);
+                            currString = "";
+                        }
+                    }
+                }
+
+                for(int j = formattedMessages.size()-1; j >= 0; j--) {
+                    mMessageOutputTextView.append(formattedMessages.get(j));
+                    mMessageOutputTextView.append(System.lineSeparator());
+                    mMessageOutputTextView.append(System.lineSeparator());
+                }
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void handleSendClick(final View theButton) {
         String msg = mMessageInputEditText.getText().toString();
@@ -108,7 +195,7 @@ public class FullChatFragment extends Fragment {
         try {
             messageJson.put("email", mEmail);
             messageJson.put("message", msg);
-            messageJson.put("chatId", CHAT_ID);
+            messageJson.put("chatId", 1);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -118,6 +205,7 @@ public class FullChatFragment extends Fragment {
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }
+
     private void endOfSendMsgTask(final String result) {
         try {
             //This is the result from the web service
@@ -139,18 +227,21 @@ public class FullChatFragment extends Fragment {
     private class PushMessageReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.hasExtra("SENDER") && intent.hasExtra("MESSAGE")) {
+            if(intent.hasExtra("SENDER") && intent.hasExtra("MESSAGE") && intent.hasExtra("CHATID")) {
                 String sender = intent.getStringExtra("SENDER");
+                String messageText = intent.getStringExtra("MESSAGE");
+                String chatId = intent.getStringExtra("CHATID");
                 String sendArr[] = {"", ""};
                 try {
                     sendArr = sender.split("@"); //if the message is coming from an email
                 } catch(Exception e) {
                     sendArr[0] = "Pushy Broadcast"; //if its coming from pushy
                 }
-                String messageText = intent.getStringExtra("MESSAGE");
-                mMessageOutputTextView.append(sendArr[0] + ": " + messageText);
-                mMessageOutputTextView.append(System.lineSeparator());
-                mMessageOutputTextView.append(System.lineSeparator());
+//                if(CHAT_ID == chatId){
+                    mMessageOutputTextView.append(sendArr[0] + ": " + messageText);
+                    mMessageOutputTextView.append(System.lineSeparator());
+                    mMessageOutputTextView.append(System.lineSeparator());
+//                }
             }
         }
     }

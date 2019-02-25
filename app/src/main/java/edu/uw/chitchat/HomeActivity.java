@@ -3,6 +3,7 @@ package edu.uw.chitchat;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
@@ -15,7 +16,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
@@ -131,6 +138,18 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     public void goToChat() {
+//        Uri uri = new Uri.Builder()
+//                .scheme("https")
+//                .appendPath(getString(R.string.ep_base_url))
+//                .appendPath(getString(R.string.ep_messaging_base))
+//                .appendPath(getString(R.string.ep_messaging_getall))
+//                .build();
+//        new GetAsyncTask.Builder(uri.toString())
+//                .onPostExecute(this::handleBlogGetOnPostExecute)
+//                .addHeaderField("authorization", mJwToken) //add the JWT as a header
+//                .build().execute();
+//
+//
         Chat[] chats = {new Chat("Charles", "now", "This is the best app I've ever seen! You get a 4.0."),
                 new Chat("Marquez", "yesterday", "Hey man"),
                 new Chat("Lara", "2/10/2019", "Whats up"),
@@ -147,6 +166,53 @@ public class HomeActivity extends AppCompatActivity implements
         chatFragment.setArguments(args);
         changeTab(chatFragment).commit();
     }
+
+//    private void handleBlogGetOnPostExecute(final String result) {
+//        try {
+//            JSONObject root = new JSONObject(result);
+//            if (root.has(getString(R.string.keys_json_blogs_response))) {
+//                JSONObject response = root.getJSONObject(
+//                        getString(R.string.keys_json_blogs_response));
+//                if (response.has(getString(R.string.keys_json_blogs_data))) {
+//                    JSONArray data = response.getJSONArray(
+//                            getString(R.string.keys_json_blogs_data));
+//                    List<Chat> chats = new ArrayList<>();
+//                    for(int i = 0; i < data.length(); i++) {
+//                        JSONObject jsonChat = data.getJSONObject(i);
+//
+//                        chats.add(new Chat(jsonChat.getString(getString(R.string.keys_json_blogs_pubdate)),
+//                                jsonChat.getString(getString(R.string.keys_json_blogs_title)))
+//                                .addTeaser(jsonChat.getString(
+//                                        getString(R.string.keys_json_blogs_teaser)))
+//                                .addUrl(jsonChat.getString(
+//                                        getString(R.string.keys_json_blogs_url)))
+//                                .build());
+//                    }
+//                    Chat[] chatsAsArray = new Chat[chats.size()];
+//                    chatsAsArray = chats.toArray(chatsAsArray);
+//                    Bundle args = new Bundle();
+//                    args.putSerializable(ChatFragment.ARG_CHAT_LIST, chatsAsArray);
+//                    Fragment frag = new ChatFragment();
+//                    frag.setArguments(args);
+//                    onWaitFragmentInteractionHide();
+//                    changeTab(frag).addToBackStack(null).commit();
+//                } else {
+//                    Log.e("ERROR!", "No data array");
+//                    //notify user
+//                    onWaitFragmentInteractionHide();
+//                }
+//            } else {
+//                Log.e("ERROR!", "No response");
+//                //notify user
+//                onWaitFragmentInteractionHide();
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//            Log.e("ERROR!", e.getMessage());
+//            //notify user
+//            onWaitFragmentInteractionHide();
+//        }
+//    }
 
     public void goToFullChat() {
         //TODO: update to enter correct chat... currently static so doesn't matter
