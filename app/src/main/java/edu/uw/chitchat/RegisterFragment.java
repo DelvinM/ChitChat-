@@ -110,7 +110,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
         //password regex, cannot start with . or -, has at least 1 cap letter and number
         //allows the listed special characters, with a minimum length of 6
         Pattern passwordRegex = Pattern.compile(
-                "^(?=.*[0-9])(?=.*[A-Z])[^.\\-][A-Z0-9a-z!()?_'~;:.\\]\\[\\-!#@$%^&*+=]{6,}$"
+                "^(?=.*[0-9])(?=.*[A-Z])[^.\\-][A-Z0-9a-z!()?_'~;:.\\]\\[\\-!#@$%^&*+=]{5,}$"
                 );
 
         //TODO: refactor
