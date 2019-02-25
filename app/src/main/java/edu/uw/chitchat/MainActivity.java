@@ -17,6 +17,7 @@ import java.io.Serializable;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.contactlist.ContactList;
+import me.pushy.sdk.Pushy;
 
 public class MainActivity extends AppCompatActivity implements
         LoginFragment.OnLoginFragmentInteractionListener,
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Pushy.listen(this);
 
         Credentials credentials = getAllCredentialsPref();
         //String email = "", password = "", jwt = "";
@@ -162,28 +164,34 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoginSuccess(Credentials credentials, String jwt) {
-        if (findViewById(R.id.frame_main_container) != null) {
-
-            //add credentials for most recent user
-            putAllCredentialsToPref(credentials);
-            putSharedPreference(getString(R.string.keys_intent_jwt), jwt);
-            putSharedPreference(getString(R.string.keys_persistent_login), "true");
-
-            //load chat screen activity from here
-            //attach any intent(s) needed here
-            loadActivityWithCredentials(HomeActivity.class, credentials, jwt);
-        }
+        Intent i = new Intent(this, HomeActivity.class);
+        i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
+        i.putExtra(getString(R.string.keys_intent_jwt), jwt);
+        //i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
+        startActivity(i);
+        finish();
+//        if (findViewById(R.id.frame_main_container) != null) {
+//
+//            //add credentials for most recent user
+//            putAllCredentialsToPref(credentials);
+//            putSharedPreference(getString(R.string.keys_intent_jwt), jwt);
+//            putSharedPreference(getString(R.string.keys_persistent_login), "true");
+//
+//            //load chat screen activity from here
+//            //attach any intent(s) needed here
+//            loadActivityWithCredentials(HomeActivity.class, credentials, jwt);
+//        }
     }
 
     //loads activity with intent
     //refactor? class?
-    private void loadActivityWithCredentials(Class activity, Credentials credentials, String jwt) {
-        Intent i = new Intent(this, activity);
-        i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
-        i.putExtra(getString(R.string.keys_intent_jwt), jwt);
-        startActivity(i);
-        finish();
-    }
+//    private void loadActivityWithCredentials(Class activity, Credentials credentials, String jwt) {
+//        Intent i = new Intent(this, activity);
+//        i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
+//        i.putExtra(getString(R.string.keys_intent_jwt), jwt);
+//        startActivity(i);
+//        finish();
+//    }
 
     @Override
     public void onWaitFragmentInteractionShow() {
