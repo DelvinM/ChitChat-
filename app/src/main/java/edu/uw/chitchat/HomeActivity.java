@@ -3,6 +3,7 @@ package edu.uw.chitchat;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -19,6 +20,7 @@ import java.io.Serializable;
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.contactlist.ContactList;
+import me.pushy.sdk.Pushy;
 
 public class HomeActivity extends AppCompatActivity implements
         TabLayout.OnTabSelectedListener,
@@ -30,12 +32,14 @@ public class HomeActivity extends AppCompatActivity implements
         AddContactFragment.OnAddContactFragmentInteractionListener{
 
     private Credentials mCredentials;
+    private String mJwToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mJwToken = getIntent().getStringExtra(getString(R.string.keys_intent_jwt));
         mCredentials = (Credentials) getIntent()
                 .getSerializableExtra(getString(R.string.keys_intent_credentials));
 
@@ -47,12 +51,21 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onLogOut() {
-        //putSharedPreference(getString(R.string.keys_persistent_login), "false");
-        putSharedPreference(getString(R.string.keys_persistent_login), "false");
 
+        SharedPreferences prefs =
+                getSharedPreferences(
+                        getString(R.string.keys_shared_prefs),
+                        Context.MODE_PRIVATE);
+        //remove the saved credentials from StoredPrefs
+        prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
+        prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
+
+        putSharedPreference(getString(R.string.keys_persistent_login), "false");
+        //putSharedPreference(getString(R.string.keys_persistent_login), "false");
+        new DeleteTokenAsyncTask().execute();
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
-        //finish();
+        finish();
     }
 
     //adds single value to shared preferences
@@ -162,8 +175,16 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onChatFragmentInteraction(Chat item) {
-        Toast.makeText(getBaseContext(),
-                "Display Conversation with " + item.getName(), Toast.LENGTH_SHORT).show();
+        FullChatFragment fullChatFragment = new FullChatFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("chat", item);
+        args.putString("email", mCredentials.getEmail());
+        args.putString("jwt", mJwToken);
+        fullChatFragment.setArguments(args);
+        //findViewById(R.id.appbar).setVisibility(View.GONE);
+        changeTab(fullChatFragment).addToBackStack(null).commit();
+//        Toast.makeText(getBaseContext(),
+//                "Display Conversation with " + item.getName(), Toast.LENGTH_SHORT).show();
     }
 
 
@@ -176,11 +197,47 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     public void onAddContactClicked() {
         Log.wtf("yohei", "onContactListClickedHome");
-        changeTab(new AddContactFragment()).commit();
+        changeTab(new AddContactFragment()).addToBackStack(null).commit();
     }
 
     @Override
     public void onListFragmentInteraction(ContactList mItem) {
 
     }
+
+    // Deleting the Pushy device token must be done asynchronously. Good thing
+    // we have something that allows us to do that.
+    class DeleteTokenAsyncTask extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //onWaitFragmentInteractionShow();
+        }
+        @Override
+        protected Void doInBackground(Void... voids) {
+            //since we are already doing stuff in the background, go ahead
+            //and remove the credentials from shared prefs here.
+            SharedPreferences prefs =
+                    getSharedPreferences(
+                            getString(R.string.keys_shared_prefs),
+                            Context.MODE_PRIVATE);
+            prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
+            prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
+            //unregister the device from the Pushy servers
+            Pushy.unregister(HomeActivity.this);
+            return null;
+        }
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            //close the app
+            finishAndRemoveTask();
+            //or close this activity and bring back the Login
+        // Intent i = new Intent(this, MainActivity.class);
+        // startActivity(i);
+        // //Ends this Activity and removes it from the Activity back stack.
+        // finish();
+        }
+    }
+
 }

@@ -43,7 +43,7 @@
             android:animateLayoutChanges="true"
             android:backgroundTint="@android:color/white"
             android:ems="10"
-            android:hint="@string/fragment_login_username"
+            android:hint="@string/fragment_login_email"
             android:inputType="text"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
