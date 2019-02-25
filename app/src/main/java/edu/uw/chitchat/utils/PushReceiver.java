@@ -37,6 +37,9 @@ public class PushReceiver extends BroadcastReceiver {
 
         //The WS sent us the name of the sender
         String sender = intent.getStringExtra("sender");
+        if(sender == null) {
+            sender = "Pushy Broadcast";
+        }
 
         String messageText = intent.getStringExtra("message");
 
