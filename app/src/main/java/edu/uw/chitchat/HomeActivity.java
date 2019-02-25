@@ -18,6 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
+import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -136,15 +139,22 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     public void goToChat() {
-        Chat[] chats = {new Chat("Charles", "now", "This is the best app I've ever seen! You get a 4.0."),
-                new Chat("Marquez", "yesterday", "Hey man"),
-                new Chat("Lara", "2/10/2019", "Whats up"),
-                new Chat("Brenna", "2/7/2019", "Wow this is really cool"),
-                new Chat("Joe", "2/1/2019", ":)"),
-                new Chat("Amir", "1/28/2019", "Logan is the best"),
-                new Chat("Yohei", "1/28/2019", "Testing 123"),
-                new Chat("Hannah", "1/28/2019", "Cool app dude!"),
-                new Chat("Delvin", "1/28/2019", "Hows it going"),
+//        Uri uri = new Uri.Builder()
+//                .scheme("https")
+//                .appendPath(getString(R.string.ep_base_url))
+//                .appendPath(getString(R.string.ep_messaging_base))
+//                .appendPath(getString(R.string.ep_messaging_getall))
+//                .build();
+//        new GetAsyncTask.Builder(uri.toString())
+//                .onPostExecute(this::handleBlogGetOnPostExecute)
+//                .addHeaderField("authorization", mJwToken) //add the JWT as a header
+//                .build().execute();
+//
+//
+        Chat[] chats = {new Chat("Charles", "now", "This is the best app I've ever seen! You get a 4.0.", "1"),
+                new Chat("Marquez", "yesterday", "Hey man", "2"),
+                new Chat("Lara", "2/10/2019", "Whats up", "3"),
+                new Chat("Brenna", "2/7/2019", "Wow this is really cool", "4"),
         };
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
@@ -153,9 +163,56 @@ public class HomeActivity extends AppCompatActivity implements
         changeTab(chatFragment).commit();
     }
 
+//    private void handleBlogGetOnPostExecute(final String result) {
+//        try {
+//            JSONObject root = new JSONObject(result);
+//            if (root.has(getString(R.string.keys_json_blogs_response))) {
+//                JSONObject response = root.getJSONObject(
+//                        getString(R.string.keys_json_blogs_response));
+//                if (response.has(getString(R.string.keys_json_blogs_data))) {
+//                    JSONArray data = response.getJSONArray(
+//                            getString(R.string.keys_json_blogs_data));
+//                    List<Chat> chats = new ArrayList<>();
+//                    for(int i = 0; i < data.length(); i++) {
+//                        JSONObject jsonChat = data.getJSONObject(i);
+//
+//                        chats.add(new Chat(jsonChat.getString(getString(R.string.keys_json_blogs_pubdate)),
+//                                jsonChat.getString(getString(R.string.keys_json_blogs_title)))
+//                                .addTeaser(jsonChat.getString(
+//                                        getString(R.string.keys_json_blogs_teaser)))
+//                                .addUrl(jsonChat.getString(
+//                                        getString(R.string.keys_json_blogs_url)))
+//                                .build());
+//                    }
+//                    Chat[] chatsAsArray = new Chat[chats.size()];
+//                    chatsAsArray = chats.toArray(chatsAsArray);
+//                    Bundle args = new Bundle();
+//                    args.putSerializable(ChatFragment.ARG_CHAT_LIST, chatsAsArray);
+//                    Fragment frag = new ChatFragment();
+//                    frag.setArguments(args);
+//                    onWaitFragmentInteractionHide();
+//                    changeTab(frag).addToBackStack(null).commit();
+//                } else {
+//                    Log.e("ERROR!", "No data array");
+//                    //notify user
+//                    onWaitFragmentInteractionHide();
+//                }
+//            } else {
+//                Log.e("ERROR!", "No response");
+//                //notify user
+//                onWaitFragmentInteractionHide();
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//            Log.e("ERROR!", e.getMessage());
+//            //notify user
+//            onWaitFragmentInteractionHide();
+//        }
+//    }
+
     public void goToFullChat() {
         //TODO: update to enter correct chat... currently static so doesn't matter
-        onChatFragmentInteraction(new Chat("","", ""));
+        onChatFragmentInteraction(new Chat("","", "", ""));
     }
 
     public void goToHome() {
@@ -194,7 +251,7 @@ public class HomeActivity extends AppCompatActivity implements
     public void onChatFragmentInteraction(Chat item) {
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
-        args.putSerializable("chat", item);
+        args.putString("chatId", item.getChatId());
         args.putString("email", mCredentials.getEmail());
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
