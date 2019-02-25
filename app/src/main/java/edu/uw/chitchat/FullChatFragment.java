@@ -45,7 +45,7 @@ public class FullChatFragment extends Fragment {
     private String mJwToken;
     private String mEmail;
     private static final String TAG = "CHAT_FRAG";
-    private static final String CHAT_ID = "1";
+    private String CHAT_ID = "1";
     private TextView mMessageOutputTextView;
     private EditText mMessageInputEditText;
     private String mSendUrl;
