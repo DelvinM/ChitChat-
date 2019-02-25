@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
@@ -76,6 +77,7 @@ public class FullChatFragment extends Fragment {
             //get the email and JWT from the Activity. Make sure the Keys match what you used
             mEmail = getArguments().getString("email");
             mJwToken = getArguments().getString("jwt");
+            CHAT_ID = getArguments().getString("chatId");
         }
         //We will use this url every time the user hits send. Let's only build it once, ya?
         mSendUrl = new Uri.Builder()
