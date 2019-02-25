@@ -7,7 +7,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,13 +57,11 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
         }
     }
 
-    public void addNewContact(View view) {
-        EditText firstEmailAddress = getActivity().findViewById(R.id.editText_first_email_address);
-        EditText secondEmailAddress = getActivity().findViewById(R.id.editText_second_email_address);
-        String email = getSharedPreference(getString(R.string.keys_email_stored_onRegister));
-        String password = firstEmailAddress.getText().toString().trim();
-        String repassword = secondEmailAddress.getText().toString().trim();
 
+
+    public void addNewContact(View view) {
+        EditText friendEmailAddress = getActivity().findViewById(R.id.editText_friend_request_email_address);
+        String friendemail = friendEmailAddress.getText().toString().trim();
         boolean hasError = false;
         //regex used for names to not allow special characters in text fields
         //allows input anything outside of below characters
@@ -73,13 +73,13 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
                 "^(?=.*[0-9])(?=.*[A-Z])[^.\\-][A-Z0-9a-z!()?_'~;:.\\]\\[\\-!#@$%^&*+=]{6,}$"
         );
 
-        if (!passwordRegex.matcher(password).matches()) {
+        if (TextUtils.isEmpty(friendemail)) {
             hasError = true;
-            firstEmailAddress.setError("Please enter a minimum of 6 characters with 1 upper case and 1 digit.");
+            friendEmailAddress.setError("First E-mail is empty.");
         }
-        if (!password.equals(repassword)) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(friendemail).matches()) {
             hasError = true;
-            secondEmailAddress.setError("Your password and retyped one do not match.");
+            friendEmailAddress.setError("First E-mail is not valid.");
         }
 
         if (!hasError) {
@@ -92,12 +92,17 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
             //mListener.onRegisterSuccess(credentials);
             //build the web service URL
             //build the JSONObject
-            Credentials credentials = new Credentials.Builder(email,password).build();
-            JSONObject msg = credentials.asJSONObject();
+            String emailstored = getSharedPreference (getString(R.string.keys_email_stored_onRegister));
 
-            mCredentials = credentials;
+            JSONObject test = new JSONObject();
+            try {
+                test.put("email_A", emailstored);
+                test.put("email_B", friendemail);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             //instantiate and execute the AsyncTask.
-            new SendPostAsyncTask.Builder(uri.toString(), msg)
+            new SendPostAsyncTask.Builder(uri.toString(), test)
                     .onPostExecute(this::handleUpDdateNewContact)
                     .build().execute();
         } else {
@@ -112,6 +117,7 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
             boolean success =
                     resultsJSON.getBoolean(getString(R.string.keys_json_login_success));
             if (success) {
+                Log.wtf("yohei", "success");
                 Toast.makeText(getActivity(), "You successfully made the new contact",
                         Toast.LENGTH_LONG).show();
                 return;
@@ -122,7 +128,7 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
             // String or it did not have what we expected in it.
             Log.e("JSON_PARSE_ERROR", result + System.lineSeparator() + e.getMessage());
             mListener.onWaitFragmentInteractionHide();
-            ((TextView) getView().findViewById(R.id.editText_first_email_address))
+            ((TextView) getView().findViewById(R.id.editText_friend_request_email_address))
                     .setError("Making New contact Unsuccessful");
         }
     }

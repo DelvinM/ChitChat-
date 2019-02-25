@@ -43,6 +43,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private long mLockOutStart;
     private long lockoutEnd;
     private long mLockoutDuration = 900; //lock out duration in seconds
+    private String emailstored;
 
 
     public LoginFragment() {
@@ -72,6 +73,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 //        else {//loads email/password from keys.xml
         String email = getSharedPreference(getString(R.string.keys_email_stored_onRegister));
         String password = getSharedPreference(getString(R.string.keys_password_stored_onRegister));
+        emailstored = email;
 //        }
         emailText.setText(email);
         passwordText.setText(password);
@@ -148,6 +150,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public String getEmailAddress(){
+        return emailstored;
     }
 
     @Override

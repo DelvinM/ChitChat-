@@ -8,7 +8,7 @@
     <string name="fragment_register_lastname">Last name</string>
     <string name="fragment_register_repassword">Retype Password</string>
     <string name="fragment_register_email">Email</string>
-    <string name="fragment_addContact_firstemail">First Email Address</string>
+    <string name="fragment_addContact_firstemail">Your friends E-mail Address</string>
     <string name="fragment_addContact_secondemail">Second Email Address</string>
     <string name="fragment_register_email_verification">Reenter email</string>
 

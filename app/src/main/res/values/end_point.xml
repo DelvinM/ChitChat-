@@ -8,4 +8,5 @@
     <string name="ep_reset">reset</string>
     <string name="ep_contact">contact</string>
     <string name="ep_add">add</string>
+    <string name="ep_getall">getAll</string>
 </resources>
