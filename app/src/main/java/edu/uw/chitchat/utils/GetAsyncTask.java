@@ -68,6 +68,11 @@ public class GetAsyncTask extends AsyncTask<Void, String, String> {
             headers = new HashMap<>();
         }
 
+        public Builder(final String url, String id) {
+            mUrl = url;
+            headers = new HashMap<>();
+        }
+
         /**
          * Set the action to perform during AsyncTask onPreExecute.
          *
