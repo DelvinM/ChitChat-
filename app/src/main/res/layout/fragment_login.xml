@@ -48,7 +48,6 @@
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
             android:shadowRadius="@android:integer/config_longAnimTime"
-            android:text="@string/fragment_login_email"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:textColor="@android:color/white"
             android:textColorHint="@android:color/white"

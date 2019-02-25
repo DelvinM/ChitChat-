@@ -8,12 +8,16 @@
     <string name="fragment_register_lastname">Last name</string>
     <string name="fragment_register_repassword">Retype Password</string>
     <string name="fragment_register_email">Email</string>
+    <string name="fragment_register_back_button">back</string>
+    <string name="fragment_register_register_button">register</string>
+
     <string name="fragment_addContact_firstemail">First Email Address</string>
     <string name="fragment_addContact_secondemail">Second Email Address</string>
     <string name="fragment_register_email_verification">Reenter email</string>
 
     <string name="fragment_login_register_button">register</string>
     <string name="fragment_login_login_button">login</string>
+
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="fragment_home_title">Home</string>
