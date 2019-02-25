@@ -25,23 +25,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button_add_group"
-        style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
-        android:layout_width="220dp"
-        android:layout_height="92dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="68dp"
-        android:layout_marginEnd="8dp"
-        android:background="@android:color/background_light"
-        android:text="@string/fragment_connect_group"
-        android:textColor="@color/colorAccent"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_add_contact" />
-
-    <Button
         android:id="@+id/button_show_contactlist"
         style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
         android:layout_width="220dp"
@@ -56,5 +39,5 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_add_group" />
+        app:layout_constraintTop_toBottomOf="@+id/button_add_contact" />
 </android.support.constraint.ConstraintLayout>

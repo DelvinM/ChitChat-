@@ -46,6 +46,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     private long mLockOutStart;
     private long lockoutEnd;
     private long mLockoutDuration = 900; //lock out duration in seconds
+    private String emailstored;
 
 
     public LoginFragment() {
@@ -63,6 +64,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     }
 
     @Override
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_login , container, false);
@@ -194,6 +196,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public String getEmailAddress(){
+        return emailstored;
     }
 
     @Override
