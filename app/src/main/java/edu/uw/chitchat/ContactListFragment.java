@@ -1,6 +1,7 @@
 package edu.uw.chitchat;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,17 +13,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import edu.uw.chitchat.contactlist.ContactList;
+import edu.uw.chitchat.contactlist.ContactListGenerator;
 
 
 /**
@@ -36,6 +47,7 @@ public class ContactListFragment extends Fragment implements View.OnClickListene
     // TODO: Customize parameters
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    public static final String ARG_CONTACT_LIST = "contact lists";
     private List<ContactList> mContactlist;
     private ContactList myData = new ContactList.Builder("yohei", "yohei03@uw.edu").build();
     public static final String CONTACT_LIST_LIST = "contact lists";
@@ -54,21 +66,87 @@ public class ContactListFragment extends Fragment implements View.OnClickListene
 
         ContactListFragment fragment = new ContactListFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
+        args.putInt(ARG_CONTACT_LIST, columnCount);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+//        if (getArguments() != null) {
+//            Log.wtf("yohei200", "Yohei2000000");
+//            mContactlist = new ArrayList<ContactList>(
+//                    Arrays.asList((ContactList[]) getArguments().getSerializable(ARG_CONTACT_LIST)));
+//
+//        } else {
+//            mContactlist = Arrays.asList( ContactListGenerator.BLOGS );
+//        }
+
+        if (getArguments() != null) {
+            Log.wtf("Yohei300", "yohei300");
+            mContactlist = new ArrayList<ContactList>(
+                    Arrays.asList((ContactList[]) getArguments().getSerializable(ARG_CONTACT_LIST)));
+        } else {
+            mContactlist = Arrays.asList( ContactListGenerator.BLOGS );
+        }
+
+//        if (getArguments() != null) {
+//
+//            mContactlist = new ArrayList<ContactList>(
+//                    Arrays.asList((ContactList[]) getArguments().getSerializable(CONTACT_LIST_LIST)));
+//        } else {
+//
+//            //mSetList = Arrays.asList(SetListGenerator.SETLISTS);
+//        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_contact_list, container, false);
-
+        Log.wtf("yohei100", "test view");
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
                 .appendPath(getString(R.string.ep_getall))
                 .build();
+        String emailstored = getSharedPreference (getString(R.string.keys_email_stored_onRegister));
+
+        JSONObject test = new JSONObject();
+        try {
+            test.put("email", emailstored);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+//        new SendPostAsyncTask.Builder(uri.toString(), test)
+//                .onPreExecute(this::handleLoginOnPre)
+//                .onPostExecute(this::handleContactlistGetOnPostExecute)
+//                .onCancelled(this::handleErrorsInTask)
+//               .addHeaderField("authorization", mJwToken)
+//                .build().execute();
+
+
+
+//        try {
+//            JSONArray json = readJsonFromUrl(uri.toString());
+//            JSONObject obj = (JSONObject)json.get(5);
+//            System.out.println(obj.get("title"));
+//            List<String> list = new ArrayList<String>();
+//            for(int i = 0; i < json.length(); i++){
+//                list.add(json.getJSONObject(i).getString("name"));
+//            }
+//            Log.wtf("yohei", list.get(0));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+
+
+
         //String json = getJSON(uri.toString(), 10);
 
 
@@ -100,17 +178,96 @@ public class ContactListFragment extends Fragment implements View.OnClickListene
 //        }
 
         if (v instanceof RecyclerView) {
+            Log.wtf("yohei100", "first if");
             Context context = v.getContext();
             RecyclerView recyclerView = (RecyclerView) v;
+            Log.wtf("yohei100", "JOe");
+
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            //recyclerView.setAdapter(new MyContactRecyclerViewAdapter(mContactlist, mListener));
+
+            recyclerView.setAdapter(new MyContactRecyclerViewAdapter(mContactlist, mListener));
         }
         return v;
     }
+
+    private void handleLoginOnPre() {
+            mListener.onWaitFragmentInteractionShow();
+
+    }
+
+    private void handleErrorsInTask(String result) {
+        Log.e("ASYNC_TASK_ERROR", result);
+    }
+
+    private String getSharedPreference (String key) {
+        SharedPreferences sharedPref =
+                getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);
+        return sharedPref.getString(key, null);
+    }
+
+//    private void handleContactlistGetOnPostExecute(String result) {
+//        //parse JSON
+//        try {
+//            JSONObject root = new JSONObject(result);
+//            if (root.has(getString(R.string.keys_json_blogs_response))) {
+//                JSONObject response = root.getJSONObject(
+//                        getString(R.string.keys_json_blogs_response));
+//                if (response.has(getString(R.string.keys_json_blogs_data))) {
+//                    JSONArray data = response.getJSONArray(
+//                            getString(R.string.keys_json_blogs_data));
+//                    List<ContactList> contactlistthing = new ArrayList<>();
+//                    for(int i = 0; i < data.length(); i++) {
+//                        JSONObject CL = data.getJSONObject(i);
+//
+//                        contactlistthing.add(new ContactList.Builder(
+//                                CL.getString(
+//                                        getString(R.string.keys_json_blogs_pubdate)),
+//                                CL.getString(
+//                                        getString(R.string.keys_json_blogs_title)))
+//                                .build());
+//                    }
+//                    ContactList[] blogsAsArray = new ContactList[contactlistthing.size()];
+//                    blogsAsArray = contactlistthing.toArray(blogsAsArray);
+//                    Bundle args = new Bundle();
+//                    args.putSerializable(ContactListFragment.ARG_CONTACT_LIST, blogsAsArray);
+//                    Fragment frag = new ContactListFragment();
+//                    frag.setArguments(args);
+//                    onWaitFragmentInteractionHide();
+//                    loadFragment(frag);
+//                } else {
+//                    Log.e("ERROR!", "No data array");
+//                    //notify user
+//                    onWaitFragmentInteractionHide();
+//                }
+//            } else {
+//                Log.e("ERROR!", "No response");
+//                //notify user
+//                //onWaitFragmentInteractionHide();
+//            }
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//            Log.e("ERROR!", e.getMessage());
+//            //notify user
+//            //onWaitFragmentInteractionHide();
+//        }
+//    }
+
+    private void onWaitFragmentInteractionHide() {
+    }
+
+
+//    private void loadFragment(Fragment frag) {
+//        FragmentTransaction transaction = getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.frame_home_fragmentcontainer, frag)
+//                .addToBackStack(null);
+//        // Commit the transaction
+//        transaction.commit();
+//    }
     public String getJSON(String url, int timeout) {
         HttpURLConnection c = null;
         try {
@@ -154,6 +311,33 @@ public class ContactListFragment extends Fragment implements View.OnClickListene
         return null;
     }
 
+    public static String readAll(Reader rd) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        int cp;
+        while ((cp = rd.read()) != -1) {
+            sb.append((char) cp);
+        }
+        return sb.toString();
+    }
+
+    public static JSONArray readJsonFromUrl(String url) throws IOException {
+        // String s = URLEncoder.encode(url, "UTF-8");
+        // URL url = new URL(s);
+        InputStream is = new URL(url).openStream();
+        JSONArray json = null;
+        try {
+            BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+            String jsonText = readAll(rd);
+            json = new JSONArray(jsonText);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } finally {
+            is.close();
+        }
+        return json;
+    }
+
+
 
 //    protected String doInBackground(String... params) {
 //
@@ -194,23 +378,7 @@ public class ContactListFragment extends Fragment implements View.OnClickListene
 //    }
 
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        Log.wtf("setlist", "setlist");
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
 
-//        if (getArguments() != null) {
-//
-//            mContactlist = new ArrayList<ContactList>(
-//                    Arrays.asList((ContactList[]) getArguments().getSerializable(CONTACT_LIST_LIST)));
-//        } else {
-//
-//            //mSetList = Arrays.asList(SetListGenerator.SETLISTS);
-//        }
-    }
 
 
 //    private static String readAll(Reader rd) throws IOException {
@@ -271,6 +439,8 @@ public class ContactListFragment extends Fragment implements View.OnClickListene
         // TODO: Update argument type and name
 
         void onListFragmentInteraction(ContactList mItem);
+
+        void onWaitFragmentInteractionShow();
     }
 
 

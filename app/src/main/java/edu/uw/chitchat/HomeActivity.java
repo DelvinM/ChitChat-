@@ -1,32 +1,33 @@
 package edu.uw.chitchat;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.design.widget.TabItem;
+import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+
 import java.io.Serializable;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.contactlist.ContactList;
+import edu.uw.chitchat.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
 
 public class HomeActivity extends AppCompatActivity implements
@@ -37,7 +38,7 @@ public class HomeActivity extends AppCompatActivity implements
         ConnectFragment.OnFragmentInteractionListener,
         ContactListFragment.OnListFragmentInteractionListener,
         AddContactFragment.OnAddContactFragmentInteractionListener{
-
+    //private ContactListFragment.OnListFragmentInteractionListener mListener;
     private Credentials mCredentials;
     private String mJwToken;
 
@@ -264,8 +265,80 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     public void onContactListClicked() {
         Log.wtf("yohei", "onContactListClickedHome");
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_getall))
+                .build();
+        String emailstored = getSharedPreference (getString(R.string.keys_email_stored_onRegister));
+
+        JSONObject test = new JSONObject();
+        try {
+            test.put("email", emailstored);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        new SendPostAsyncTask.Builder(uri.toString(), test)
+                .onPostExecute(this::handleContactlistGetOnPostExecute)
+               .addHeaderField("authorization", mJwToken)
+                .build().execute();
         changeTab(new ContactListFragment()).commit();
     }
+
+    private void handleErrorsInTask(String result) {
+            Log.e("ASYNC_TASK_ERROR", result);
+    }
+
+    private void handleContactlistGetOnPostExecute(String result) {
+        //parse JSON
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has(getString(R.string.keys_json_blogs_response))) {
+                JSONObject response = root.getJSONObject(
+                        getString(R.string.keys_json_blogs_response));
+                if (response.has(getString(R.string.keys_json_blogs_data))) {
+                    JSONArray data = response.getJSONArray(
+                            getString(R.string.keys_json_blogs_data));
+                    List<ContactList> contactlistthing = new ArrayList<>();
+                    for(int i = 0; i < data.length(); i++) {
+                        JSONObject CL = data.getJSONObject(i);
+
+                        contactlistthing.add(new ContactList.Builder(
+                                CL.getString(
+                                        getString(R.string.keys_json_blogs_pubdate)),
+                                CL.getString(
+                                        getString(R.string.keys_json_blogs_title)))
+                                .build());
+                    }
+                    ContactList[] blogsAsArray = new ContactList[contactlistthing.size()];
+                    blogsAsArray = contactlistthing.toArray(blogsAsArray);
+                    Bundle args = new Bundle();
+                    args.putSerializable(ContactListFragment.ARG_CONTACT_LIST, blogsAsArray);
+                    ContactListFragment frag = new ContactListFragment();
+                    frag.setArguments(args);
+                    onWaitFragmentInteractionHide();
+//                    loadFragment(frag);
+                } else {
+                    Log.e("ERROR!", "No data array");
+                    //notify user
+                    onWaitFragmentInteractionHide();
+                }
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                //onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            //onWaitFragmentInteractionHide();
+        }
+    }
+
+
 
     @Override
     public void onAddContactClicked() {
@@ -277,6 +350,19 @@ public class HomeActivity extends AppCompatActivity implements
     public void onListFragmentInteraction(ContactList mItem) {
 
     }
+
+    @Override
+    public void onWaitFragmentInteractionShow() {
+
+    }
+
+    private String getSharedPreference (String key) {
+        SharedPreferences sharedPref =
+                getSharedPreferences(key, Context.MODE_PRIVATE);
+        return sharedPref.getString(key, null);
+    }
+
+
 
     // Deleting the Pushy device token must be done asynchronously. Good thing
     // we have something that allows us to do that.
@@ -300,6 +386,20 @@ public class HomeActivity extends AppCompatActivity implements
             Pushy.unregister(HomeActivity.this);
             return null;
         }
+
+
+
+        private void loadFragment(Fragment frag) {
+            @SuppressLint("ResourceType") FragmentTransaction transaction = getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.layout.activity_home, frag)
+                    .addToBackStack(null);
+            // Commit the transaction
+            transaction.commit();
+        }
+
+
+
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
