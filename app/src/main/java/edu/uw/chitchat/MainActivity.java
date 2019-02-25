@@ -29,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements
     private Credentials mCredentials;
 
     private boolean mLoadFromChatNotification = false;
+
+    private String mChatId;//for chatid
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().containsKey("type")) {
                 mLoadFromChatNotification = getIntent().getExtras().getString("type").equals("msg");
+                mChatId = getIntent().getStringExtra("chatId");
             }
         }
 
@@ -183,6 +186,7 @@ public class MainActivity extends AppCompatActivity implements
         i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
         i.putExtra(getString(R.string.keys_intent_jwt), jwt);
         i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
+        i.putExtra(getString(R.string.keys_intent_current_chat_id), mChatId);
         startActivity(i);
         finish();
 //        if (findViewById(R.id.frame_main_container) != null) {

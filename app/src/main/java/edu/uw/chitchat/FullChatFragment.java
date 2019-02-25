@@ -43,7 +43,7 @@ public class FullChatFragment extends Fragment {
     private String mJwToken;
     private String mEmail;
     private static final String TAG = "CHAT_FRAG";
-    private static final String CHAT_ID = "1";
+    private static final String CHAT_ID = "4";
     private TextView mMessageOutputTextView;
     private EditText mMessageInputEditText;
     private String mSendUrl;
@@ -139,18 +139,28 @@ public class FullChatFragment extends Fragment {
     private class PushMessageReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.hasExtra("SENDER") && intent.hasExtra("MESSAGE")) {
-                String sender = intent.getStringExtra("SENDER");
-                String sendArr[] = {"", ""};
-                try {
-                    sendArr = sender.split("@"); //if the message is coming from an email
-                } catch(Exception e) {
-                    sendArr[0] = "Pushy Broadcast"; //if its coming from pushy
+            if(intent.hasExtra("SENDER") &&
+                    intent.hasExtra("MESSAGE") &&
+                    intent.hasExtra("CHATID"))
+            {
+                //chat id matches current chat_id
+                String chatId = intent.getStringExtra("CHATID");
+                if (chatId.equals(CHAT_ID)) {
+                    String sender = intent.getStringExtra("SENDER");
+                    String sendArr[] = {"", ""};
+                    try {
+                        sendArr = sender.split("@"); //if the message is coming from an email
+                    } catch (Exception e) {
+                        sendArr[0] = "Pushy Broadcast"; //if its coming from pushy
+                    }
+                    String messageText = intent.getStringExtra("MESSAGE");
+                    mMessageOutputTextView.append(sendArr[0] + ": " + messageText);
+                    mMessageOutputTextView.append(System.lineSeparator());
+                    mMessageOutputTextView.append(System.lineSeparator());
+
+                } else {
+                    //TODO: in app notification goes here
                 }
-                String messageText = intent.getStringExtra("MESSAGE");
-                mMessageOutputTextView.append(sendArr[0] + ": " + messageText);
-                mMessageOutputTextView.append(System.lineSeparator());
-                mMessageOutputTextView.append(System.lineSeparator());
             }
         }
     }
