@@ -36,6 +36,8 @@ public class ContactList implements Serializable {
 
 
 
+
+
         public ContactList build() {
             return new ContactList(this);
         }
@@ -46,6 +48,7 @@ public class ContactList implements Serializable {
         this.mUsername = builder.mUsername;
         this.mEmailAddress = builder.mEmailAddress;
     }
+
 
     public String getUsername() {
         return mUsername;
