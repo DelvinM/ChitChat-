@@ -18,9 +18,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-
-import java.io.Serializable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -295,25 +292,26 @@ public class HomeActivity extends AppCompatActivity implements
         //parse JSON
         try {
             JSONObject root = new JSONObject(result);
-            if (root.has(getString(R.string.keys_json_blogs_response))) {
+            if (root.has(getString(R.string.keys_json_contactlist_response))) {
                 JSONObject response = root.getJSONObject(
-                        getString(R.string.keys_json_blogs_response));
-                if (response.has(getString(R.string.keys_json_blogs_data))) {
+                        getString(R.string.keys_json_contactlist_response));
+                if (response.has(getString(R.string.keys_json_contactlist_data))) {
                     JSONArray data = response.getJSONArray(
-                            getString(R.string.keys_json_blogs_data));
+                            getString(R.string.keys_json_contactlist_response));
                     List<ContactList> contactlistthing = new ArrayList<>();
                     for(int i = 0; i < data.length(); i++) {
                         JSONObject CL = data.getJSONObject(i);
 
                         contactlistthing.add(new ContactList.Builder(
                                 CL.getString(
-                                        getString(R.string.keys_json_blogs_pubdate)),
+                                        getString(R.string.keys_json_contactlist_username)),
                                 CL.getString(
-                                        getString(R.string.keys_json_blogs_title)))
+                                        getString(R.string.keys_json_contactlist_email)))
                                 .build());
                     }
                     ContactList[] blogsAsArray = new ContactList[contactlistthing.size()];
                     blogsAsArray = contactlistthing.toArray(blogsAsArray);
+                    Log.wtf("Yohei2019", contactlistthing.toString());
                     Bundle args = new Bundle();
                     args.putSerializable(ContactListFragment.ARG_CONTACT_LIST, blogsAsArray);
                     ContactListFragment frag = new ContactListFragment();

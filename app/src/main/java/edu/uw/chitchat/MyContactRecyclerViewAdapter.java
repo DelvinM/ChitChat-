@@ -1,7 +1,6 @@
 package edu.uw.chitchat;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +28,6 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
 
     public MyContactRecyclerViewAdapter(List<ContactList> items, OnListFragmentInteractionListener listener) {
         mValues = items;
-        Log.wtf("yohei100",items.toString());
         mListener = listener;
     }
 
