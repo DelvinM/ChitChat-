@@ -62,34 +62,34 @@ public class ContactListFragment extends Fragment implements View.OnClickListene
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static ContactListFragment newInstance(int columnCount) {
+    public static ContactListFragment newInstance(Bundle b) {
 
         ContactListFragment fragment = new ContactListFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_CONTACT_LIST, columnCount);
-        fragment.setArguments(args);
+        b.putSerializable(ARG_CONTACT_LIST, 2);
+        fragment.setArguments(b);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            Log.wtf("yohei200", "Yohei2000000");
+            mContactlist = new ArrayList<ContactList>(
+                    mContactlist = Arrays.asList((ContactList[]) getArguments().getSerializable(ARG_CONTACT_LIST)));
+
+        } else {
+            Log.wtf("Yohei500", "hello world?");
+            mContactlist = Arrays.asList( ContactListGenerator.BLOGS );
+        }
+
 //        if (getArguments() != null) {
-//            Log.wtf("yohei200", "Yohei2000000");
+//            Log.wtf("Yohei300", "yohei300");
 //            mContactlist = new ArrayList<ContactList>(
 //                    Arrays.asList((ContactList[]) getArguments().getSerializable(ARG_CONTACT_LIST)));
-//
 //        } else {
 //            mContactlist = Arrays.asList( ContactListGenerator.BLOGS );
 //        }
-
-        if (getArguments() != null) {
-            Log.wtf("Yohei300", "yohei300");
-            mContactlist = new ArrayList<ContactList>(
-                    Arrays.asList((ContactList[]) getArguments().getSerializable(ARG_CONTACT_LIST)));
-        } else {
-            mContactlist = Arrays.asList( ContactListGenerator.BLOGS );
-        }
 
 //        if (getArguments() != null) {
 //
