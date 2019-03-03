@@ -3,13 +3,11 @@ package edu.uw.chitchat.contactlist;
 import java.io.Serializable;
 
 /**
- * Class to encapsulate a Phish.net Blog Post. Building an Object requires a publish date and title.
- *
- * Optional fields include URL, teaser, and Author.
- *
+ * Class to encapsulate a https://tcss450-app contact. Building an Object requires username and email.
  *
  * @author Charles Bryan
  * @author Yohei Sato
+ * @author Zhou Lu
  */
 public class ContactList implements Serializable {
 
@@ -17,24 +15,19 @@ public class ContactList implements Serializable {
     private final String mEmailAddress;
 
     /**
-     * Helper class for building Credentials.
+     * Helper class for building contact.
      *
-     * @author Charles Bryan
+     * @author Zhou Lu
      */
     public static class Builder {
         private final String mUsername;
         private final String mEmailAddress;
 
 
-
-
-
-        public Builder(String username, String description) {
+        public Builder(String username, String emailAddress) {
             this.mUsername = username;
-            this.mEmailAddress = description;
+            this.mEmailAddress = emailAddress;
         }
-
-
 
 
 
@@ -54,7 +47,7 @@ public class ContactList implements Serializable {
         return mUsername;
     }
 
-    public String getDescription() {
+    public String getEmailAddress() {
         return mEmailAddress;
     }
 

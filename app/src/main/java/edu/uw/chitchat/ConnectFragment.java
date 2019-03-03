@@ -25,7 +25,6 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
 
     private Credentials mCredentials;
     private OnFragmentInteractionListener  mListener;
-    View v;
     public ConnectFragment() {
         // Required empty public constructor
     }
@@ -45,12 +44,12 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.fragment_connect, container, false);
-        Button b1 = (Button) v.findViewById(R.id.button_add_contact);
+        View view = inflater.inflate(R.layout.fragment_connect, container, false);
+        Button b1 = (Button) view.findViewById(R.id.button_add_contact);
         b1.setOnClickListener(this);
-        Button b = (Button) v.findViewById(R.id.button_show_contactlist);
+        Button b = (Button) view.findViewById(R.id.button_show_contactlist);
         b.setOnClickListener(this);
-        return v;
+        return view;
     }
 
     @Override
@@ -66,7 +65,7 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
                     break;
                 default:
                     Log.wtf("", "Didn't expect to see me...");
-            }
+        }
         }
     }
     public interface OnFragmentInteractionListener {

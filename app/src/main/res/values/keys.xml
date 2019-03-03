@@ -10,10 +10,10 @@
     <string name="keys_passowrd">password</string>
     <string name="keys_repassowrd">repassword</string>
     <string name="keys_json_register_success">success</string>
-    <string name="keys_json_contactlist_response">contactlistreponse</string>
+    <string name="keys_json_contactlist_response">contacts</string>
     <string name="keys_json_contactlist_data">contactlistdata</string>
-    <string name="keys_json_contactlist_username">contactlistpubdate</string>
-    <string name="keys_json_contactlist_email">contactlisttitle</string>
+    <string name="keys_json_contactlist_username">username</string>
+    <string name="keys_json_contactlist_email">email</string>
 
 
     <string name="keys_username_stored_onRegister">usernamestored</string>

@@ -36,7 +36,7 @@ public class HomeActivity extends AppCompatActivity implements
         ConnectFragment.OnFragmentInteractionListener,
         ContactListFragment.OnListFragmentInteractionListener,
         AddContactFragment.OnAddContactFragmentInteractionListener{
-    //private ContactListFragment.OnListFragmentInteractionListener mListener;
+
     private Credentials mCredentials;
     private String mJwToken;
     private String mChatId;
@@ -138,18 +138,6 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     public void goToChat() {
-//        Uri uri = new Uri.Builder()
-//                .scheme("https")
-//                .appendPath(getString(R.string.ep_base_url))
-//                .appendPath(getString(R.string.ep_messaging_base))
-//                .appendPath(getString(R.string.ep_messaging_getall))
-//                .build();
-//        new GetAsyncTask.Builder(uri.toString())
-//                .onPostExecute(this::handleBlogGetOnPostExecute)
-//                .addHeaderField("authorization", mJwToken) //add the JWT as a header
-//                .build().execute();
-//
-//
         //gets current new notifications for each chat room...from sharedpref
         String notificationsCount_1 = Integer.toString(getPrefInt("chat room 1 count"));
         String notificationsCount_2 = Integer.toString(getPrefInt("chat room 2 count"));
@@ -175,52 +163,6 @@ public class HomeActivity extends AppCompatActivity implements
         return preferences.getInt(key, 0);
     }
 
-//    private void handleBlogGetOnPostExecute(final String result) {
-//        try {
-//            JSONObject root = new JSONObject(result);
-//            if (root.has(getString(R.string.keys_json_blogs_response))) {
-//                JSONObject response = root.getJSONObject(
-//                        getString(R.string.keys_json_blogs_response));
-//                if (response.has(getString(R.string.keys_json_blogs_data))) {
-//                    JSONArray data = response.getJSONArray(
-//                            getString(R.string.keys_json_blogs_data));
-//                    List<Chat> chats = new ArrayList<>();
-//                    for(int i = 0; i < data.length(); i++) {
-//                        JSONObject jsonChat = data.getJSONObject(i);
-//
-//                        chats.add(new Chat(jsonChat.getString(getString(R.string.keys_json_blogs_pubdate)),
-//                                jsonChat.getString(getString(R.string.keys_json_blogs_title)))
-//                                .addTeaser(jsonChat.getString(
-//                                        getString(R.string.keys_json_blogs_teaser)))
-//                                .addUrl(jsonChat.getString(
-//                                        getString(R.string.keys_json_blogs_url)))
-//                                .build());
-//                    }
-//                    Chat[] chatsAsArray = new Chat[chats.size()];
-//                    chatsAsArray = chats.toArray(chatsAsArray);
-//                    Bundle args = new Bundle();
-//                    args.putSerializable(ChatFragment.ARG_CHAT_LIST, chatsAsArray);
-//                    Fragment frag = new ChatFragment();
-//                    frag.setArguments(args);
-//                    onWaitFragmentInteractionHide();
-//                    changeTab(frag).addToBackStack(null).commit();
-//                } else {
-//                    Log.e("ERROR!", "No data array");
-//                    //notify user
-//                    onWaitFragmentInteractionHide();
-//                }
-//            } else {
-//                Log.e("ERROR!", "No response");
-//                //notify user
-//                onWaitFragmentInteractionHide();
-//            }
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//            Log.e("ERROR!", e.getMessage());
-//            //notify user
-//            onWaitFragmentInteractionHide();
-//        }
-//    }
 
     public void goToFullChat() {
         //TODO: update to enter correct chat... currently static so doesn't matter
@@ -283,27 +225,28 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onContactListClicked() {
-        Log.wtf("yohei", "onContactListClickedHome");
+
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_contact))
                 .appendPath(getString(R.string.ep_getall))
                 .build();
-        String emailstored = getSharedPreference (getString(R.string.keys_email_stored_onRegister));
+        String email = mCredentials.getEmail();
 
-        JSONObject test = new JSONObject();
+        JSONObject jsonSend = new JSONObject();
         try {
-            test.put("email", emailstored);
+            jsonSend.put("email", email);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
 
-        new SendPostAsyncTask.Builder(uri.toString(), test)
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
                 .onPostExecute(this::handleContactlistGetOnPostExecute)
-               .addHeaderField("authorization", mJwToken)
+                .addHeaderField("authorization", mJwToken)
                 .build().execute();
-        changeTab(new ContactListFragment()).commit();
+
     }
 
     private void handleErrorsInTask(String result) {
@@ -311,44 +254,31 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     private void handleContactlistGetOnPostExecute(String result) {
-        //parse JSON
         try {
             JSONObject root = new JSONObject(result);
             if (root.has(getString(R.string.keys_json_contactlist_response))) {
-                JSONObject response = root.getJSONObject(
-                        getString(R.string.keys_json_contactlist_response));
-                if (response.has(getString(R.string.keys_json_contactlist_data))) {
-                    JSONArray data = response.getJSONArray(
-                            getString(R.string.keys_json_contactlist_response));
-                    List<ContactList> contactlistthing = new ArrayList<>();
-                    for(int i = 0; i < data.length(); i++) {
-                        JSONObject CL = data.getJSONObject(i);
-
-                        contactlistthing.add(new ContactList.Builder(
-                                CL.getString(
-                                        getString(R.string.keys_json_contactlist_username)),
-                                CL.getString(
-                                        getString(R.string.keys_json_contactlist_email)))
-                                .build());
-                    }
-                    ContactList[] blogsAsArray = new ContactList[contactlistthing.size()];
-                    blogsAsArray = contactlistthing.toArray(blogsAsArray);
-                    Log.wtf("Yohei2019", contactlistthing.toString());
-                    Bundle args = new Bundle();
-                    args.putSerializable(ContactListFragment.ARG_CONTACT_LIST, blogsAsArray);
-                    ContactListFragment frag = new ContactListFragment();
-                    frag.setArguments(args);
-                    onWaitFragmentInteractionHide();
-//                    loadFragment(frag);
-                } else {
-                    Log.e("ERROR!", "No data array");
-                    //notify user
-                    onWaitFragmentInteractionHide();
+                JSONArray response = root.getJSONArray(getString(R.string.keys_json_contactlist_response));
+                List<ContactList> contacts = new ArrayList<>();
+                for(int i = 0; i < response.length(); i++) {
+                    JSONObject jsonContact = response.getJSONObject(i);
+                    contacts.add(new ContactList.Builder(
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_username)),
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_email)))
+                            .build());
                 }
+
+                ContactList[] contactsAsArray = new ContactList[contacts.size()];
+                contactsAsArray = contacts.toArray(contactsAsArray);
+                Bundle args = new Bundle();
+                args.putSerializable("contact lists", contactsAsArray);
+                ContactListFragment frag = new ContactListFragment();
+                frag.setArguments(args);
+                onWaitFragmentInteractionHide();
+                changeTab(frag).commit();
             } else {
                 Log.e("ERROR!", "No response");
                 //notify user
-                //onWaitFragmentInteractionHide();
+                onWaitFragmentInteractionHide();
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -362,7 +292,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onAddContactClicked() {
-        Log.wtf("yohei", "onContactListClickedHome");
+
         changeTab(new AddContactFragment()).addToBackStack(null).commit();
     }
 
@@ -371,10 +301,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     }
 
-    @Override
-    public void onWaitFragmentInteractionShow() {
 
-    }
 
     private String getSharedPreference (String key) {
         SharedPreferences sharedPref =
@@ -383,6 +310,10 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
 
+    @Override
+    public void onContactListFragmentInteraction(ContactList contact) {
+
+    }
 
     // Deleting the Pushy device token must be done asynchronously. Good thing
     // we have something that allows us to do that.
@@ -390,7 +321,7 @@ public class HomeActivity extends AppCompatActivity implements
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            //onWaitFragmentInteractionShow();
+
         }
         @Override
         protected Void doInBackground(Void... voids) {
@@ -406,19 +337,6 @@ public class HomeActivity extends AppCompatActivity implements
             Pushy.unregister(HomeActivity.this);
             return null;
         }
-
-
-
-        private void loadFragment(Fragment frag) {
-            @SuppressLint("ResourceType") FragmentTransaction transaction = getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.layout.activity_home, frag)
-                    .addToBackStack(null);
-            // Commit the transaction
-            transaction.commit();
-        }
-
-
 
         @Override
         protected void onPostExecute(Void aVoid) {
