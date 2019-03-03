@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onListFragmentInteraction(ContactList mItem) {
+    public void onContactListFragmentInteraction(ContactList mItem) {
 
     }
 

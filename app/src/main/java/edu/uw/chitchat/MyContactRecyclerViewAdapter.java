@@ -49,7 +49,7 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
                 if (null != mListener) {
                     // Notify the active callbacks interface (the activity, if the
                     // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+                    mListener.onContactListFragmentInteraction(holder.mItem);
                 }
             }
         });
@@ -65,19 +65,18 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mUserNameView;
-        public final TextView mContentView;
         public ContactList mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mUserNameView = (TextView) view.findViewById(R.id.textView_name);
-            mContentView = (TextView) view.findViewById(R.id.content);
+
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mUserNameView.getText() + "'";
         }
     }
 }
