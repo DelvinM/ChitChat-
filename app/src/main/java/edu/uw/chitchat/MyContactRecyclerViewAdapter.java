@@ -6,10 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.List;
+
 import edu.uw.chitchat.ContactListFragment.OnListFragmentInteractionListener;
 import edu.uw.chitchat.contactlist.ContactList;
-
-import java.util.List;
 
 /**
  * @author Yohei Sato
@@ -54,6 +54,8 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
             }
         });
     }
+
+
 
     @Override
     public int getItemCount() {

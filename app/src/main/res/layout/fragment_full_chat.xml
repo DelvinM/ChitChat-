@@ -51,6 +51,7 @@
         android:scrollbarSize="6dp"
         android:scrollbarStyle="outsideInset"
         android:scrollbars="vertical"
+        android:gravity="bottom|left"
         android:verticalScrollbarPosition="right"
         app:layout_constraintBottom_toTopOf="@+id/edit_chat_message_input"
         app:layout_constraintEnd_toEndOf="parent"
