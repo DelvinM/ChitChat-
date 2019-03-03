@@ -224,6 +224,7 @@ public class HomeActivity extends AppCompatActivity implements
                 .onPostExecute(this::handleContactlistGetOnPostExecute)
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
+
     }
 
     private void handleErrorsInTask(String result) {
