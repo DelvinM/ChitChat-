@@ -40,6 +40,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     private Credentials mCredentials;
     private String mJwToken;
+    private String mChatId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +50,7 @@ public class HomeActivity extends AppCompatActivity implements
         mJwToken = getIntent().getStringExtra(getString(R.string.keys_intent_jwt));
         mCredentials = (Credentials) getIntent()
                 .getSerializableExtra(getString(R.string.keys_intent_credentials));
-
+        mChatId = getIntent().getStringExtra(getString(R.string.keys_intent_current_chat_id));
         //go to full chat fragment if entry point is notification. else load home fragment
         if (getIntent().getBooleanExtra(getString(R.string.keys_intent_notification_msg), false)) {
             goToFullChat();
@@ -211,7 +212,14 @@ public class HomeActivity extends AppCompatActivity implements
 
     public void goToFullChat() {
         //TODO: update to enter correct chat... currently static so doesn't matter
-        onChatFragmentInteraction(new Chat("","", "", ""));
+        FullChatFragment fullChatFragment = new FullChatFragment();
+        Bundle args = new Bundle();
+        args.putString("chatId", mChatId);
+        args.putString("email", mCredentials.getEmail());
+        args.putString("jwt", mJwToken);
+        fullChatFragment.setArguments(args);
+        //findViewById(R.id.appbar).setVisibility(View.GONE);
+        changeTab(fullChatFragment).addToBackStack(null).commit();
     }
 
     public void goToHome() {

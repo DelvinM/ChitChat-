@@ -1,11 +1,14 @@
 package edu.uw.chitchat;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -79,6 +82,11 @@ public class FullChatFragment extends Fragment {
             mJwToken = getArguments().getString("jwt");
             CHAT_ID = getArguments().getString("chatId");
         }
+
+        //set notification count for current chat to 0, in shared pref
+        removeChatNotificationCount();
+
+
         //We will use this url every time the user hits send. Let's only build it once, ya?
         mSendUrl = new Uri.Builder()
                 .scheme("https")
@@ -98,6 +106,38 @@ public class FullChatFragment extends Fragment {
 
         doGetAll();
     }
+
+    private void removeChatNotificationCount () {
+        //accesses shared pref and removes chat notification count
+        //TODO: this could use a local database. refactor? (delvin)
+
+        String prefString = "chat room " + CHAT_ID + " count";
+
+        //compute new global count
+        int notification_count_chat = getSharedPreference(prefString);
+        int notification_count_global = getSharedPreference(getString(R.string.keys_global_chat_count));
+        int global_count = notification_count_global - notification_count_chat;
+
+        putSharedPreference(prefString, 0);
+        putSharedPreference(getString(R.string.keys_global_chat_count), global_count);
+    }
+
+    //TODO: REFACTOR
+    //adds single value to shared preferences
+    //refactor later make this a class
+    private void putSharedPreference (String key, int value) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(key, value);
+        editor.commit();
+    }
+
+    private int getSharedPreference (String key) {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+        return preferences.getInt(key, 0);
+    }
+
 
     @Override
     public void onResume() {
@@ -249,7 +289,21 @@ public class FullChatFragment extends Fragment {
                     mMessageOutputTextView.append(System.lineSeparator());
 
                 } else {
-                    //TODO: in app notification goes here
+                    //in app notification goes here
+
+                    //keep global counter of in app notifications
+                    int global_count = getSharedPreference(getString(R.string.keys_global_chat_count));
+                    putSharedPreference(getString(R.string.keys_global_chat_count), global_count + 1);
+
+                    //keep counter for individual chatroom
+                    String prefString = "chat room " + chatId + " count";
+                    int chat_count = getSharedPreference(prefString);
+                    putSharedPreference(prefString, chat_count + 1);
+
+                    //TODO: update UI here for inapp notification
+                    //add badge/dot to home activity tab
+                    //add badges/dots to chat list
+
                 }
             }
         }

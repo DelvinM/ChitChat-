@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         Pushy.listen(this);
 
+        //check if user entered from notification
         if (getIntent().getExtras() != null) {
             if (getIntent().getExtras().containsKey("type")) {
                 mLoadFromChatNotification = getIntent().getExtras().getString("type").equals("msg");
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements
                 .commit();
     }
 
+    //TODO: REFACTOR
     //adds single value to shared preferences
     //refactor later make this a class
     private void putSharedPreference (String key, String value) {

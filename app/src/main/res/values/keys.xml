@@ -37,6 +37,14 @@
     <string name="keys_intent_notification_msg">was app started from message notification?</string>
     <string name="keys_intent_current_chat_id">the current chat id</string>
 
+    <string name="keys_global_chat_count">global chat count</string>
+    <string name="keys_chat_room_1_count">chat room 1 count</string>
+    <string name="keys_chat_room_2_count">chat room 2 count</string>
+    <string name="keys_chat_room_3_count">chat room 3 count</string>
+    <string name="keys_chat_room_4_count">chat room 4 count</string>
+    <string name="keys_chat_room_5_count">chat room 5 count</string>
+
+
 
 
 </resources>
