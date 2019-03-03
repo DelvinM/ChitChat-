@@ -33,6 +33,7 @@ public class MyChatRecyclerViewAdapter extends RecyclerView.Adapter<edu.uw.chitc
         holder.mNameView.setText(mValues.get(position).getName());
         holder.mDateView.setText(mValues.get(position).getDate());
         holder.mTeaserView.setText(mValues.get(position).getTeaser());
+        holder.mNotificationView.setText("new " +mValues.get(position).getNotification());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,6 +55,7 @@ public class MyChatRecyclerViewAdapter extends RecyclerView.Adapter<edu.uw.chitc
         public final TextView mNameView;
         public final TextView mDateView;
         public final TextView mTeaserView;
+        public final TextView mNotificationView;
         public Chat mItem;
 
         public ViewHolder(View view) {
@@ -62,6 +64,7 @@ public class MyChatRecyclerViewAdapter extends RecyclerView.Adapter<edu.uw.chitc
             mNameView = (TextView) view.findViewById(R.id.textView_name);
             mDateView = (TextView) view.findViewById(R.id.textView_date);
             mTeaserView = (TextView) view.findViewById(R.id.textView_teaser);
+            mNotificationView = (TextView) view.findViewById(R.id.textView_notification);
         }
     }
 }

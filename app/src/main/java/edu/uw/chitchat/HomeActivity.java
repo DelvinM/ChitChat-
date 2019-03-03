@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -149,16 +150,29 @@ public class HomeActivity extends AppCompatActivity implements
 //                .build().execute();
 //
 //
-        Chat[] chats = {new Chat("Delvin", "2/25/2019", "This is the best app I've ever seen! You get a 4.0.", "1"),
-                new Chat("Logan", "2/25/2019", "Hey man", "2"),
-                new Chat("Joe", "2/25/2019", "Whats up", "3"),
-                new Chat("Yohei", "2/25/2019", "Wow this is really cool", "4"),
+        //gets current new notifications for each chat room...from sharedpref
+        String notificationsCount_1 = Integer.toString(getPrefInt("chat room 1 count"));
+        String notificationsCount_2 = Integer.toString(getPrefInt("chat room 2 count"));
+        String notificationsCount_3 = Integer.toString(getPrefInt("chat room 3 count"));
+        String notificationsCount_4 = Integer.toString(getPrefInt("chat room 4 count"));
+
+        Chat[] chats = {new Chat("Delvin", "2/25/2019", "This is the best app I've ever seen! You get a 4.0.", "1", notificationsCount_1),
+                new Chat("Logan", "2/25/2019", "Hey man", "2", notificationsCount_2),
+                new Chat("Joe", "2/25/2019", "Whats up", "3", notificationsCount_3),
+                new Chat("Yohei", "2/25/2019", "Wow this is really cool", "4", notificationsCount_4),
         };
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
         args.putSerializable(ChatFragment.ARG_CHAT_LIST, chats);
         chatFragment.setArguments(args);
         changeTab(chatFragment).commit();
+    }
+
+    //TODO: refactor
+    private int getPrefInt (String key) {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        return preferences.getInt(key, 0);
     }
 
 //    private void handleBlogGetOnPostExecute(final String result) {
