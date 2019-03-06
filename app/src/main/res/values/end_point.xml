@@ -6,7 +6,7 @@
     <string name="ep_register">register</string>
     <string name="ep_confirm">confirm</string>
     <string name="ep_reset">reset</string>
-    <string name="ep_contact">contact</string>
+    <string name="ep_connection">connection</string>
     <string name="ep_add">add</string>
     <string name="ep_getall">getAll</string>
     <string name="ep_messaging_base">messaging</string>
@@ -14,5 +14,6 @@
     <string name="ep_messaging_getall">getAllMessages</string>
     <string name="ep_pushy">pushy</string>
     <string name="ep_token">token</string>
+    <string name="ep_account">account</string>
 
 </resources>

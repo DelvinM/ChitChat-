@@ -1,6 +1,5 @@
 package edu.uw.chitchat;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -229,7 +228,7 @@ public class HomeActivity extends AppCompatActivity implements
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_contact))
+                .appendPath(getString(R.string.ep_connection))
                 .appendPath(getString(R.string.ep_getall))
                 .build();
         String email = mCredentials.getEmail();
