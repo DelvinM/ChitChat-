@@ -5,9 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.util.Log;
-import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,6 +74,7 @@ public class ResetFragment extends Fragment implements View.OnClickListener{
             Uri uri = new Uri.Builder()
                     .scheme("https")
                     .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_account))
                     .appendPath(getString(R.string.ep_reset))
                     .build();
                     //mListener.onRegisterSuccess(credentials);
