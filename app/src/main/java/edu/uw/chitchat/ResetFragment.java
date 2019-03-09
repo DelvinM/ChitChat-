@@ -76,7 +76,8 @@ public class ResetFragment extends Fragment implements View.OnClickListener{
             Uri uri = new Uri.Builder()
                     .scheme("https")
                     .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_reset))
+                    .appendPath(getString(R.string.ep_account_base))
+                    .appendPath(getString(R.string.ep_account_reset))
                     .build();
                     //mListener.onRegisterSuccess(credentials);
                     //build the web service URL
