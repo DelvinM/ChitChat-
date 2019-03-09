@@ -21,6 +21,7 @@ import edu.uw.chitchat.Credentials.Credentials;
  * @2/9/2018
  */
 
+
 public class ConnectFragment extends Fragment implements View.OnClickListener{
 
     private Credentials mCredentials;
@@ -47,8 +48,13 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
         View view = inflater.inflate(R.layout.fragment_connect, container, false);
         Button b1 = (Button) view.findViewById(R.id.button_add_contact);
         b1.setOnClickListener(this);
-        Button b = (Button) view.findViewById(R.id.button_show_contactlist);
-        b.setOnClickListener(this);
+        Button b2 = (Button) view.findViewById(R.id.button_show_contactlist);
+        b2.setOnClickListener(this);
+        Button b3 = (Button) view.findViewById(R.id.button_show_receive_requestList);
+        b3.setOnClickListener(this);
+        Button b4 = (Button) view.findViewById(R.id.button_show_send_requestList);
+        b4.setOnClickListener(this);
+
         return view;
     }
 
@@ -63,6 +69,13 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
                 case R.id.button_show_contactlist:
                     mListener.onContactListClicked();
                     break;
+                case R.id.button_show_receive_requestList:
+                    Log.wtf("test the first receive if", "thest the first receive if");
+                    mListener.onConnectionReceiveRequestListClicked();
+                    break;
+                case R.id.button_show_send_requestList:
+                    mListener.onConnectionRequestListClicked();
+                    break;
                 default:
                     Log.wtf("", "Didn't expect to see me...");
         }
@@ -70,7 +83,9 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
     }
     public interface OnFragmentInteractionListener {
         void onContactListClicked();
+        void onConnectionRequestListClicked();
         void onAddContactClicked();
+        void onConnectionReceiveRequestListClicked();
     }
 
 }

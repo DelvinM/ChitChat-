@@ -24,6 +24,7 @@ import java.util.List;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
+import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
 import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
@@ -36,11 +37,15 @@ public class HomeActivity extends AppCompatActivity implements
         ResetFragment.OnResetFragmentInteractionListener,
         ConnectFragment.OnFragmentInteractionListener,
         ContactListFragment.OnListFragmentInteractionListener,
-        AddContactFragment.OnAddContactFragmentInteractionListener{
+        AddContactFragment.OnAddContactFragmentInteractionListener,
+        ConnectionSendRequestListFragment.OnListFragmentInteractionListener,
+        ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener{
 
     private Credentials mCredentials;
     private String mJwToken;
     private String mChatId;
+    private ConnectionRequestList[] sendRequestAsArray = null;
+    private ConnectionRequestList[] receiveRequestAsArray = null;
     private ArrayList<String> mChatIds;
     private Chat[] mChats;
     private String mMessage;
@@ -321,6 +326,54 @@ public class HomeActivity extends AppCompatActivity implements
 
     }
 
+    @Override
+    public void onConnectionRequestListClicked() {
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connection))
+                .appendPath(getString(R.string.ep_getRequestList))
+                .build();
+        String email = mCredentials.getEmail();
+        JSONObject jsonSend = new JSONObject();
+        try {
+            jsonSend.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleConnectionSendRequestslistGetOnPostExecute )
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+    @Override
+    public void onConnectionReceiveRequestListClicked() {
+        Log.wtf("test the second receive last if", "thest the second last if");
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connection))
+                .appendPath(getString(R.string.ep_getRequestList))
+                .build();
+        String email = mCredentials.getEmail();
+        JSONObject jsonSend = new JSONObject();
+        try {
+            jsonSend.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleConnectionReceiveRequestslistGetOnPostExecute )
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
     private void handleErrorsInTask(String result) {
             Log.e("ASYNC_TASK_ERROR", result);
     }
@@ -360,6 +413,88 @@ public class HomeActivity extends AppCompatActivity implements
         }
     }
 
+
+    public void handleConnectionSendRequestslistGetOnPostExecute(String result) {
+
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has(getString(R.string.keys_json_sending_request))) {
+                JSONArray response = root.getJSONArray(getString(R.string.keys_json_sending_request));
+                List<ConnectionRequestList> sendrequest = new ArrayList<>();
+                for(int i = 0; i < response.length(); i++) {
+                    JSONObject jsonContact = response.getJSONObject(i);
+                    sendrequest.add(new ConnectionRequestList.Builder(
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_username)),
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_email)))
+                            .build());
+                }
+                Log.wtf("sendtest","sendtest");
+                sendRequestAsArray = new ConnectionRequestList[sendrequest.size()];
+                sendRequestAsArray = sendrequest.toArray(sendRequestAsArray);
+                Bundle args = new Bundle();
+                args.putSerializable("sending requests lists", sendRequestAsArray);
+                //args.putSerializable("receiving requests lists", receiveRequestAsArray);
+                ConnectionSendRequestListFragment frag = new ConnectionSendRequestListFragment();
+                frag.setArguments(args);
+                onWaitFragmentInteractionHide();
+                changeTab(frag).commit();
+            }
+
+
+            else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            //onWaitFragmentInteractionHide();
+        }
+    }
+
+    public void handleConnectionReceiveRequestslistGetOnPostExecute(String result) {
+        Log.wtf("test the second receive last if", "thest the second last if");
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has(getString(R.string.keys_json_receiving_request))) {
+                JSONArray response = root.getJSONArray(getString(R.string.keys_json_receiving_request));
+                List<ConnectionRequestList> receiverequest = new ArrayList<>();
+                for(int i = 0; i < response.length(); i++) {
+                    JSONObject jsonContact = response.getJSONObject(i);
+                    receiverequest.add(new ConnectionRequestList.Builder(
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_username)),
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_email)))
+                            .build());
+                }
+                Log.wtf("recievetest","recievetest");
+                receiveRequestAsArray = new ConnectionRequestList[receiverequest.size()];
+                receiveRequestAsArray = receiverequest.toArray(receiveRequestAsArray);
+                Bundle args = new Bundle();
+                args.putSerializable("receiving requests lists", receiveRequestAsArray);
+                //args.putSerializable("receiving requests lists", receiveRequestAsArray);
+                ConnectionReceiveRequestListFragment frag = new ConnectionReceiveRequestListFragment();
+                frag.setArguments(args);
+                onWaitFragmentInteractionHide();
+                changeTab(frag).commit();
+            }
+
+            else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            //onWaitFragmentInteractionHide();
+        }
+    }
+
+
+
     @Override
     public void onAddContactClicked() {
         AddContactFragment addContactFragment = new AddContactFragment();
@@ -385,6 +520,16 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onContactListFragmentInteraction(ContactList contact) {
+
+    }
+
+    @Override
+    public void onConnectionSendRequestListFragmentInteraction(ConnectionRequestList item) {
+
+    }
+
+    @Override
+    public void onConnectionReceiveRequestListFragmentInteraction(ConnectionRequestList item) {
 
     }
 

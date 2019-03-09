@@ -169,6 +169,7 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                         .appendPath(getString(R.string.ep_base_url))
                         .appendPath(getString(R.string.ep_account_base))
                         .appendPath(getString(R.string.ep_account_register))
+
                         .build();
                 switch (view.getId()) {
                     case R.id.actual_register_button:

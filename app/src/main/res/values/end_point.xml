@@ -3,6 +3,14 @@
     tools:ignore="ExtraTranslation" xmlns:tools="http://schemas.android.com/tools">
 
     <string name="ep_base_url">tcss450-app.herokuapp.com</string>
+    <string name="ep_login">login</string>
+    <string name="ep_register">register</string>
+    <string name="ep_confirm">confirm</string>
+    <string name="ep_reset">reset</string>
+    <string name="ep_connection">connection</string>
+    <string name="ep_add">add</string>
+    <string name="ep_getall">getAll</string>
+    <string name="ep_getRequestList">getRequestList</string>
 
     <string name="ep_account_base">account</string>
     <string name="ep_account_login">login</string>
@@ -29,5 +37,6 @@
     <string name="ep_pushy">pushy</string>
     <string name="ep_token">token</string>
     <string name="ep_account">account</string>
+
 
 </resources>
