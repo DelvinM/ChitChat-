@@ -1,13 +1,10 @@
 package edu.uw.chitchat;
-
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import java.util.List;
-
 import edu.uw.chitchat.ContactListFragment.OnListFragmentInteractionListener;
 import edu.uw.chitchat.contactlist.ContactList;
 
@@ -59,20 +56,20 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
 
     @Override
     public int getItemCount() {
-        return mValues.size();
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public final View mView;
-        public final TextView mUserNameView;
-        public ContactList mItem;
-
-        public ViewHolder(View view) {
-            super(view);
-            mView = view;
-            mUserNameView = (TextView) view.findViewById(R.id.textView_name);
-
+            return mValues.size();
         }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            public final View mView;
+            public final TextView mUserNameView;
+            public ContactList mItem;
+
+            public ViewHolder(View view) {
+                super(view);
+                mView = view;
+                mUserNameView = (TextView) view.findViewById(R.id.textView_name);
+
+            }
 
         @Override
         public String toString() {
