@@ -118,7 +118,7 @@
         app:useCompatPadding="false" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/recyclerView_weather_24hr"
         android:layout_width="0dp"
         android:layout_height="111dp"
         android:layout_marginStart="8dp"
