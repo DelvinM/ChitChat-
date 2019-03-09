@@ -1,4 +1,4 @@
-package edu.uw.chitchat.contactlist;
+package edu.uw.chitchat.ConnectionRequestList;
 
 import java.io.Serializable;
 
@@ -11,8 +11,9 @@ import java.io.Serializable;
  */
 public class ConnectionRequestList implements Serializable {
 
+
     private final String mUsername;
-    private final boolean mPending;
+    private final String mEmailAddress;
 
     /**
      * Helper class for building contact.
@@ -21,12 +22,12 @@ public class ConnectionRequestList implements Serializable {
      */
     public static class Builder {
         private final String mUsername;
-        private final boolean mPending;
+        private final String mEmailAddress;
 
 
-        public Builder(String username, boolean pending) {
+        public Builder(String username, String emailAddress) {
             this.mUsername = username;
-            this.mPending = pending;
+            this.mEmailAddress = emailAddress;
         }
 
 
@@ -37,9 +38,9 @@ public class ConnectionRequestList implements Serializable {
 
     }
 
-    public ConnectionRequestList(final Builder builder) {
+    public ConnectionRequestList(final ConnectionRequestList.Builder builder) {
         this.mUsername = builder.mUsername;
-        this.mPending = builder.mPending;
+        this.mEmailAddress = builder.mEmailAddress;
     }
 
 
@@ -47,8 +48,8 @@ public class ConnectionRequestList implements Serializable {
         return mUsername;
     }
 
-    public boolean getPending() {
-        return mPending;
+    public String getEmailAddress() {
+        return mEmailAddress;
     }
 
 

@@ -58,3 +58,7 @@ dependencies {
 dependencies {
     implementation 'com.android.support:recyclerview-v7:28.+'
 }
+
+dependencies {
+    implementation 'com.android.support:recyclerview-v7:28.+'
+}
