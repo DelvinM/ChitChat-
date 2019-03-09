@@ -282,6 +282,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onChatFragmentInteraction(Chat item) {
+        Log.e("LOGAN", "INTERACTION");
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", item.getChatId());
