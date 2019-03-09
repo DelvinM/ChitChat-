@@ -32,9 +32,20 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
  * A simple {@link Fragment} subclass.
  */
 public class AddContactFragment extends Fragment implements View.OnClickListener{
+
+    private String mEmail;
+
     private OnAddContactFragmentInteractionListener mListener;
     public Credentials mCredentials;
     public AddContactFragment() {
+    }
+
+    public void onStart() {
+        super.onStart();
+        if (getArguments() != null) {
+            //get the email and JWT from the Activity. Make sure the Keys match what you used
+            mEmail = getArguments().getString("email");
+        }
     }
 
 
@@ -86,17 +97,18 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
             Uri uri = new Uri.Builder()
                     .scheme("https")
                     .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_connection))
-                    .appendPath(getString(R.string.ep_add))
+                    .appendPath(getString(R.string.ep_connection_base))
+                    .appendPath(getString(R.string.ep_connection_add))
                     .build();
             //mListener.onRegisterSuccess(credentials);
             //build the web service URL
             //build the JSONObject
-            String emailstored = getSharedPreference (getString(R.string.keys_email_stored_onRegister));
+
+            //String emailstored = getSharedPreference (getString(R.string.keys_email_stored_onRegister));
 
             JSONObject test = new JSONObject();
             try {
-                test.put("email_A", emailstored);
+                test.put("email_A", mEmail);
                 test.put("email_B", friendemail);
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -111,6 +123,7 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
         //mListener.onPasswordUpdate();
     }
 
+    //TODO: update this with pushy notification to user receiving connection request
     private void handleUpDdateNewContact(String result) {
         try {
             JSONObject resultsJSON = new JSONObject(result);

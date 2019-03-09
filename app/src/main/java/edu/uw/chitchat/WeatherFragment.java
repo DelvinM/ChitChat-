@@ -1,25 +1,27 @@
 package edu.uw.chitchat;
 
 import android.Manifest;
-import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-
-import edu.uw.chitchat.Credentials.Credentials;
 
 
 /**
@@ -42,6 +44,8 @@ public class WeatherFragment extends Fragment {
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
 
+    private TextView mLocationTextView;
+
     public WeatherFragment() {
         // Required empty public constructor
     }
@@ -50,8 +54,27 @@ public class WeatherFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_weather , container, false);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
+        FloatingActionButton fab = view.findViewById(R.id.fab_weather);
+        fab.setOnClickListener((new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mCurrentLocation == null) {
+                    Snackbar.make(view, "Please wait for location to enable", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                } else {
+                    Intent i = new Intent(getActivity(), MapsActivity.class);
+                    //pass the current location on to the MapActivity when it is loaded
+                    i.putExtra("LOCATION", mCurrentLocation);
+                    startActivity(i);
+                }
+            }
+        }));
+
+        mLocationTextView = view.findViewById(R.id.tv_weather_location);
+        Log.wtf("Joe tst", "before");
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        Log.wtf("Joe tst", "after");
         if (ActivityCompat.checkSelfPermission(getActivity(),  Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
             && ActivityCompat.checkSelfPermission(getActivity(),  Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -64,6 +87,24 @@ public class WeatherFragment extends Fragment {
         } else {
             requestLocation();
         }
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // Update UI with location data
+                    // ...
+                    setLocation(location);
+                    Log.d("LOCATION UPDATE!", location.toString());
+                }
+            };
+        };
+
+        createLocationRequest();
+
         return view;
     }
 
@@ -104,12 +145,77 @@ public class WeatherFragment extends Fragment {
                         public void onSuccess(Location location) {
                             Log.d("Joe test","it reaches here");
                             if (location != null) {
-                                Log.d("Joe test","it reaches here2");
+                                Log.d("Joe test","it never reaches here");
+                                setLocation(location);
                                 Log.d("LOCATION", location.toString());
                             }
                         }
                     });
         }
+    }
+
+
+    /**
+     * Create and configure a Location Request used when retrieving location updates
+     */
+    protected void createLocationRequest() {
+        mLocationRequest = LocationRequest.create();
+
+        // Sets the desired interval for active location updates. This interval is
+        // inexact. You may not receive updates at all if no location sources are available, or
+        // you may receive them slower than requested. You may also receive updates faster than
+        // requested if other applications are requesting location at a faster interval.
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        // Sets the fastest rate for active location updates. This interval is exact, and your
+        // application will never receive updates faster than this value.
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+
+    @Override
+    public  void onResume() {
+        super.onResume();
+        startLocationUpdates();
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+
+    /**
+     * Requests location updates from the FusedLocationApi.
+     */
+    protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+                    mLocationCallback,
+                    null /* Looper */);
+        }
+    }
+
+
+    /**
+     * Removes location updates from the FusedLocationApi.
+     */
+    protected void stopLocationUpdates() {
+        // It is a good practice to remove location requests when the activity is in a paused or
+        // stopped state. Doing so helps battery performance and is especially
+        // recommended in applications that request frequent location updates.
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
+
+    private void setLocation(final Location location) {
+        mCurrentLocation = location;
+        mLocationTextView.setText(mCurrentLocation.getLatitude() + " " +
+                mCurrentLocation.getLongitude());
     }
 
 }

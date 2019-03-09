@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 
 import org.json.JSONArray;
@@ -25,6 +26,7 @@ import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
 import edu.uw.chitchat.contactlist.ContactList;
+import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
 
@@ -44,6 +46,10 @@ public class HomeActivity extends AppCompatActivity implements
     private String mChatId;
     private ConnectionRequestList[] sendRequestAsArray = null;
     private ConnectionRequestList[] receiveRequestAsArray = null;
+    private ArrayList<String> mChatIds;
+    private Chat[] mChats;
+    private String mMessage;
+    private String mSender;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,13 +60,23 @@ public class HomeActivity extends AppCompatActivity implements
         mCredentials = (Credentials) getIntent()
                 .getSerializableExtra(getString(R.string.keys_intent_credentials));
         mChatId = getIntent().getStringExtra(getString(R.string.keys_intent_current_chat_id));
-        //go to full chat fragment if entry point is notification. else load home fragment
+        mMessage = getIntent().getStringExtra(getString(R.string.keys_intent_current_message));
+        mSender = getIntent().getStringExtra(getString(R.string.keys_intent_current_sender));
+
+        //go to full chat fragment or notifications list if entry point is notification.
+        //else load home fragment
         if (getIntent().getBooleanExtra(getString(R.string.keys_intent_notification_msg), false)) {
-            goToFullChat();
+
+            if (Patterns.EMAIL_ADDRESS.matcher(mChatId).matches()) { //chatId contains email, so load notifications list
+                goToNotificationList();
+            } else { //chatroom case
+                goToFullChat();
+            }
         } else {
             goToHome();
         }
 
+        getIds();
 
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -141,30 +157,85 @@ public class HomeActivity extends AppCompatActivity implements
                 .replace(R.id.activity_home, f);
     }
 
-    public void goToChat() {
-        //gets current new notifications for each chat room...from sharedpref
-        String notificationsCount_1 = Integer.toString(getPrefInt("chat room 1 count"));
-        String notificationsCount_2 = Integer.toString(getPrefInt("chat room 2 count"));
-        String notificationsCount_3 = Integer.toString(getPrefInt("chat room 3 count"));
-        String notificationsCount_4 = Integer.toString(getPrefInt("chat room 4 count"));
-
-        Chat[] chats = {new Chat("Delvin", "2/25/2019", "This is the best app I've ever seen! You get a 4.0.", "1", notificationsCount_1),
-                new Chat("Logan", "2/25/2019", "Hey man", "2", notificationsCount_2),
-                new Chat("Joe", "2/25/2019", "Whats up", "3", notificationsCount_3),
-                new Chat("Yohei", "2/25/2019", "Wow this is really cool", "4", notificationsCount_4),
-        };
-        ChatFragment chatFragment = new ChatFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ChatFragment.ARG_CHAT_LIST, chats);
-        chatFragment.setArguments(args);
-        changeTab(chatFragment).commit();
+    public void getIds() {
+        String getAllIdsUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_chatroom_base))
+                .appendPath(getString(R.string.ep_chatroom_getall_ids))
+                .build()
+                .toString();
+        JSONObject getJson = new JSONObject();
+        try { getJson.put("email", mCredentials.getEmail()); }
+        catch (JSONException e) { Log.e("LOGAN", "cantput"); }
+        new SendPostAsyncTask.Builder(getAllIdsUrl, getJson)
+                .onPostExecute(result -> {
+                    mChatIds = endOfDoGetIds(result);
+                })
+                .onCancelled(error -> Log.e("", error))
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+    private ArrayList<String> endOfDoGetIds(final String result) {
+        ArrayList<String> formattedChatIds = new ArrayList<>();
+        try {
+            JSONObject res = new JSONObject(result);
+            if (res.has("ids")) {
+                String ids = res.getString("ids");
+                String currString = "";
+                int colonCount = 0;
+                for (int i = 0; i < ids.length(); i++) {
+                    if (ids.charAt(i) == ':') {
+                        colonCount++;
+                    } else if (ids.charAt(i) == '}') {
+                        formattedChatIds.add(currString);
+                        colonCount = 0;
+                        currString = "";
+                    } else if (colonCount == 1) {
+                        currString += ids.charAt(i);
+                    }
+                }
+            } else {
+                Log.e("LOGAN", "No Chatrooms Found For User");
+            }
+        } catch (Exception e) {
+            Log.e("LOGAN", "Catch: endOfDoGetIds");
+            e.printStackTrace();
+        }
+        return formattedChatIds;
     }
 
-    //TODO: refactor
-    private int getPrefInt (String key) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        return preferences.getInt(key, 0);
+    public void goToChat() {
+        String getAllUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_chatroom_base))
+                .appendPath(getString(R.string.ep_chatroom_getall_messages))
+                .build()
+                .toString();
+        ChatFragment chatFragment = new ChatFragment();
+        Bundle args = new Bundle();
+        new LoadHistoryAsyncTask.Builder(getAllUrl, mChatIds, this.getBaseContext())
+                .onPostExecute( result -> {
+                    args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
+                    chatFragment.setArguments(args);
+                    changeTab(chatFragment).commit();
+                })
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+    public void goToNotificationList () {
+        //TODO: once yohei creates notification's list, call it from here
+        UserProfileFragment userProfileFragment = new UserProfileFragment();
+        Bundle args = new Bundle();
+        args.putString("chatId", mChatId);
+        args.putString("email", mCredentials.getEmail());
+        args.putString("message", mMessage);
+        args.putString("sender", mSender);
+        userProfileFragment.setArguments(args);
+        //findViewById(R.id.appbar).setVisibility(View.GONE);
+        changeTab(userProfileFragment).addToBackStack(null).commit();
     }
 
 
@@ -177,6 +248,8 @@ public class HomeActivity extends AppCompatActivity implements
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
+
+        //TODO:CHANGE TAB TO CHAT SO LOOKS VISUALLY BETTER
         changeTab(fullChatFragment).addToBackStack(null).commit();
     }
 
@@ -214,16 +287,16 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onChatFragmentInteraction(Chat item) {
+        Log.e("LOGAN", "INTERACTION");
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", item.getChatId());
+        args.putStringArrayList("contents", item.getContents());
         args.putString("email", mCredentials.getEmail());
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
         changeTab(fullChatFragment).addToBackStack(null).commit();
-//        Toast.makeText(getBaseContext(),
-//                "Display Conversation with " + item.getName(), Toast.LENGTH_SHORT).show();
     }
 
 
@@ -233,8 +306,8 @@ public class HomeActivity extends AppCompatActivity implements
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_connection))
-                .appendPath(getString(R.string.ep_getall))
+                .appendPath(getString(R.string.ep_connection_base))
+                .appendPath(getString(R.string.ep_connection_getall))
                 .build();
         String email = mCredentials.getEmail();
 
@@ -424,8 +497,11 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onAddContactClicked() {
-
-        changeTab(new AddContactFragment()).addToBackStack(null).commit();
+        AddContactFragment addContactFragment = new AddContactFragment();
+        Bundle args = new Bundle();
+        args.putString("email", mCredentials.getEmail());
+        addContactFragment.setArguments(args);
+        changeTab(addContactFragment).addToBackStack(null).commit();
     }
 
     @Override
