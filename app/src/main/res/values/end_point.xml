@@ -1,17 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     tools:ignore="ExtraTranslation" xmlns:tools="http://schemas.android.com/tools">
+
     <string name="ep_base_url">tcss450-app.herokuapp.com</string>
-    <string name="ep_login">login</string>
-    <string name="ep_register">register</string>
-    <string name="ep_confirm">confirm</string>
-    <string name="ep_reset">reset</string>
-    <string name="ep_connection">connection</string>
-    <string name="ep_add">add</string>
-    <string name="ep_getall">getAll</string>
+
+    <string name="ep_account_base">account</string>
+    <string name="ep_account_login">login</string>
+    <string name="ep_account_register">register</string>
+    <string name="ep_account_confirm">confirm</string>
+    <string name="ep_account_reset">reset</string>
+    <string name="ep_account_verify">verify</string>
+
+    <string name="ep_connection_base">connection</string>
+    <string name="ep_connection_add">add</string>
+    <string name="ep_connection_getall">getAll</string>
+
     <string name="ep_messaging_base">messaging</string>
     <string name="ep_messaging_send">send</string>
-    <string name="ep_messaging_getall">getAllMessages</string>
+
+    <string name="ep_chatroom_base">chatroom</string>
+    <string name="ep_chatroom_getall_messages">getAllMessages</string>
+    <string name="ep_chatroom_getall_ids">getAllIds</string>
+    <string name="ep_chatroom_getall_members">getAllMembers</string>
+    <string name="ep_chatroom_createroom">createRoom</string>
+    <string name="ep_chatroom_addmember">addMember</string>
+
+
     <string name="ep_pushy">pushy</string>
     <string name="ep_token">token</string>
     <string name="ep_account">account</string>

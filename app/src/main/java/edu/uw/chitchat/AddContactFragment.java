@@ -97,8 +97,8 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
             Uri uri = new Uri.Builder()
                     .scheme("https")
                     .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_connection))
-                    .appendPath(getString(R.string.ep_add))
+                    .appendPath(getString(R.string.ep_connection_base))
+                    .appendPath(getString(R.string.ep_connection_add))
                     .build();
             //mListener.onRegisterSuccess(credentials);
             //build the web service URL
