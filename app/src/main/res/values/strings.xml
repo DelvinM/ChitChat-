@@ -43,4 +43,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_maps">Map</string>
+    <string name="fragment_weather_current">Current Weather</string>
+    <string name="fragment_weather_temperature">Temperature</string>
+    <string name="fragment_weather_humidity">Humidity</string>
+    <string name="fragment_weather_description">Description</string>
+    <string name="fragment_weather_24hr">24hr broadcast</string>
 </resources>
