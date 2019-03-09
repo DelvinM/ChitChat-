@@ -291,8 +291,11 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onAddContactClicked() {
-
-        changeTab(new AddContactFragment()).addToBackStack(null).commit();
+        AddContactFragment addContactFragment = new AddContactFragment();
+        Bundle args = new Bundle();
+        args.putString("email", mCredentials.getEmail());
+        addContactFragment.setArguments(args);
+        changeTab(addContactFragment).addToBackStack(null).commit();
     }
 
     @Override

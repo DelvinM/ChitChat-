@@ -184,6 +184,9 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoginSuccess(Credentials credentials, String jwt) {
+
+
+
         Intent i = new Intent(this, HomeActivity.class);
         i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
         i.putExtra(getString(R.string.keys_intent_jwt), jwt);
