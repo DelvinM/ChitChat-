@@ -12,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 
 import org.json.JSONArray;
@@ -39,6 +40,8 @@ public class HomeActivity extends AppCompatActivity implements
     private Credentials mCredentials;
     private String mJwToken;
     private String mChatId;
+    private String mMessage;
+    private String mSender;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,9 +52,18 @@ public class HomeActivity extends AppCompatActivity implements
         mCredentials = (Credentials) getIntent()
                 .getSerializableExtra(getString(R.string.keys_intent_credentials));
         mChatId = getIntent().getStringExtra(getString(R.string.keys_intent_current_chat_id));
-        //go to full chat fragment if entry point is notification. else load home fragment
+        mMessage = getIntent().getStringExtra(getString(R.string.keys_intent_current_message));
+        mSender = getIntent().getStringExtra(getString(R.string.keys_intent_current_sender));
+
+        //go to full chat fragment or notifications list if entry point is notification.
+        //else load home fragment
         if (getIntent().getBooleanExtra(getString(R.string.keys_intent_notification_msg), false)) {
-            goToFullChat();
+
+            if (Patterns.EMAIL_ADDRESS.matcher(mChatId).matches()) { //chatId contains email, so load notifications list
+                goToNotificationList();
+            } else { //chatroom case
+                goToFullChat();
+            }
         } else {
             goToHome();
         }
@@ -162,6 +174,19 @@ public class HomeActivity extends AppCompatActivity implements
         return preferences.getInt(key, 0);
     }
 
+    public void goToNotificationList () {
+        //TODO: once yohei creates notification's list, call it from here
+        UserProfileFragment userProfileFragment = new UserProfileFragment();
+        Bundle args = new Bundle();
+        args.putString("chatId", mChatId);
+        args.putString("email", mCredentials.getEmail());
+        args.putString("message", mMessage);
+        args.putString("sender", mSender);
+        userProfileFragment.setArguments(args);
+        //findViewById(R.id.appbar).setVisibility(View.GONE);
+        changeTab(userProfileFragment).addToBackStack(null).commit();
+    }
+
 
     public void goToFullChat() {
         //TODO: update to enter correct chat... currently static so doesn't matter
@@ -172,6 +197,8 @@ public class HomeActivity extends AppCompatActivity implements
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
+
+        //TODO:CHANGE TAB TO CHAT SO LOOKS VISUALLY BETTER
         changeTab(fullChatFragment).addToBackStack(null).commit();
     }
 
@@ -216,6 +243,7 @@ public class HomeActivity extends AppCompatActivity implements
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
+
         changeTab(fullChatFragment).addToBackStack(null).commit();
 //        Toast.makeText(getBaseContext(),
 //                "Display Conversation with " + item.getName(), Toast.LENGTH_SHORT).show();
@@ -286,8 +314,6 @@ public class HomeActivity extends AppCompatActivity implements
             //onWaitFragmentInteractionHide();
         }
     }
-
-
 
     @Override
     public void onAddContactClicked() {

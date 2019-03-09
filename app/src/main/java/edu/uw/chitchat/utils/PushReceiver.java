@@ -56,24 +56,17 @@ public class PushReceiver extends BroadcastReceiver {
             //app is in the foreground so send the message to the active Activities
             Log.d("ChitChat", "Message received in foreground: " + messageText);
 
-            //TODO: uncomment for in app notification logic
-            //if current chat is the same as incoming channel, display message
-            //if (channel == currentChannel) {
-
             //create an Intent to broadcast a message to other parts of the app.
             Intent i = new Intent(RECEIVED_NEW_MESSAGE);
+
+            //TODO: REDUNDANT?
             i.putExtra("SENDER", sender);
             i.putExtra("CHATID", chatId);
             i.putExtra("MESSAGE", messageText);
-            i.putExtra("CHATID", chatId);
+           // i.putExtra("CHATID", chatId);
             i.putExtras(intent.getExtras());
 
             context.sendBroadcast(i);
-
-            //else chat is not the same, display notification bubble
-            // } else {
-                    //increment global count... sharedpref?
-            //}
 
         } else {
             //app is in the background so create and post a notification

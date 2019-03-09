@@ -31,6 +31,8 @@ public class MainActivity extends AppCompatActivity implements
     private boolean mLoadFromChatNotification = false;
 
     private String mChatId;//for chatid
+    private String mMessage;
+    private String mSender;
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements
             if (getIntent().getExtras().containsKey("type")) {
                 mLoadFromChatNotification = getIntent().getExtras().getString("type").equals("msg");
                 mChatId = getIntent().getStringExtra("chatId");
+                mSender = getIntent().getStringExtra("sender");
+                mMessage = getIntent().getStringExtra("message");
             }
         }
 
@@ -192,6 +196,8 @@ public class MainActivity extends AppCompatActivity implements
         i.putExtra(getString(R.string.keys_intent_jwt), jwt);
         i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
         i.putExtra(getString(R.string.keys_intent_current_chat_id), mChatId);
+        i.putExtra(getString(R.string.keys_intent_current_sender), mSender);
+        i.putExtra(getString(R.string.keys_intent_current_message), mMessage);
         startActivity(i);
         finish();
 //        if (findViewById(R.id.frame_main_container) != null) {
