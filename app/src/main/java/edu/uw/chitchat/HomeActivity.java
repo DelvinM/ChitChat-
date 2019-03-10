@@ -1,7 +1,9 @@
 package edu.uw.chitchat;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -26,6 +28,7 @@ import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
+import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
 
@@ -49,11 +52,23 @@ public class HomeActivity extends AppCompatActivity implements
     private Chat[] mChats;
     private String mMessage;
     private String mSender;
+    private MyChatRecyclerViewAdapter mChatAdapter;
+    private String mEmail;
+
+    private PushMessageReceiver mPushMessageReciever;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        if (getIntPreference(getString(R.string.keys_global_chat_count)) == 0) {
+            findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
+        }
+
+        if (getIntPreference(getString(R.string.keys_global_connection_count)) == 0) {
+            findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
+        }
 
         mJwToken = getIntent().getStringExtra(getString(R.string.keys_intent_jwt));
         mCredentials = (Credentials) getIntent()
@@ -61,6 +76,7 @@ public class HomeActivity extends AppCompatActivity implements
         mChatId = getIntent().getStringExtra(getString(R.string.keys_intent_current_chat_id));
         mMessage = getIntent().getStringExtra(getString(R.string.keys_intent_current_message));
         mSender = getIntent().getStringExtra(getString(R.string.keys_intent_current_sender));
+        mEmail = mCredentials.getEmail();
 
         //go to full chat fragment or notifications list if entry point is notification.
         //else load home fragment
@@ -75,7 +91,7 @@ public class HomeActivity extends AppCompatActivity implements
             goToHome();
         }
 
-        getIds();
+        getIds(false, false);
 
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -115,7 +131,7 @@ public class HomeActivity extends AppCompatActivity implements
     public void onResetClicked() {
         //TODO: Implement Reset Password
         Log.d("Logan", "Reset Password Button Pressed");
-        changeTab(new ResetFragment()).addToBackStack(null).commit();
+        changeTab(new ResetFragment(), "RESET").addToBackStack(null).commit();
         findViewById(R.id.appbar).setVisibility(View.GONE);
     }
 
@@ -150,13 +166,14 @@ public class HomeActivity extends AppCompatActivity implements
      * @return the fragment transaction for committing.
      * @author Logan Jenny
      */
-    public FragmentTransaction changeTab(Fragment f) {
+    public FragmentTransaction changeTab(Fragment f, String tag) {
+        findViewById(R.id.floatingActionButton_newChat).setVisibility(View.GONE);
         return getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.activity_home, f);
+                .replace(R.id.activity_home, f, tag);
     }
 
-    public void getIds() {
+    public void getIds(Boolean manualSelected, Boolean reloadFlag) {
         String getAllIdsUrl = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -170,6 +187,7 @@ public class HomeActivity extends AppCompatActivity implements
         new SendPostAsyncTask.Builder(getAllIdsUrl, getJson)
                 .onPostExecute(result -> {
                     mChatIds = endOfDoGetIds(result);
+                    goToChat(manualSelected, reloadFlag);
                 })
                 .onCancelled(error -> Log.e("", error))
                 .addHeaderField("authorization", mJwToken)
@@ -204,7 +222,11 @@ public class HomeActivity extends AppCompatActivity implements
         return formattedChatIds;
     }
 
-    public void goToChat() {
+    public void goToChat(Boolean manualAccess, Boolean reloadFlag) {
+
+        findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
+        //putIntPreference(getString(R.string.keys_global_chat_count), 0);
+
         String getAllUrl = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -212,29 +234,54 @@ public class HomeActivity extends AppCompatActivity implements
                 .appendPath(getString(R.string.ep_chatroom_getall_messages))
                 .build()
                 .toString();
+        String getMembersUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_chatroom_base))
+                .appendPath(getString(R.string.ep_chatroom_getall_members))
+                .build()
+                .toString();
+
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
-        new LoadHistoryAsyncTask.Builder(getAllUrl, mChatIds, this.getBaseContext())
+        if(manualAccess && mChats != null && reloadFlag == false) {
+            args.putSerializable(ChatFragment.ARG_CHAT_LIST, mChats);
+            args.putSerializable("credentials", mCredentials);
+            chatFragment.setArguments(args);
+            changeTab(chatFragment, "CHAT").commit();
+            findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
+        }
+        new LoadHistoryAsyncTask.Builder(getAllUrl, getMembersUrl, mChatIds, mChatAdapter, this.getBaseContext())
                 .onPostExecute( result -> {
-                    args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
-                    chatFragment.setArguments(args);
-                    changeTab(chatFragment).commit();
+                    if(manualAccess) {
+                        args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
+                        args.putSerializable("credentials", mCredentials);
+                        chatFragment.setArguments(args);
+                        changeTab(chatFragment, "CHAT").commit();
+                        findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
+                    }
+                    mChats = result;
                 })
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }
 
     public void goToNotificationList () {
+
+        findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
+        //reset global connection count since user is viewing requests now
+        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+
         //TODO: once yohei creates notification's list, call it from here
         UserProfileFragment userProfileFragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
-        args.putString("email", mCredentials.getEmail());
+        args.putString("email", mEmail);
         args.putString("message", mMessage);
         args.putString("sender", mSender);
         userProfileFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
-        changeTab(userProfileFragment).addToBackStack(null).commit();
+        changeTab(userProfileFragment, "USER_PROFILE").addToBackStack(null).commit();
     }
 
 
@@ -249,7 +296,7 @@ public class HomeActivity extends AppCompatActivity implements
         //findViewById(R.id.appbar).setVisibility(View.GONE);
 
         //TODO:CHANGE TAB TO CHAT SO LOOKS VISUALLY BETTER
-        changeTab(fullChatFragment).addToBackStack(null).commit();
+        changeTab(fullChatFragment, "FULL_CHAT").addToBackStack(null).commit();
     }
 
     public void goToHome() {
@@ -257,23 +304,24 @@ public class HomeActivity extends AppCompatActivity implements
         Bundle args = new Bundle();
         args.putSerializable(getString(R.string.keys_intent_credentials), mCredentials);
         homeFragment.setArguments(args);
-        changeTab(homeFragment).commit();
+        changeTab(homeFragment, "HOME").commit();
     }
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
+        findViewById(R.id.floatingActionButton_newChat).setVisibility(View.GONE);
         switch(tab.getPosition()) {
             case 0: //Home
                 goToHome();
                 break;
             case 1: //Chat
-                goToChat();
+                goToChat(true, false);
                 break;
             case 2: //Connect
-                changeTab(new ConnectFragment()).commit();
+                changeTab(new ConnectFragment(), "CONNECT").commit();
                 break;
             case 3: //Weather
-                changeTab(new WeatherFragment()).commit();
+                changeTab(new WeatherFragment(), "CONNECT").commit();
                 break;
         }
     }
@@ -286,7 +334,6 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onChatFragmentInteraction(Chat item) {
-        Log.e("LOGAN", "INTERACTION");
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", item.getChatId());
@@ -295,7 +342,13 @@ public class HomeActivity extends AppCompatActivity implements
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
-        changeTab(fullChatFragment).addToBackStack(null).commit();
+        changeTab(fullChatFragment, "FULL_CHAT").addToBackStack(null).commit();
+    }
+
+    @Override
+    public void onReloadChatFragment(MyChatRecyclerViewAdapter adapter) {
+        mChatAdapter = adapter;
+        getIds(true, true);
     }
 
 
@@ -428,7 +481,7 @@ public class HomeActivity extends AppCompatActivity implements
                 ContactListFragment frag = new ContactListFragment();
                 frag.setArguments(args);
                 onWaitFragmentInteractionHide();
-                changeTab(frag).commit();
+                changeTab(frag, "CONTACT_LIST").commit();
             } else {
                 Log.e("ERROR!", "No response");
                 //notify user
@@ -466,7 +519,7 @@ public class HomeActivity extends AppCompatActivity implements
                 ConnectionSendRequestListFragment frag = new ConnectionSendRequestListFragment();
                 frag.setArguments(args);
                 onWaitFragmentInteractionHide();
-                changeTab(frag).commit();
+                changeTab(frag, "CONNECTION_SEND").commit();
             }
 
 
@@ -506,7 +559,7 @@ public class HomeActivity extends AppCompatActivity implements
                 ConnectionReceiveRequestListFragment frag = new ConnectionReceiveRequestListFragment();
                 frag.setArguments(args);
                 onWaitFragmentInteractionHide();
-                changeTab(frag).commit();
+                changeTab(frag, "CONNECTION_RECEIVE").commit();
             }
 
             else {
@@ -522,9 +575,11 @@ public class HomeActivity extends AppCompatActivity implements
         }
     }
 
+
     public String getMyEmail(){
         return mCredentials.getEmail();
     }
+
 
     @Override
     public void onAddContactClicked() {
@@ -532,15 +587,13 @@ public class HomeActivity extends AppCompatActivity implements
         Bundle args = new Bundle();
         args.putString("email", mCredentials.getEmail());
         addContactFragment.setArguments(args);
-        changeTab(addContactFragment).addToBackStack(null).commit();
+        changeTab(addContactFragment, "CONTACT").addToBackStack(null).commit();
     }
 
     @Override
     public void onListFragmentInteraction(ContactList mItem) {
 
     }
-
-
 
     private String getSharedPreference (String key) {
         SharedPreferences sharedPref =
@@ -602,6 +655,82 @@ public class HomeActivity extends AppCompatActivity implements
         // startActivity(i);
         // //Ends this Activity and removes it from the Activity back stack.
         // finish();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mPushMessageReciever == null) {
+            mPushMessageReciever = new PushMessageReceiver();
+        }
+        IntentFilter iFilter = new IntentFilter(PushReceiver.RECEIVED_NEW_MESSAGE);
+        this.registerReceiver(mPushMessageReciever, iFilter);
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mPushMessageReciever != null){
+            this.unregisterReceiver(mPushMessageReciever);
+        }
+    }
+
+    //TODO:REFACTOR
+    private int getIntPreference (String key) {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        return preferences.getInt(key, 0);
+    }
+
+    //TODO: REFACTOR
+    //adds single value to shared preferences
+    //refactor later make this a class
+    private void putIntPreference (String key, int value) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(key, value);
+        editor.commit();
+    }
+
+    /**
+     * A BroadcastReceiver that listens for messages sent from PushReceiver
+     */
+    private class PushMessageReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.hasExtra("SENDER") &&
+                    intent.hasExtra("MESSAGE") &&
+                    intent.hasExtra("CHATID"))
+            {
+                //chat id contains users email
+                String chatId = intent.getStringExtra("CHATID");
+
+                if (Patterns.EMAIL_ADDRESS.matcher(chatId).matches()) { // increase connection request global counter
+                    if(chatId.equals(mEmail)) {
+
+                        findViewById(R.id.imageView_home_connectNotification).setVisibility(View.VISIBLE);
+
+                        int global_count = getIntPreference(getString(R.string.keys_global_connection_count));
+                        putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1);
+
+                        //TODO: make icon light up or something
+                    }
+                } else { // increase chat room global counter
+
+                    findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
+
+                    int global_count = getIntPreference(getString(R.string.keys_global_chat_count));
+                    putIntPreference(getString(R.string.keys_global_chat_count), global_count + 1);
+
+                    //keep counter for individual chatroom
+                    String prefString = "chat room " + chatId + " count";
+                    int chat_count = getIntPreference(prefString);
+                    putIntPreference(prefString, chat_count + 1);
+
+                    //TODO: make icon light up or something
+                }
+            }
         }
     }
 

@@ -57,6 +57,7 @@ public class FullChatFragment extends Fragment {
         mMessageInputEditText = v.findViewById(R.id.edit_chat_message_input);
         mMessageOutputTextView = v.findViewById(R.id.text_chat_message_display);
         ((ImageButton) v.findViewById(R.id.button_chat_send)).setOnClickListener(this::handleSendClick);
+        ((ImageButton) v.findViewById(R.id.button_chat_addmember)).setOnClickListener(this::handleAddMember);
 
         if (getArguments() != null) {
             mContents = getArguments().getStringArrayList("contents");
@@ -143,6 +144,13 @@ public class FullChatFragment extends Fragment {
         }
     }
 
+    private void handleAddMember(View view) {
+        Log.e("LOGAN", "add a member");
+        mMessageOutputTextView.append("Member Added!");
+        mMessageOutputTextView.append(System.lineSeparator());
+        mMessageOutputTextView.append(System.lineSeparator());
+    }
+
     private void handleSendClick(final View theButton) {
         String msg = mMessageInputEditText.getText().toString();
         JSONObject messageJson = new JSONObject();
@@ -203,18 +211,16 @@ public class FullChatFragment extends Fragment {
                 } else {
                     //in app notification goes here
 
-                    //keep global counter of in app notifications
+                    /*//keep global counter of in app notifications
                     int global_count = getSharedPreference(getString(R.string.keys_global_chat_count));
                     putSharedPreference(getString(R.string.keys_global_chat_count), global_count + 1);
 
                     //keep counter for individual chatroom
                     String prefString = "chat room " + chatId + " count";
                     int chat_count = getSharedPreference(prefString);
-                    putSharedPreference(prefString, chat_count + 1);
+                    putSharedPreference(prefString, chat_count + 1);*/
 
-                    //TODO: update UI here for inapp notification
-                    //add badge/dot to home activity tab
-                    //add badges/dots to chat list
+
 
                 }
             }

@@ -33,6 +33,7 @@
     <string name="ep_chatroom_getall_ids">getAllIds</string>
     <string name="ep_chatroom_getall_members">getAllMembers</string>
     <string name="ep_chatroom_createroom">createRoom</string>
+    <string name="ep_chatroom_getroomid">getRoomId</string>
     <string name="ep_chatroom_addmember">addMember</string>
 
 
@@ -41,4 +42,7 @@
     <string name="ep_account">account</string>
 
 
+    <string name="ep_weather">weather</string>
+    <string name="ep_getWeather">getWeather</string>
+    <string name="ep_getLocations">getLocations</string>
 </resources>

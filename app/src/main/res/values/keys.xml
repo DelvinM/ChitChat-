@@ -53,6 +53,19 @@
     <string name="keys_chat_room_5_count">chat room 5 count</string>
 
 
+    <string name="keys_weather_currently">currently</string>
+    <string name="keys_weather_summary">summary</string>
+    <string name="keys_weather_temperature">temperature</string>
+    <string name="keys_weather_humidity">humidity</string>
+
+    <string name="keys_weather_hourly">hourly</string>
+    <string name="keys_weather_time">time</string>
+    <string name="keys_weather_icon">icon</string>
+    <string name="keys_weather_data">data</string>
+
+    <string name="keys_weather_daily">daily</string>
+    <string name="keys_weather_temperatureLow">temperatureLow</string>
+
 
 
 </resources>

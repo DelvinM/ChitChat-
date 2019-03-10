@@ -10,18 +10,21 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import java.util.Set;
 import java.util.function.Consumer;
 
+import edu.uw.chitchat.MyChatRecyclerViewAdapter;
 import edu.uw.chitchat.chat.Chat;
 
 public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
 
     private final String mUrl;
+    private final String mGetMembersUrl;
     private final Context mContext;
+    private final MyChatRecyclerViewAdapter mChatAdapter;
     private final ArrayList<Chat> mChats;
     private final ArrayList<String> mChatIds;
     private final Runnable mOnPre;
@@ -30,16 +33,20 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
 
     public static class Builder {
         private final String mUrl;
+        private final String mGetMembersUrl;
         private final Context mContext;
+        private final MyChatRecyclerViewAdapter mChatAdapter;
         private final ArrayList<String> mChatIds;
         private Consumer<Chat[]> onPost = x -> {};
         private Runnable onPre = () -> {};
         private Map<String, String> headers;
 
-        public Builder(final String url, ArrayList<String> chatIds, Context context) {
+        public Builder(final String url, final String getMembersUrl, ArrayList<String> chatIds, MyChatRecyclerViewAdapter chatAdapter, Context context) {
             mContext = context;
             mChatIds = chatIds;
+            mChatAdapter = chatAdapter;
             mUrl = url;
+            mGetMembersUrl = getMembersUrl;
             headers = new HashMap<>();
         }
         public Builder onPreExecute(final Runnable val) {
@@ -62,7 +69,9 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
 
     private LoadHistoryAsyncTask(final Builder builder) {
         mUrl = builder.mUrl;
+        mGetMembersUrl = builder.mGetMembersUrl;
         mContext = builder.mContext;
+        mChatAdapter = builder.mChatAdapter;
         mChatIds = builder.mChatIds;
         mOnPre = builder.onPre;
         mOnPost = builder.onPost;
@@ -74,26 +83,37 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
     protected void onPreExecute() {
         for(int i = 0; i < mChatIds.size(); i++) {
             JSONObject getJson = new JSONObject();
-            try {
-                getJson.put("chatId", mChatIds.get(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            try {getJson.put("chatId", mChatIds.get(i));
+            } catch (JSONException e) {e.printStackTrace();}
             int index = i;
             new SendPostAsyncTask.Builder(mUrl, getJson)
                     .onPostExecute(result -> {
-                        ArrayList<String> contents = endOfDoGetAll(result);
-                        String mostRecent = contents.get(contents.size() - 1);
-                        contents.remove(contents.size() - 1);
-                        mChats.add(new Chat(contents.get(index).split(":")[0], mostRecent,
-                                contents.get(index).split(":")[1], mChatIds.get(index),
-                                Integer.toString(getPrefInt("chat room " + mChatIds.get(index) + " count")), contents));
+                        final ArrayList<String> contents = endOfDoGetAll(result);
+                        if(contents.size() > 2) {
+                            String mostRecent = contents.get(contents.size() - 1);
+                            contents.remove(contents.size() - 1);
+                            String members = contents.get(contents.size() - 1);
+                            contents.remove(contents.size() - 1);
+                            mChats.add(new Chat(members, mostRecent,
+                                    contents.get(0), mChatIds.get(index),
+                                    Integer.toString(getPrefInt("chat room " + mChatIds.get(index) + " count")), contents));
+                        } else {
+                            ArrayList<String> newContents = new ArrayList<String>();
+                            contents.add("ChitChat: New Chat!");
+                            mChats.add(new Chat("New Chat", "now",
+                                    "Tap to add members and start chatting!", mChatIds.get(index),
+                                    Integer.toString(getPrefInt("chat room " + mChatIds.get(index) + " count")), newContents));
+                        }
                         preHelper();
                     })
                     .onCancelled(error -> Log.e("LOADASYNC", "Problem"))
                     .addHeaderField("authorization", mHeaders.get("authorization"))
                     .build().execute();
         }
+    }
+
+    private void preTest() {
+        Log.e("LOGAN", "TEST");
     }
 
     private void preHelper() {
@@ -105,7 +125,7 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
 
     @Override
     protected Chat[] doInBackground(Void... voids) {
-        while(mChats.size() < mChatIds.size()) {}
+        while(mChats.size() < mChatIds.size()) {publishProgress();}
         Chat[] arr = new Chat[mChatIds.size()];
         return mChats.toArray(arr);
     }
@@ -113,12 +133,15 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
     private ArrayList<String> endOfDoGetAll(final String result) {
         ArrayList<String> formattedMessages = new ArrayList<String>();
         String mostRecent = "";
+        String members = "";
+        Set<String> memberSet = new HashSet<String>();
         boolean mostRecentRecorded = false;
         try {
             JSONObject res = new JSONObject(result);
             if(res.has("messages")) {
                 String messages = res.getString("messages");
                 String currString = "";
+                String currMember = "";
                 int count = 1;
                 int quoteCount = 0;
                 for (int i = 0; i < messages.length(); i++) {
@@ -148,6 +171,11 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
                             if (quoteCount == 4) {
                                 count = 1;
                                 quoteCount = 0;
+                                currMember = currString.split(":")[0];
+                                if(!memberSet.contains(currMember)) {
+                                    memberSet.add(currMember);
+                                    members += currMember + " ";
+                                }
                                 formattedMessages.add(currString);
                                 mostRecentRecorded = true;
                                 currString = "";
@@ -161,6 +189,7 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        formattedMessages.add(members);
         formattedMessages.add(mostRecent.split(" ")[0]);
         return formattedMessages;
     }

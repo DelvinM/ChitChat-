@@ -1,7 +1,9 @@
 package edu.uw.chitchat;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.PopupMenu;
 import android.util.Log;
@@ -67,6 +69,17 @@ public class HomeFragment extends Fragment implements PopupMenu.OnMenuItemClickL
     @Override
     public void onStart() {
         super.onStart();
+
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int newChatCount = preferences.getInt(getString(R.string.keys_global_chat_count), 0);
+        int newConnectionCount = preferences.getInt(getString(R.string.keys_global_connection_count), 0);
+
+
+
+        TextView outPut = getActivity().findViewById(R.id.textView_home_update);
+        outPut.setText("");
+
         String welcome = "Welcome Back, ";
         if(mCredentials.getFirstName() == null || mCredentials.getFirstName().isEmpty()) {
             String[] emailArr = mCredentials.getEmail().split("@");
@@ -74,7 +87,12 @@ public class HomeFragment extends Fragment implements PopupMenu.OnMenuItemClickL
         } else {
             welcome += mCredentials.getFirstName() + "!";
         }
-        ((TextView) getActivity().findViewById(R.id.textView_home_welcome)).setText(welcome);
+
+        outPut.append(welcome);
+        outPut.append(System.lineSeparator());
+        outPut.append("You Have " + newChatCount + " New Messages");
+        outPut.append(System.lineSeparator());
+        outPut.append("And " + newConnectionCount + " Connection Requests");
     }
 
     @Override
