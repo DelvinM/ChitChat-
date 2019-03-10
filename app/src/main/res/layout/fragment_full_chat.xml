@@ -8,6 +8,17 @@
     tools:context=".ChatFragment">
 
     <ImageButton
+        android:id="@+id/button_chat_addmember"
+        android:layout_width="66dp"
+        android:layout_height="60dp"
+        android:backgroundTint="@android:color/transparent"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_add_circle"
+        android:tint="@android:color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
         android:id="@+id/button_chat_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,7 +36,6 @@
         style="@android:style/Widget.Holo.Light.AutoCompleteTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:backgroundTint="@android:color/white"
@@ -37,7 +47,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_chat_send"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/button_chat_addmember" />
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/nestedScrollView"

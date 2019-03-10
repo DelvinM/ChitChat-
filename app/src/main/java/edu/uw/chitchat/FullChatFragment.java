@@ -57,6 +57,7 @@ public class FullChatFragment extends Fragment {
         mMessageInputEditText = v.findViewById(R.id.edit_chat_message_input);
         mMessageOutputTextView = v.findViewById(R.id.text_chat_message_display);
         ((ImageButton) v.findViewById(R.id.button_chat_send)).setOnClickListener(this::handleSendClick);
+        ((ImageButton) v.findViewById(R.id.button_chat_addmember)).setOnClickListener(this::handleAddMember);
 
         if (getArguments() != null) {
             mContents = getArguments().getStringArrayList("contents");
@@ -141,6 +142,13 @@ public class FullChatFragment extends Fragment {
         if (mPushMessageReciever != null){
             getActivity().unregisterReceiver(mPushMessageReciever);
         }
+    }
+
+    private void handleAddMember(View view) {
+        Log.e("LOGAN", "add a member");
+        mMessageOutputTextView.append("Member Added!");
+        mMessageOutputTextView.append(System.lineSeparator());
+        mMessageOutputTextView.append(System.lineSeparator());
     }
 
     private void handleSendClick(final View theButton) {
