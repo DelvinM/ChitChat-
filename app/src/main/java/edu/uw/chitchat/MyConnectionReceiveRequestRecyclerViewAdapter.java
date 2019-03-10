@@ -60,7 +60,7 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
                 String myEmail = mListener.getEmail();
                 String friendEmail = mValues.get(position).getEmailAddress();
 
-                Uri uri2 = new Uri.Builder()
+                Uri uri = new Uri.Builder()
                         .scheme("https")
                         .appendPath("tcss450-app.herokuapp.com")
                         .appendPath("connection")
@@ -69,12 +69,12 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
 
                 JSONObject test = new JSONObject();
                 try {
-                    test.put("email_A", myEmail);
-                    test.put("email_B", friendEmail);
+                    test.put("email_A", friendEmail);
+                    test.put("email_B", myEmail);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                new SendPostAsyncTask.Builder(uri2.toString(), test)
+                new SendPostAsyncTask.Builder(uri.toString(), test)
                         .build().execute();
                 mValues.remove(position);
                 notifyDataSetChanged();

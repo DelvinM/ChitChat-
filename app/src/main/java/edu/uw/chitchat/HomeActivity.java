@@ -325,29 +325,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     }
 
-//    @Override
-//    public void onAcceptClicked(){
-//        Uri uri = new Uri.Builder()
-//                .scheme("https")
-//                .appendPath(getString(R.string.ep_base_url))
-//                .appendPath(getString(R.string.ep_connection_base))
-//                .appendPath(getString(R.string.ep_connection_confirmRequest))
-//                .build();
-//        String email = mCredentials.getEmail();
-//
-//        JSONObject jsonSend = new JSONObject();
-//        try {
-//            jsonSend.put("email", email);
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
-//                .onPostExecute(this::handleAcceptGetOnPostExecute)
-//                .addHeaderField("authorization", mJwToken)
-//                .build().execute();
-//    }
+
 
     @Override
     public void onConnectionRequestListClicked() {

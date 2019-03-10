@@ -131,11 +131,11 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
                     resultsJSON.getBoolean(getString(R.string.keys_json_login_success));
             if (success) {
                 Log.wtf("yohei", "success");
-                Toast.makeText(getActivity(), "You successfully added the new contact",
+                Toast.makeText(getActivity(), "You successfully send a friend request",
                         Toast.LENGTH_LONG).show();
                 return;
             } else {
-                Toast.makeText(getActivity(), "You failed to add the new contact",
+                Toast.makeText(getActivity(), "You failed to send a friend request",
                         Toast.LENGTH_LONG).show();
             }
             mListener.onWaitFragmentInteractionHide();
