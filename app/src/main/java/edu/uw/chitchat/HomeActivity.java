@@ -92,7 +92,7 @@ public class HomeActivity extends AppCompatActivity implements
             goToHome();
         }
 
-        getIds();
+        getIds(false, false);
 
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -174,7 +174,7 @@ public class HomeActivity extends AppCompatActivity implements
                 .replace(R.id.activity_home, f, tag);
     }
 
-    public void getIds() {
+    public void getIds(Boolean manualSelected, Boolean reloadFlag) {
         String getAllIdsUrl = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -188,10 +188,7 @@ public class HomeActivity extends AppCompatActivity implements
         new SendPostAsyncTask.Builder(getAllIdsUrl, getJson)
                 .onPostExecute(result -> {
                     mChatIds = endOfDoGetIds(result);
-                    Fragment frag = getSupportFragmentManager().findFragmentByTag("CHAT");
-                    if(frag != null && frag.isVisible()) {
-                        goToChat();
-                    }
+                    goToChat(manualSelected, reloadFlag);
                 })
                 .onCancelled(error -> Log.e("", error))
                 .addHeaderField("authorization", mJwToken)
@@ -226,7 +223,7 @@ public class HomeActivity extends AppCompatActivity implements
         return formattedChatIds;
     }
 
-    public void goToChat() {
+    public void goToChat(Boolean manualAccess, Boolean reloadFlag) {
 
         findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
         //putIntPreference(getString(R.string.keys_global_chat_count), 0);
@@ -245,15 +242,26 @@ public class HomeActivity extends AppCompatActivity implements
                 .appendPath(getString(R.string.ep_chatroom_getall_members))
                 .build()
                 .toString();
+
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
+        if(manualAccess && mChats != null && reloadFlag == false) {
+            args.putSerializable(ChatFragment.ARG_CHAT_LIST, mChats);
+            args.putSerializable("credentials", mCredentials);
+            chatFragment.setArguments(args);
+            changeTab(chatFragment, "CHAT").commit();
+            findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
+        }
         new LoadHistoryAsyncTask.Builder(getAllUrl, getMembersUrl, mChatIds, mChatAdapter, this.getBaseContext())
                 .onPostExecute( result -> {
-                    args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
-                    args.putSerializable("credentials", mCredentials);
-                    chatFragment.setArguments(args);
-                    changeTab(chatFragment, "CHAT").commit();
-                    findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
+                    if(manualAccess) {
+                        args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
+                        args.putSerializable("credentials", mCredentials);
+                        chatFragment.setArguments(args);
+                        changeTab(chatFragment, "CHAT").commit();
+                        findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
+                    }
+                    mChats = result;
                 })
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
@@ -308,7 +316,7 @@ public class HomeActivity extends AppCompatActivity implements
                 goToHome();
                 break;
             case 1: //Chat
-                goToChat();
+                goToChat(true, false);
                 break;
             case 2: //Connect
                 changeTab(new ConnectFragment(), "CONNECT").commit();
@@ -341,7 +349,7 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     public void onReloadChatFragment(MyChatRecyclerViewAdapter adapter) {
         mChatAdapter = adapter;
-        getIds();
+        getIds(true, true);
     }
 
 
