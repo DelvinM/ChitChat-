@@ -16,9 +16,9 @@ public class Broadcast {
         this.mIcon = icon;
     }
 
-    public String getName() { return mTemperature; }
-    public String getDate() { return mTime; }
-    public String getTeaser() { return mSummary; }
-    public String getChatId() { return mHumidity; }
-    public String getNotification() { return mIcon; }
+    public String getTemperature() { return mTemperature; }
+    public String getTime() { return mTime; }
+    public String getSummary() { return mSummary; }
+    public String getHumidity() { return mHumidity; }
+    public String getIcon() { return mIcon; }
 }

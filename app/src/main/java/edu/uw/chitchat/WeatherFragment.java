@@ -1,6 +1,7 @@
 package edu.uw.chitchat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -10,6 +11,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,10 +31,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import edu.uw.chitchat.contactlist.ContactList;
+import edu.uw.chitchat.broadcast.Broadcast;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 
@@ -62,6 +65,8 @@ public class WeatherFragment extends Fragment {
     private TextView mHumidity;
     private TextView mDescription;
 
+    private RecyclerView m24hrRecyclerView;
+
     public WeatherFragment() {
         // Required empty public constructor
     }
@@ -91,6 +96,7 @@ public class WeatherFragment extends Fragment {
         mTemperature = view.findViewById(R.id.tv_weather_temperature);
         mHumidity = view.findViewById(R.id.tv_weather_humidity);
         mDescription = view.findViewById(R.id.tv_weather_description);
+        m24hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
 
 
 
@@ -279,12 +285,33 @@ public class WeatherFragment extends Fragment {
                 mHumidity.setText(sb.toString());
                 sb = new StringBuilder("Summary: " + currently.getString(getString(R.string.keys_weather_summary)));
                 mDescription.setText(sb.toString());
-
             } else {
                 Log.e("ERROR!", "No response");
                 //notify user
-
             }
+
+            if (root.has(getString(R.string.keys_weather_hourly))) {
+                JSONObject hourly = root.getJSONObject(getString(R.string.keys_weather_hourly));
+                if (hourly.has(getString(R.string.keys_weather_data))) {
+                    JSONArray data = hourly.getJSONArray(getString(R.string.keys_weather_data));
+                    List<Broadcast> broadcasts = new LinkedList<>();
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject broadcast = data.getJSONObject(i);
+                        broadcasts.add(new Broadcast(
+                                broadcast.getString(getString(R.string.keys_weather_temperature)),
+                                broadcast.getString(getString(R.string.keys_weather_time)),
+                                broadcast.getString(getString(R.string.keys_weather_summary)),
+                                broadcast.getString(getString(R.string.keys_weather_humidity)),
+                                broadcast.getString(getString(R.string.keys_weather_icon))));
+                    }
+
+                    Context context = m24hrRecyclerView.getContext();
+                    m24hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                    m24hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
+                }
+            }
+
+
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("ERROR!", e.getMessage());
