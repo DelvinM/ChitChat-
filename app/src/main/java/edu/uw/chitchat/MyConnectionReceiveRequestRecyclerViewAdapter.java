@@ -33,12 +33,10 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
 
     private final List<ConnectionRequestList> mValues;
     private final OnListFragmentInteractionListener mListener;
-    private MyInterface mListener2;
     private Context mContext;
-    public MyConnectionReceiveRequestRecyclerViewAdapter(List<ConnectionRequestList> items, OnListFragmentInteractionListener listener, MyInterface listener2) {
+    public MyConnectionReceiveRequestRecyclerViewAdapter(List<ConnectionRequestList> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
-        mListener2 = listener2;
 
     }
 
@@ -59,6 +57,25 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
             @Override
             public void onClick(View v)
             {
+                String myEmail = mListener.getEmail();
+                String friendEmail = mValues.get(position).getEmailAddress();
+
+                Uri uri2 = new Uri.Builder()
+                        .scheme("https")
+                        .appendPath("tcss450-app.herokuapp.com")
+                        .appendPath("connection")
+                        .appendPath("deleteRequest")
+                        .build();
+
+                JSONObject test = new JSONObject();
+                try {
+                    test.put("email_A", myEmail);
+                    test.put("email_B", friendEmail);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                new SendPostAsyncTask.Builder(uri2.toString(), test)
+                        .build().execute();
                 mValues.remove(position);
                 notifyDataSetChanged();
                 Log.i("Delete Button Clicked","Delete!");
@@ -80,6 +97,7 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
                         .appendPath("connection")
                         .appendPath("confirmRequest")
                         .build();
+
                 //mListener.onRegisterSuccess(credentials);
                 //build the web service URL
                 //build the JSONObject
@@ -95,8 +113,8 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
                 }
                 JSONObject test2 = new JSONObject();
                 try {
-                    test.put("email_A", friendEmail);
-                    test.put("email_B", myEmail);
+                    test2.put("email_A", friendEmail);
+                    test2.put("email_B", myEmail);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -105,6 +123,8 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
                         .build().execute();
                 new SendPostAsyncTask.Builder(uri.toString(), test2)
                         .build().execute();
+//                new SendPostAsyncTask.Builder(uri.toString(), test2)
+//                        .build().execute();
 
                 mValues.remove(position);
                 notifyDataSetChanged();
@@ -151,8 +171,6 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
             return super.toString() + " '" + mUserNameView.getText() + "'";
         }
     }
-    public interface MyInterface{
-       String getMyEmail();
-    }
+
 
 }

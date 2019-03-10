@@ -18,8 +18,7 @@ public class MainActivity extends AppCompatActivity implements
         LoginFragment.OnLoginFragmentInteractionListener,
         RegisterFragment.OnRegisterFragmentInteractionListener,
         VerifyFragment.OnVerifyFragmentInteractionListener,
-        ContactListFragment.OnListFragmentInteractionListener,
-        MyConnectionReceiveRequestRecyclerViewAdapter.MyInterface{
+        ContactListFragment.OnListFragmentInteractionListener{
 
     private static final int SPLASH_TIME_OUT = 1500;
     private Credentials mCredentials;
@@ -254,8 +253,5 @@ public class MainActivity extends AppCompatActivity implements
         transaction.commit();
     }
 
-    @Override
-    public String getMyEmail() {
-        return mCredentials.getEmail();
-    }
+
 }
