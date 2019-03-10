@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -22,9 +21,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
-import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
 import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
@@ -327,6 +326,30 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onAcceptClicked(){
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connection_base))
+                .appendPath(getString(R.string.ep_connection_confirmRequest))
+                .build();
+        String email = mCredentials.getEmail();
+
+        JSONObject jsonSend = new JSONObject();
+        try {
+            jsonSend.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleAcceptGetOnPostExecute)
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+    @Override
     public void onConnectionRequestListClicked() {
 
         Uri uri = new Uri.Builder()
@@ -376,6 +399,34 @@ public class HomeActivity extends AppCompatActivity implements
 
     private void handleErrorsInTask(String result) {
             Log.e("ASYNC_TASK_ERROR", result);
+    }
+
+    private void handleAcceptGetOnPostExecute(String result){
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has(getString(R.string.keys_json_contactlist_response))) {
+                JSONArray response = root.getJSONArray(getString(R.string.keys_json_contactlist_response));
+                List<ContactList> contacts = new ArrayList<>();
+                for(int i = 0; i < response.length(); i++) {
+                    JSONObject jsonContact = response.getJSONObject(i);
+                    contacts.add(new ContactList.Builder(
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_username)),
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_email)))
+                            .build());
+                }
+
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            //onWaitFragmentInteractionHide();
+        }
+
     }
 
     private void handleContactlistGetOnPostExecute(String result) {

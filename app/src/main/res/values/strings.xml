@@ -41,6 +41,8 @@
     <string name="userId_key">useridkey</string>
     <string name="userName_key">usernamekey</string>
     <string name="userDescription_key">userdescriptionkey</string>
+    <string name="accept_request_button">accept</string>
+    <string name="delete_request_button">delete</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
