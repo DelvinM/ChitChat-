@@ -23,7 +23,7 @@ import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
  *
  */
 
-public class ConnectionReceiveRequestListFragment extends Fragment {
+public class ConnectionReceiveRequestListFragment extends Fragment implements View.OnClickListener{
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -78,6 +78,21 @@ public class ConnectionReceiveRequestListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate( R.layout.fragment_connection_receive_requestlist, container, false );
+//        Button b1 = (Button) view.findViewById(R.id.accept_button);
+//        b1.setOnClickListener(this);
+//        Button b2 = (Button) view.findViewById(R.id.delete_button);
+//        b2.setOnClickListener(this);
+
+//        if (mListener != null) {
+//            //mListener.onContactListClicked();
+//            switch (view.getId()) {
+//                case R.id.accept_button:
+//                    //Listener.onAddContactClicked();
+//                    break;
+//                case R.id.delete_button:
+//                    //mListener.
+//            }
+//        }
 
         // Set the adapter
         if (view instanceof RecyclerView) {
@@ -88,9 +103,14 @@ public class ConnectionReceiveRequestListFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager( new GridLayoutManager( context, mColumnCount ) );
             }
-            recyclerView.setAdapter( new MyConnectionReceiveRequestRecyclerViewAdapter(mConnectionRequestList, mListener ) );
+            recyclerView.setAdapter( new MyConnectionReceiveRequestRecyclerViewAdapter(mConnectionRequestList, mListener) );
         }
         return view;
+    }
+
+
+    public String getEmail(){
+        return getArguments().getString("email");
     }
 
 
@@ -111,6 +131,11 @@ public class ConnectionReceiveRequestListFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onClick(View v) {
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -124,5 +149,6 @@ public class ConnectionReceiveRequestListFragment extends Fragment {
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onConnectionReceiveRequestListFragmentInteraction(ConnectionRequestList item);
+        String getEmail();
     }
 }
