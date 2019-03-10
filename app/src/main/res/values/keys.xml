@@ -14,7 +14,8 @@
     <string name="keys_json_contactlist_data">contactlistdata</string>
     <string name="keys_json_contactlist_username">username</string>
     <string name="keys_json_contactlist_email">email</string>
-
+    <string name="keys_json_sending_request">send</string>
+    <string name="keys_json_receiving_request">receive</string>
 
     <string name="keys_username_stored_onRegister">usernamestored</string>
     <string name="keys_firstname_stored_onRegister">firstnamestored</string>
@@ -39,9 +40,12 @@
     <string name="keys_prefs_email">traffic_light_wont_let_me_through</string>
     <string name="keys_prefs_password">see_the_city_see_the_zoo</string>
     <string name="keys_intent_notification_msg">was app started from message notification?</string>
-    <string name="keys_intent_current_chat_id">the current chat id</string>
+    <string name="keys_intent_current_sender">the current pushy sender</string>
+    <string name="keys_intent_current_message">the current pushy message text</string>
+    <string name="keys_intent_current_chat_id">the current pushy chat id</string>
 
     <string name="keys_global_chat_count">global chat count</string>
+    <string name="keys_global_connection_count">global connection count</string>
     <string name="keys_chat_room_1_count">chat room 1 count</string>
     <string name="keys_chat_room_2_count">chat room 2 count</string>
     <string name="keys_chat_room_3_count">chat room 3 count</string>

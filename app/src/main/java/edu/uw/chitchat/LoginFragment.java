@@ -122,8 +122,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_account))
-                .appendPath(getString(R.string.ep_login))
+                .appendPath(getString(R.string.ep_account_base))
+                .appendPath(getString(R.string.ep_account_login))
                 .build();
         //build the JSONObject
         JSONObject msg = credentials.asJSONObject();
@@ -161,7 +161,8 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
             Uri uri = new Uri.Builder()
                     .scheme("https")
                     .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_confirm))
+                    .appendPath(getString(R.string.ep_account_base))
+                    .appendPath(getString(R.string.ep_account_confirm))
                     .build();
 
             //build the JSONObject
