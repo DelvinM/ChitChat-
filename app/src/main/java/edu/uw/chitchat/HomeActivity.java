@@ -53,6 +53,7 @@ public class HomeActivity extends AppCompatActivity implements
     private Chat[] mChats;
     private String mMessage;
     private String mSender;
+    private MyChatRecyclerViewAdapter mChatAdapter;
     private String mEmail;
 
     private PushMessageReceiver mPushMessageReciever;
@@ -131,7 +132,7 @@ public class HomeActivity extends AppCompatActivity implements
     public void onResetClicked() {
         //TODO: Implement Reset Password
         Log.d("Logan", "Reset Password Button Pressed");
-        changeTab(new ResetFragment()).addToBackStack(null).commit();
+        changeTab(new ResetFragment(), "RESET").addToBackStack(null).commit();
         findViewById(R.id.appbar).setVisibility(View.GONE);
     }
 
@@ -166,10 +167,11 @@ public class HomeActivity extends AppCompatActivity implements
      * @return the fragment transaction for committing.
      * @author Logan Jenny
      */
-    public FragmentTransaction changeTab(Fragment f) {
+    public FragmentTransaction changeTab(Fragment f, String tag) {
+        findViewById(R.id.floatingActionButton_newChat).setVisibility(View.GONE);
         return getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.activity_home, f);
+                .replace(R.id.activity_home, f, tag);
     }
 
     public void getIds() {
@@ -186,6 +188,10 @@ public class HomeActivity extends AppCompatActivity implements
         new SendPostAsyncTask.Builder(getAllIdsUrl, getJson)
                 .onPostExecute(result -> {
                     mChatIds = endOfDoGetIds(result);
+                    Fragment frag = getSupportFragmentManager().findFragmentByTag("CHAT");
+                    if(frag != null && frag.isVisible()) {
+                        goToChat();
+                    }
                 })
                 .onCancelled(error -> Log.e("", error))
                 .addHeaderField("authorization", mJwToken)
@@ -232,13 +238,22 @@ public class HomeActivity extends AppCompatActivity implements
                 .appendPath(getString(R.string.ep_chatroom_getall_messages))
                 .build()
                 .toString();
+        String getMembersUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_chatroom_base))
+                .appendPath(getString(R.string.ep_chatroom_getall_members))
+                .build()
+                .toString();
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
-        new LoadHistoryAsyncTask.Builder(getAllUrl, mChatIds, this.getBaseContext())
+        new LoadHistoryAsyncTask.Builder(getAllUrl, getMembersUrl, mChatIds, mChatAdapter, this.getBaseContext())
                 .onPostExecute( result -> {
                     args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
+                    args.putSerializable("credentials", mCredentials);
                     chatFragment.setArguments(args);
-                    changeTab(chatFragment).commit();
+                    changeTab(chatFragment, "CHAT").commit();
+                    findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
                 })
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
@@ -258,8 +273,8 @@ public class HomeActivity extends AppCompatActivity implements
         args.putString("message", mMessage);
         args.putString("sender", mSender);
         userProfileFragment.setArguments(args);
-
-        changeTab(userProfileFragment).addToBackStack(null).commit();
+        //findViewById(R.id.appbar).setVisibility(View.GONE);
+        changeTab(userProfileFragment, "USER_PROFILE").addToBackStack(null).commit();
     }
 
 
@@ -273,9 +288,8 @@ public class HomeActivity extends AppCompatActivity implements
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
 
-        //TODO:CHANGE TAB underbar TO CHAT SO LOOKS VISUALLY BETTER
-
-        changeTab(fullChatFragment).addToBackStack(null).commit();
+        //TODO:CHANGE TAB TO CHAT SO LOOKS VISUALLY BETTER
+        changeTab(fullChatFragment, "FULL_CHAT").addToBackStack(null).commit();
     }
 
     public void goToHome() {
@@ -283,11 +297,12 @@ public class HomeActivity extends AppCompatActivity implements
         Bundle args = new Bundle();
         args.putSerializable(getString(R.string.keys_intent_credentials), mCredentials);
         homeFragment.setArguments(args);
-        changeTab(homeFragment).commit();
+        changeTab(homeFragment, "HOME").commit();
     }
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
+        findViewById(R.id.floatingActionButton_newChat).setVisibility(View.GONE);
         switch(tab.getPosition()) {
             case 0: //Home
                 goToHome();
@@ -296,10 +311,10 @@ public class HomeActivity extends AppCompatActivity implements
                 goToChat();
                 break;
             case 2: //Connect
-                changeTab(new ConnectFragment()).commit();
+                changeTab(new ConnectFragment(), "CONNECT").commit();
                 break;
             case 3: //Weather
-                changeTab(new WeatherFragment()).commit();
+                changeTab(new WeatherFragment(), "CONNECT").commit();
                 break;
         }
     }
@@ -312,7 +327,6 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onChatFragmentInteraction(Chat item) {
-        Log.e("LOGAN", "INTERACTION");
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", item.getChatId());
@@ -321,7 +335,13 @@ public class HomeActivity extends AppCompatActivity implements
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
-        changeTab(fullChatFragment).addToBackStack(null).commit();
+        changeTab(fullChatFragment, "FULL_CHAT").addToBackStack(null).commit();
+    }
+
+    @Override
+    public void onReloadChatFragment(MyChatRecyclerViewAdapter adapter) {
+        mChatAdapter = adapter;
+        getIds();
     }
 
 
@@ -424,7 +444,7 @@ public class HomeActivity extends AppCompatActivity implements
                 ContactListFragment frag = new ContactListFragment();
                 frag.setArguments(args);
                 onWaitFragmentInteractionHide();
-                changeTab(frag).commit();
+                changeTab(frag, "CONTACT_LIST").commit();
             } else {
                 Log.e("ERROR!", "No response");
                 //notify user
@@ -462,7 +482,7 @@ public class HomeActivity extends AppCompatActivity implements
                 ConnectionSendRequestListFragment frag = new ConnectionSendRequestListFragment();
                 frag.setArguments(args);
                 onWaitFragmentInteractionHide();
-                changeTab(frag).commit();
+                changeTab(frag, "CONNECTION_SEND").commit();
             }
 
 
@@ -502,7 +522,7 @@ public class HomeActivity extends AppCompatActivity implements
                 ConnectionReceiveRequestListFragment frag = new ConnectionReceiveRequestListFragment();
                 frag.setArguments(args);
                 onWaitFragmentInteractionHide();
-                changeTab(frag).commit();
+                changeTab(frag, "CONNECTION_RECEIVE").commit();
             }
 
             else {
@@ -524,7 +544,7 @@ public class HomeActivity extends AppCompatActivity implements
         Bundle args = new Bundle();
         args.putString("email", mCredentials.getEmail());
         addContactFragment.setArguments(args);
-        changeTab(addContactFragment).addToBackStack(null).commit();
+        changeTab(addContactFragment, "CONTACT").addToBackStack(null).commit();
     }
 
     @Override
