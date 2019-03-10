@@ -5,30 +5,28 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import java.util.Date;
 import java.util.List;
-
 import edu.uw.chitchat.broadcast.Broadcast;
 
-public class My24BroadcastRecycleViewAdapter extends RecyclerView.Adapter<My24BroadcastRecycleViewAdapter.ViewHolder> {
+public class MyWeekBroadcastRecycleViewAdapter extends RecyclerView.Adapter<MyWeekBroadcastRecycleViewAdapter.ViewHolder>{
 
     private final List<Broadcast> mValues;
 
 
-    public My24BroadcastRecycleViewAdapter(List<Broadcast> items) {
+    public MyWeekBroadcastRecycleViewAdapter(List<Broadcast> items) {
         mValues = items;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_24broadcast_single, parent, false);
+                .inflate(R.layout.fragment_7daysbroadcast_single, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         StringBuilder sb = new StringBuilder(mValues.get(position).getTemperature() + "\u00b0F");
         holder.mTemperature.setText(sb.toString());
@@ -37,16 +35,12 @@ public class My24BroadcastRecycleViewAdapter extends RecyclerView.Adapter<My24Br
         Date date = new Date(unixTime * 1000);
         String[] dateParsed = parseDate(date.toString());
         //Sat Mar 09 18:00:00 PST 2019
-        int hr = Integer.valueOf(dateParsed[3].substring(0, 2));
-        if (hr >= 12) {
-            if (hr != 12) {
-                hr = hr - 12;
-            }
-            sb = new StringBuilder(hr + "PM");
-        } else {
-            sb = new StringBuilder(hr + "AM");
-        }
+        sb = new StringBuilder(dateParsed[0]);
         holder.mTime.setText(sb.toString());
+
+        holder.mSummary.setText(mValues.get(position).getSummary());
+        sb = new StringBuilder(mValues.get(position).getHumidity() + "%");
+        holder.mHumidity.setText(sb.toString());
     }
 
     @Override
@@ -59,14 +53,18 @@ public class My24BroadcastRecycleViewAdapter extends RecyclerView.Adapter<My24Br
         public final View mView;
         public final TextView mTemperature;
         public final TextView mTime;
+        public final TextView mSummary;
+        public final TextView mHumidity;
         public Broadcast mItem;
 
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mTemperature = (TextView) view.findViewById(R.id.fragment_24broadcast_single_temperature);
-            mTime = (TextView) view.findViewById(R.id.fragment_24broadcast_single_time);
+            mTemperature = (TextView) view.findViewById(R.id.fragment_7daysbroadcast_single_temperature);
+            mTime = (TextView) view.findViewById(R.id.fragment_7daysbroadcast_single_time);
+            mSummary = (TextView) view.findViewById(R.id.fragment_7daysbroadcast_single_summary);
+            mHumidity = (TextView) view.findViewById(R.id.fragment_7daysbroadcast_single_humidity);
         }
     }
 

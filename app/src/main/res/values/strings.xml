@@ -48,4 +48,5 @@
     <string name="fragment_weather_humidity">Humidity</string>
     <string name="fragment_weather_description">Description</string>
     <string name="fragment_weather_24hr">24hr broadcast</string>
+    <string name="fragment_weather_7days">7 days broadcast</string>
 </resources>

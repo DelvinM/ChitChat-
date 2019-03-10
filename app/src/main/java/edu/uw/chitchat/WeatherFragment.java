@@ -66,6 +66,7 @@ public class WeatherFragment extends Fragment {
     private TextView mDescription;
 
     private RecyclerView m24hrRecyclerView;
+    private RecyclerView mWeekRecyclerView;
 
     public WeatherFragment() {
         // Required empty public constructor
@@ -97,6 +98,7 @@ public class WeatherFragment extends Fragment {
         mHumidity = view.findViewById(R.id.tv_weather_humidity);
         mDescription = view.findViewById(R.id.tv_weather_description);
         m24hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
+        mWeekRecyclerView = view.findViewById(R.id.recycleView_weather_7days);
 
 
 
@@ -308,6 +310,27 @@ public class WeatherFragment extends Fragment {
                     Context context = m24hrRecyclerView.getContext();
                     m24hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
                     m24hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
+                }
+            }
+
+            if (root.has(getString(R.string.keys_weather_daily))) {
+                JSONObject daily = root.getJSONObject(getString(R.string.keys_weather_daily));
+                if (daily.has(getString(R.string.keys_weather_data))){
+                    JSONArray data = daily.getJSONArray(getString(R.string.keys_weather_data));
+                    List<Broadcast> broadcasts = new LinkedList<>();
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject broadcast = data.getJSONObject(i);
+                        broadcasts.add(new Broadcast(
+                                broadcast.getString(getString(R.string.keys_weather_temperatureLow)),
+                                broadcast.getString(getString(R.string.keys_weather_time)),
+                                broadcast.getString(getString(R.string.keys_weather_summary)),
+                                broadcast.getString(getString(R.string.keys_weather_humidity)),
+                                broadcast.getString(getString(R.string.keys_weather_icon))));
+                    }
+
+                    Context context = mWeekRecyclerView.getContext();
+                    mWeekRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+                    mWeekRecyclerView.setAdapter(new MyWeekBroadcastRecycleViewAdapter(broadcasts));
                 }
             }
 

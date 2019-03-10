@@ -59,6 +59,9 @@
     <string name="keys_weather_icon">icon</string>
     <string name="keys_weather_data">data</string>
 
+    <string name="keys_weather_daily">daily</string>
+    <string name="keys_weather_temperatureLow">temperatureLow</string>
+
 
 
 </resources>
