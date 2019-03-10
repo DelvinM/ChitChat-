@@ -203,18 +203,16 @@ public class FullChatFragment extends Fragment {
                 } else {
                     //in app notification goes here
 
-                    //keep global counter of in app notifications
+                    /*//keep global counter of in app notifications
                     int global_count = getSharedPreference(getString(R.string.keys_global_chat_count));
                     putSharedPreference(getString(R.string.keys_global_chat_count), global_count + 1);
 
                     //keep counter for individual chatroom
                     String prefString = "chat room " + chatId + " count";
                     int chat_count = getSharedPreference(prefString);
-                    putSharedPreference(prefString, chat_count + 1);
+                    putSharedPreference(prefString, chat_count + 1);*/
 
-                    //TODO: update UI here for inapp notification
-                    //add badge/dot to home activity tab
-                    //add badges/dots to chat list
+
 
                 }
             }

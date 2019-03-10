@@ -1,7 +1,9 @@
 package edu.uw.chitchat;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -27,6 +29,7 @@ import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
 import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
+import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
 
@@ -50,6 +53,9 @@ public class HomeActivity extends AppCompatActivity implements
     private Chat[] mChats;
     private String mMessage;
     private String mSender;
+    private String mEmail;
+
+    private PushMessageReceiver mPushMessageReciever;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +68,7 @@ public class HomeActivity extends AppCompatActivity implements
         mChatId = getIntent().getStringExtra(getString(R.string.keys_intent_current_chat_id));
         mMessage = getIntent().getStringExtra(getString(R.string.keys_intent_current_message));
         mSender = getIntent().getStringExtra(getString(R.string.keys_intent_current_sender));
+        mEmail = mCredentials.getEmail();
 
         //go to full chat fragment or notifications list if entry point is notification.
         //else load home fragment
@@ -206,6 +213,9 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     public void goToChat() {
+
+        findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
+
         String getAllUrl = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -226,15 +236,21 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     public void goToNotificationList () {
+
+        findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
+
+        //reset global connection count since user is viewing requests now
+        putSharedPreference(getString(R.string.keys_global_connection_count), "0");
+
         //TODO: once yohei creates notification's list, call it from here
         UserProfileFragment userProfileFragment = new UserProfileFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
-        args.putString("email", mCredentials.getEmail());
+        args.putString("email", mEmail);
         args.putString("message", mMessage);
         args.putString("sender", mSender);
         userProfileFragment.setArguments(args);
-        //findViewById(R.id.appbar).setVisibility(View.GONE);
+
         changeTab(userProfileFragment).addToBackStack(null).commit();
     }
 
@@ -249,7 +265,8 @@ public class HomeActivity extends AppCompatActivity implements
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
 
-        //TODO:CHANGE TAB TO CHAT SO LOOKS VISUALLY BETTER
+        //TODO:CHANGE TAB underbar TO CHAT SO LOOKS VISUALLY BETTER
+
         changeTab(fullChatFragment).addToBackStack(null).commit();
     }
 
@@ -493,8 +510,6 @@ public class HomeActivity extends AppCompatActivity implements
         }
     }
 
-
-
     @Override
     public void onAddContactClicked() {
         AddContactFragment addContactFragment = new AddContactFragment();
@@ -508,8 +523,6 @@ public class HomeActivity extends AppCompatActivity implements
     public void onListFragmentInteraction(ContactList mItem) {
 
     }
-
-
 
     private String getSharedPreference (String key) {
         SharedPreferences sharedPref =
@@ -566,6 +579,80 @@ public class HomeActivity extends AppCompatActivity implements
         // startActivity(i);
         // //Ends this Activity and removes it from the Activity back stack.
         // finish();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mPushMessageReciever == null) {
+            mPushMessageReciever = new PushMessageReceiver();
+        }
+        IntentFilter iFilter = new IntentFilter(PushReceiver.RECEIVED_NEW_MESSAGE);
+        this.registerReceiver(mPushMessageReciever, iFilter);
+    }
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mPushMessageReciever != null){
+            this.unregisterReceiver(mPushMessageReciever);
+        }
+    }
+
+    //TODO:REFACTOR
+    private int getIntPreference (String key) {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        return preferences.getInt(key, 0);
+    }
+
+    //TODO: REFACTOR
+    //adds single value to shared preferences
+    //refactor later make this a class
+    private void putIntPreference (String key, int value) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(key, value);
+        editor.commit();
+    }
+
+    /**
+     * A BroadcastReceiver that listens for messages sent from PushReceiver
+     */
+    private class PushMessageReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.hasExtra("SENDER") &&
+                    intent.hasExtra("MESSAGE") &&
+                    intent.hasExtra("CHATID"))
+            {
+                //chat id contains users email
+                String chatId = intent.getStringExtra("CHATID");
+
+                if (Patterns.EMAIL_ADDRESS.matcher(chatId).matches()) { // increase connection request global counter
+                    findViewById(R.id.imageView_home_connectNotification).setVisibility(View.VISIBLE);
+
+                    int global_count = getIntPreference(getString(R.string.keys_global_connection_count));
+                    putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1);
+
+                    //TODO: make icon light up or something
+
+                } else { // increase chat room global counter
+
+                    findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
+
+                    int global_count = getIntPreference(getString(R.string.keys_global_chat_count));
+                    putIntPreference(getString(R.string.keys_global_chat_count), global_count + 1);
+
+                    //keep counter for individual chatroom
+                    String prefString = "chat room " + chatId + " count";
+                    int chat_count = getIntPreference(prefString);
+                    putIntPreference(prefString, chat_count + 1);
+
+                    //TODO: make icon light up or something
+                }
+            }
         }
     }
 

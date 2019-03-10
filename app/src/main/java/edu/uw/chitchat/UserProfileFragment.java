@@ -4,6 +4,7 @@ package edu.uw.chitchat;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 
@@ -30,7 +32,7 @@ public class UserProfileFragment extends Fragment {
     private TextView mMessageOutputTextView;
 
     //TODO: get args in onStart; no hard code
-    private String mEmail = "todelvin@gmail.com";
+    private String mEmail;
     private String mChatId;
     private String mMessage;
     private String mSender;
@@ -39,9 +41,7 @@ public class UserProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public void onStart() {
-        super.onStart();
-    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,21 +64,21 @@ public class UserProfileFragment extends Fragment {
         return v;
     }
 
-    //TODO:REFACTOR
-    private int getSharedPreference (String key) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-        return preferences.getInt(key, 0);
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mPushMessageReciever == null) {
+            mPushMessageReciever = new UserProfileFragment.PushMessageReceiver();
+        }
+        IntentFilter iFilter = new IntentFilter(PushReceiver.RECEIVED_NEW_MESSAGE);
+        getActivity().registerReceiver(mPushMessageReciever, iFilter);
     }
-
-    //TODO: REFACTOR
-    //adds single value to shared preferences
-    //refactor later make this a class
-    private void putSharedPreference (String key, int value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(key, value);
-        editor.commit();
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (mPushMessageReciever != null){
+            getActivity().unregisterReceiver(mPushMessageReciever);
+        }
     }
 
     /**
@@ -113,9 +113,9 @@ public class UserProfileFragment extends Fragment {
                     //in app notification goes here
 
                     //keep global counter of in app connection notifications
-                    int global_count = getSharedPreference(getString(R.string.keys_global_connection_count));
+                 /*   int global_count = getSharedPreference(getString(R.string.keys_global_connection_count));
                     putSharedPreference(getString(R.string.keys_global_connection_count), global_count + 1);
-
+*/
                     //TODO: update UI here for inapp notification
                     //add badge/dot to home activity tab
                     //add badges/dots to chat list

@@ -86,7 +86,7 @@
             app:srcCompat="@drawable/ic_alert" />
 
         <ImageView
-            android:id="@+id/imageView_home_chatNotification2"
+            android:id="@+id/imageView_home_connectNotification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="195dp"
