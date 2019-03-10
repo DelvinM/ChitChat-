@@ -14,7 +14,8 @@
     <string name="keys_json_contactlist_data">contactlistdata</string>
     <string name="keys_json_contactlist_username">username</string>
     <string name="keys_json_contactlist_email">email</string>
-
+    <string name="keys_json_sending_request">send</string>
+    <string name="keys_json_receiving_request">receive</string>
 
     <string name="keys_username_stored_onRegister">usernamestored</string>
     <string name="keys_firstname_stored_onRegister">firstnamestored</string>

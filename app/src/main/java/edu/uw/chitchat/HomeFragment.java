@@ -33,7 +33,7 @@ public class HomeFragment extends Fragment implements PopupMenu.OnMenuItemClickL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.wtf("Yohei","test");
+        //Log.wtf("Yohei","test");
         View v = inflater.inflate(R.layout.fragment_home , container, false);
         mCredentials = (Credentials) getArguments()
                 .getSerializable(getString(R.string.keys_intent_credentials));

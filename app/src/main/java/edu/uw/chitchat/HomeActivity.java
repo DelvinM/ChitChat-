@@ -24,7 +24,9 @@ import java.util.List;
 
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
+import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
 import edu.uw.chitchat.contactlist.ContactList;
+import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 import me.pushy.sdk.Pushy;
 
@@ -35,11 +37,17 @@ public class HomeActivity extends AppCompatActivity implements
         ResetFragment.OnResetFragmentInteractionListener,
         ConnectFragment.OnFragmentInteractionListener,
         ContactListFragment.OnListFragmentInteractionListener,
-        AddContactFragment.OnAddContactFragmentInteractionListener{
+        AddContactFragment.OnAddContactFragmentInteractionListener,
+        ConnectionSendRequestListFragment.OnListFragmentInteractionListener,
+        ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener{
 
     private Credentials mCredentials;
     private String mJwToken;
     private String mChatId;
+    private ConnectionRequestList[] sendRequestAsArray = null;
+    private ConnectionRequestList[] receiveRequestAsArray = null;
+    private ArrayList<String> mChatIds;
+    private Chat[] mChats;
     private String mMessage;
     private String mSender;
 
@@ -68,6 +76,7 @@ public class HomeActivity extends AppCompatActivity implements
             goToHome();
         }
 
+        getIds();
 
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -148,30 +157,72 @@ public class HomeActivity extends AppCompatActivity implements
                 .replace(R.id.activity_home, f);
     }
 
-    public void goToChat() {
-        //gets current new notifications for each chat room...from sharedpref
-        String notificationsCount_1 = Integer.toString(getPrefInt("chat room 1 count"));
-        String notificationsCount_2 = Integer.toString(getPrefInt("chat room 2 count"));
-        String notificationsCount_3 = Integer.toString(getPrefInt("chat room 3 count"));
-        String notificationsCount_4 = Integer.toString(getPrefInt("chat room 4 count"));
-
-        Chat[] chats = {new Chat("Delvin", "2/25/2019", "This is the best app I've ever seen! You get a 4.0.", "1", notificationsCount_1),
-                new Chat("Logan", "2/25/2019", "Hey man", "2", notificationsCount_2),
-                new Chat("Joe", "2/25/2019", "Whats up", "3", notificationsCount_3),
-                new Chat("Yohei", "2/25/2019", "Wow this is really cool", "4", notificationsCount_4),
-        };
-        ChatFragment chatFragment = new ChatFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(ChatFragment.ARG_CHAT_LIST, chats);
-        chatFragment.setArguments(args);
-        changeTab(chatFragment).commit();
+    public void getIds() {
+        String getAllIdsUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_chatroom_base))
+                .appendPath(getString(R.string.ep_chatroom_getall_ids))
+                .build()
+                .toString();
+        JSONObject getJson = new JSONObject();
+        try { getJson.put("email", mCredentials.getEmail()); }
+        catch (JSONException e) { Log.e("LOGAN", "cantput"); }
+        new SendPostAsyncTask.Builder(getAllIdsUrl, getJson)
+                .onPostExecute(result -> {
+                    mChatIds = endOfDoGetIds(result);
+                })
+                .onCancelled(error -> Log.e("", error))
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+    private ArrayList<String> endOfDoGetIds(final String result) {
+        ArrayList<String> formattedChatIds = new ArrayList<>();
+        try {
+            JSONObject res = new JSONObject(result);
+            if (res.has("ids")) {
+                String ids = res.getString("ids");
+                String currString = "";
+                int colonCount = 0;
+                for (int i = 0; i < ids.length(); i++) {
+                    if (ids.charAt(i) == ':') {
+                        colonCount++;
+                    } else if (ids.charAt(i) == '}') {
+                        formattedChatIds.add(currString);
+                        colonCount = 0;
+                        currString = "";
+                    } else if (colonCount == 1) {
+                        currString += ids.charAt(i);
+                    }
+                }
+            } else {
+                Log.e("LOGAN", "No Chatrooms Found For User");
+            }
+        } catch (Exception e) {
+            Log.e("LOGAN", "Catch: endOfDoGetIds");
+            e.printStackTrace();
+        }
+        return formattedChatIds;
     }
 
-    //TODO: refactor
-    private int getPrefInt (String key) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        return preferences.getInt(key, 0);
+    public void goToChat() {
+        String getAllUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_chatroom_base))
+                .appendPath(getString(R.string.ep_chatroom_getall_messages))
+                .build()
+                .toString();
+        ChatFragment chatFragment = new ChatFragment();
+        Bundle args = new Bundle();
+        new LoadHistoryAsyncTask.Builder(getAllUrl, mChatIds, this.getBaseContext())
+                .onPostExecute( result -> {
+                    args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
+                    chatFragment.setArguments(args);
+                    changeTab(chatFragment).commit();
+                })
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
     }
 
     public void goToNotificationList () {
@@ -236,17 +287,16 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onChatFragmentInteraction(Chat item) {
+        Log.e("LOGAN", "INTERACTION");
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", item.getChatId());
+        args.putStringArrayList("contents", item.getContents());
         args.putString("email", mCredentials.getEmail());
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
-
         changeTab(fullChatFragment).addToBackStack(null).commit();
-//        Toast.makeText(getBaseContext(),
-//                "Display Conversation with " + item.getName(), Toast.LENGTH_SHORT).show();
     }
 
 
@@ -256,8 +306,8 @@ public class HomeActivity extends AppCompatActivity implements
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_connection))
-                .appendPath(getString(R.string.ep_getall))
+                .appendPath(getString(R.string.ep_connection_base))
+                .appendPath(getString(R.string.ep_connection_getall))
                 .build();
         String email = mCredentials.getEmail();
 
@@ -274,6 +324,54 @@ public class HomeActivity extends AppCompatActivity implements
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
 
+    }
+
+    @Override
+    public void onConnectionRequestListClicked() {
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connection))
+                .appendPath(getString(R.string.ep_getRequestList))
+                .build();
+        String email = mCredentials.getEmail();
+        JSONObject jsonSend = new JSONObject();
+        try {
+            jsonSend.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleConnectionSendRequestslistGetOnPostExecute )
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
+    }
+
+    @Override
+    public void onConnectionReceiveRequestListClicked() {
+        Log.wtf("test the second receive last if", "thest the second last if");
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_connection))
+                .appendPath(getString(R.string.ep_getRequestList))
+                .build();
+        String email = mCredentials.getEmail();
+        JSONObject jsonSend = new JSONObject();
+        try {
+            jsonSend.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleConnectionReceiveRequestslistGetOnPostExecute )
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
     }
 
     private void handleErrorsInTask(String result) {
@@ -315,6 +413,88 @@ public class HomeActivity extends AppCompatActivity implements
         }
     }
 
+
+    public void handleConnectionSendRequestslistGetOnPostExecute(String result) {
+
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has(getString(R.string.keys_json_sending_request))) {
+                JSONArray response = root.getJSONArray(getString(R.string.keys_json_sending_request));
+                List<ConnectionRequestList> sendrequest = new ArrayList<>();
+                for(int i = 0; i < response.length(); i++) {
+                    JSONObject jsonContact = response.getJSONObject(i);
+                    sendrequest.add(new ConnectionRequestList.Builder(
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_username)),
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_email)))
+                            .build());
+                }
+                Log.wtf("sendtest","sendtest");
+                sendRequestAsArray = new ConnectionRequestList[sendrequest.size()];
+                sendRequestAsArray = sendrequest.toArray(sendRequestAsArray);
+                Bundle args = new Bundle();
+                args.putSerializable("sending requests lists", sendRequestAsArray);
+                //args.putSerializable("receiving requests lists", receiveRequestAsArray);
+                ConnectionSendRequestListFragment frag = new ConnectionSendRequestListFragment();
+                frag.setArguments(args);
+                onWaitFragmentInteractionHide();
+                changeTab(frag).commit();
+            }
+
+
+            else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            //onWaitFragmentInteractionHide();
+        }
+    }
+
+    public void handleConnectionReceiveRequestslistGetOnPostExecute(String result) {
+        Log.wtf("test the second receive last if", "thest the second last if");
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has(getString(R.string.keys_json_receiving_request))) {
+                JSONArray response = root.getJSONArray(getString(R.string.keys_json_receiving_request));
+                List<ConnectionRequestList> receiverequest = new ArrayList<>();
+                for(int i = 0; i < response.length(); i++) {
+                    JSONObject jsonContact = response.getJSONObject(i);
+                    receiverequest.add(new ConnectionRequestList.Builder(
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_username)),
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_email)))
+                            .build());
+                }
+                Log.wtf("recievetest","recievetest");
+                receiveRequestAsArray = new ConnectionRequestList[receiverequest.size()];
+                receiveRequestAsArray = receiverequest.toArray(receiveRequestAsArray);
+                Bundle args = new Bundle();
+                args.putSerializable("receiving requests lists", receiveRequestAsArray);
+                //args.putSerializable("receiving requests lists", receiveRequestAsArray);
+                ConnectionReceiveRequestListFragment frag = new ConnectionReceiveRequestListFragment();
+                frag.setArguments(args);
+                onWaitFragmentInteractionHide();
+                changeTab(frag).commit();
+            }
+
+            else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            //onWaitFragmentInteractionHide();
+        }
+    }
+
+
+
     @Override
     public void onAddContactClicked() {
         AddContactFragment addContactFragment = new AddContactFragment();
@@ -340,6 +520,16 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onContactListFragmentInteraction(ContactList contact) {
+
+    }
+
+    @Override
+    public void onConnectionSendRequestListFragmentInteraction(ConnectionRequestList item) {
+
+    }
+
+    @Override
+    public void onConnectionReceiveRequestListFragmentInteraction(ConnectionRequestList item) {
 
     }
 
