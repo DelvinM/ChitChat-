@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,6 +32,7 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
     private OnListFragmentInteractionListener mListener;
     private List<ConnectionRequestList> mConnectionRequestList;
     private static final String ARG_RECEIVE_LIST = "receiving requests lists";
+    private MyConnectionReceiveRequestRecyclerViewAdapter.MyInterface myListener2;
     //private static final String ARG_RECIEVE_LIST = "receiving requests lists";
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -79,10 +79,10 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate( R.layout.fragment_connection_receive_requestlist, container, false );
-        Button b1 = (Button) view.findViewById(R.id.accept_button);
-        b1.setOnClickListener(this);
-        Button b2 = (Button) view.findViewById(R.id.delete_button);
-        b2.setOnClickListener(this);
+//        Button b1 = (Button) view.findViewById(R.id.accept_button);
+//        b1.setOnClickListener(this);
+//        Button b2 = (Button) view.findViewById(R.id.delete_button);
+//        b2.setOnClickListener(this);
 
         if (mListener != null) {
             //mListener.onContactListClicked();
@@ -104,9 +104,14 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
             } else {
                 recyclerView.setLayoutManager( new GridLayoutManager( context, mColumnCount ) );
             }
-            recyclerView.setAdapter( new MyConnectionReceiveRequestRecyclerViewAdapter(mConnectionRequestList, mListener ) );
+            recyclerView.setAdapter( new MyConnectionReceiveRequestRecyclerViewAdapter(mConnectionRequestList, mListener, myListener2) );
         }
         return view;
+    }
+
+
+    public String getEmail(){
+        return getArguments().getString("email");
     }
 
 
@@ -146,5 +151,6 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
         // TODO: Update argument type and name
         void onAcceptClicked();
         void onConnectionReceiveRequestListFragmentInteraction(ConnectionRequestList item);
+        String getEmail();
     }
 }

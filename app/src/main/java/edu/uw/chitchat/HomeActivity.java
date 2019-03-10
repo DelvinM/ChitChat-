@@ -38,7 +38,8 @@ public class HomeActivity extends AppCompatActivity implements
         ContactListFragment.OnListFragmentInteractionListener,
         AddContactFragment.OnAddContactFragmentInteractionListener,
         ConnectionSendRequestListFragment.OnListFragmentInteractionListener,
-        ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener{
+        ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener,
+        MyConnectionReceiveRequestRecyclerViewAdapter.MyInterface{
 
     private Credentials mCredentials;
     private String mJwToken;
@@ -544,7 +545,9 @@ public class HomeActivity extends AppCompatActivity implements
         }
     }
 
-
+    public String getMyEmail(){
+        return mCredentials.getEmail();
+    }
 
     @Override
     public void onAddContactClicked() {
@@ -582,6 +585,11 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     public void onConnectionReceiveRequestListFragmentInteraction(ConnectionRequestList item) {
 
+    }
+
+    @Override
+    public String getEmail() {
+        return mCredentials.getEmail();
     }
 
     // Deleting the Pushy device token must be done asynchronously. Good thing
