@@ -62,6 +62,14 @@ public class HomeActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        if (getIntPreference(getString(R.string.keys_global_chat_count)) == 0) {
+            findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
+        }
+
+        if (getIntPreference(getString(R.string.keys_global_connection_count)) == 0) {
+            findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
+        }
+
         mJwToken = getIntent().getStringExtra(getString(R.string.keys_intent_jwt));
         mCredentials = (Credentials) getIntent()
                 .getSerializableExtra(getString(R.string.keys_intent_credentials));
@@ -215,6 +223,7 @@ public class HomeActivity extends AppCompatActivity implements
     public void goToChat() {
 
         findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
+        //putIntPreference(getString(R.string.keys_global_chat_count), 0);
 
         String getAllUrl = new Uri.Builder()
                 .scheme("https")
@@ -238,9 +247,8 @@ public class HomeActivity extends AppCompatActivity implements
     public void goToNotificationList () {
 
         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
-
         //reset global connection count since user is viewing requests now
-        putSharedPreference(getString(R.string.keys_global_connection_count), "0");
+        putIntPreference(getString(R.string.keys_global_connection_count), 0);
 
         //TODO: once yohei creates notification's list, call it from here
         UserProfileFragment userProfileFragment = new UserProfileFragment();
@@ -631,13 +639,15 @@ public class HomeActivity extends AppCompatActivity implements
                 String chatId = intent.getStringExtra("CHATID");
 
                 if (Patterns.EMAIL_ADDRESS.matcher(chatId).matches()) { // increase connection request global counter
-                    findViewById(R.id.imageView_home_connectNotification).setVisibility(View.VISIBLE);
+                    if(chatId.equals(mEmail)) {
 
-                    int global_count = getIntPreference(getString(R.string.keys_global_connection_count));
-                    putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1);
+                        findViewById(R.id.imageView_home_connectNotification).setVisibility(View.VISIBLE);
 
-                    //TODO: make icon light up or something
+                        int global_count = getIntPreference(getString(R.string.keys_global_connection_count));
+                        putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1);
 
+                        //TODO: make icon light up or something
+                    }
                 } else { // increase chat room global counter
 
                     findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
