@@ -95,7 +95,6 @@ public class HomeActivity extends AppCompatActivity implements
 
         getIds(false, false);
 
-
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.addOnTabSelectedListener(this);
     }
@@ -758,6 +757,7 @@ public class HomeActivity extends AppCompatActivity implements
 
                         //TODO: make icon light up or something
                     }
+                    //TODO: REMOVE THIS NO NEED FOR COUNT HERE
                 } else if (!sender.equals(mEmail)) { // increase chat room global counter
 
                     findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
