@@ -322,7 +322,7 @@ public class HomeActivity extends AppCompatActivity implements
                 changeTab(new ConnectFragment(), "CONNECT").commit();
                 break;
             case 3: //Weather
-                changeTab(new WeatherFragment(), "CONNECT").commit();
+                changeTab(new WeatherFragment(), "WEATHER").commit();
                 break;
         }
     }
