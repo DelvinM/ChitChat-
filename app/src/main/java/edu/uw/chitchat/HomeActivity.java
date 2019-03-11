@@ -261,12 +261,14 @@ public class HomeActivity extends AppCompatActivity implements
                 .onPostExecute( result -> {
                     Fragment frag = getSupportFragmentManager().findFragmentByTag("CHAT");
                     if(manualAccess) {
-                        Log.e("LOGAN", "Updated Data!");
-                        args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
-                        args.putSerializable("credentials", mCredentials);
-                        chatFragment.setArguments(args);
-                        changeTab(chatFragment, "CHAT").commit();
-                        findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
+                        if(frag != null && frag.isVisible()) {
+                            Log.e("LOGAN", "Updated Data!");
+                            args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
+                            args.putSerializable("credentials", mCredentials);
+                            chatFragment.setArguments(args);
+                            changeTab(chatFragment, "CHAT").commit();
+                            findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
+                        }
                     }
                     mChats = result;
                 })
@@ -418,7 +420,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionRequestListClicked() {
-
+        putIntPreference(getString(R.string.keys_global_connection_count), 0);
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -442,7 +444,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionReceiveRequestListClicked() {
-
+        putIntPreference(getString(R.string.keys_global_connection_count), 0);
         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
 
 
