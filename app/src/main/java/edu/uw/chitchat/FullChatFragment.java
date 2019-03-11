@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -302,7 +303,7 @@ public class FullChatFragment extends Fragment {
         new SendPostAsyncTask.Builder(addMemberUrl, getJson)
                 .onPostExecute(result -> {
                     Log.e("LOGAN", result);
-                    mMessageOutputTextView.append("delvin Was Added!");
+                    mMessageOutputTextView.append(email + " Was Added!");
                     mMessageOutputTextView.append(System.lineSeparator());
                     mMessageOutputTextView.append(System.lineSeparator());
                 } )
