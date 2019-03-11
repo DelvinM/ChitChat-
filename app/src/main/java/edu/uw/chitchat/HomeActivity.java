@@ -274,7 +274,7 @@ public class HomeActivity extends AppCompatActivity implements
         putIntPreference(getString(R.string.keys_global_connection_count), 0);
 
         //TODO: once yohei creates notification's list, call it from here
-        UserProfileFragment userProfileFragment = new UserProfileFragment();
+        ConnectFragment userProfileFragment = new ConnectFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
         args.putString("email", mEmail);
@@ -407,6 +407,10 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionReceiveRequestListClicked() {
+
+        findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
+
+
         Log.wtf("test the second receive last if", "thest the second last if");
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -706,9 +710,10 @@ public class HomeActivity extends AppCompatActivity implements
             {
                 //chat id contains users email
                 String chatId = intent.getStringExtra("CHATID");
+                String sender = intent.getStringExtra("SENDER");
 
                 if (Patterns.EMAIL_ADDRESS.matcher(chatId).matches()) { // increase connection request global counter
-                    if(chatId.equals(mEmail)) {
+                    if(chatId.equals(mEmail) && !sender.equals(mEmail)) {
 
                         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.VISIBLE);
 
