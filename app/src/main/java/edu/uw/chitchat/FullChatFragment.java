@@ -10,12 +10,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.NestedScrollView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -42,6 +44,7 @@ public class FullChatFragment extends Fragment {
     private String mSendUrl;
     private ArrayList<String> mContents;
     private PushMessageReceiver mPushMessageReciever;
+    private NestedScrollView mScrollView;
 
 
     public FullChatFragment() {
@@ -56,6 +59,7 @@ public class FullChatFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_full_chat, container, false);
         mMessageInputEditText = v.findViewById(R.id.edit_chat_message_input);
         mMessageOutputTextView = v.findViewById(R.id.text_chat_message_display);
+        mScrollView = v.findViewById(R.id.scrollview_chat);
         ((ImageButton) v.findViewById(R.id.button_chat_send)).setOnClickListener(this::handleSendClick);
         ((ImageButton) v.findViewById(R.id.button_chat_addmember)).setOnClickListener(this::handleAddMember);
 
@@ -67,6 +71,8 @@ public class FullChatFragment extends Fragment {
                 mMessageOutputTextView.append(System.lineSeparator());
             }
         }
+
+        scrollDown();
 
         return v;
     }
@@ -93,6 +99,15 @@ public class FullChatFragment extends Fragment {
                 .appendPath(getString(R.string.ep_messaging_send))
                 .build()
                 .toString();
+    }
+
+    private void scrollDown() {
+        mScrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
     }
 
     private void removeChatNotificationCount () {
@@ -152,6 +167,7 @@ public class FullChatFragment extends Fragment {
     }
 
     private void handleSendClick(final View theButton) {
+        scrollDown();
         String msg = mMessageInputEditText.getText().toString();
         JSONObject messageJson = new JSONObject();
         try {
@@ -168,6 +184,8 @@ public class FullChatFragment extends Fragment {
                 .build().execute();
     }
     private void endOfSendMsgTask(final String result) {
+
+
         try {
             //This is the result from the web service
             JSONObject res = new JSONObject(result);
