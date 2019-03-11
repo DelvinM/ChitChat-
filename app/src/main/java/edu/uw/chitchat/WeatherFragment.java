@@ -3,6 +3,7 @@ package edu.uw.chitchat;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -73,7 +74,7 @@ public class WeatherFragment extends Fragment {
     private RecyclerView mWeekRecyclerView;
     private EditText mZIPCode;
     private Button mGetWeather;
-    private Button mGetHistory;
+
 
     public WeatherFragment() {
         // Required empty public constructor
@@ -117,6 +118,7 @@ public class WeatherFragment extends Fragment {
         }
 
 
+
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -142,8 +144,9 @@ public class WeatherFragment extends Fragment {
         mWeekRecyclerView = view.findViewById(R.id.recycleView_weather_7days);
         mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
         mGetWeather = view.findViewById(R.id.button_fragment_weather_getWeather);
-        mGetHistory = view.findViewById(R.id.button_fragment_weather_getHistory);
-//        mGetWeather.setOnClickListener(new getWeatherButtonClick());
+
+        startLocationUpdates();
+
         return view;
     }
 
@@ -217,14 +220,14 @@ public class WeatherFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        startLocationUpdates();
-//        if (getActivity().getIntent().hasExtra("latitude")) {
-//            String lat = getActivity().getIntent().getExtras().getString("latitude");
-//            String lng = getActivity().getIntent().getExtras().getString("longtitude");
-//            mCurrentLocation.setLatitude(Double.valueOf(lat));
-//            mCurrentLocation.setLongitude(Double.valueOf(lng));
-//            Log.wtf("world", lat);
-//        }
+        //startLocationUpdates();
+        if (getSharedPreference("latitude") != null && mCurrentLocation != null) {
+            String lat = getSharedPreference("latitude");
+            String lng = getSharedPreference("longtitude");
+            mCurrentLocation.setLatitude(Double.valueOf(lat));
+            mCurrentLocation.setLongitude(Double.valueOf(lng));
+            Log.wtf("world", lat);
+        }
 
 
     }
@@ -269,6 +272,12 @@ public class WeatherFragment extends Fragment {
 
 
 
+    private String getSharedPreference (String key) {
+        SharedPreferences sharedPref =
+                getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);
+        return sharedPref.getString(key, null);
+    }
+
     public class getWeatherButtonClick implements View.OnClickListener {
 
         @Override
@@ -302,6 +311,7 @@ public class WeatherFragment extends Fragment {
 
                 JSONObject jsonSend = new JSONObject();
                 try {
+                    Log.wtf("world1", mCurrentLocation.getLatitude()+"");
                     jsonSend.put("latitude", mCurrentLocation.getLatitude());
                     jsonSend.put("longtitude", mCurrentLocation.getLongitude());
                 } catch (JSONException e) {
