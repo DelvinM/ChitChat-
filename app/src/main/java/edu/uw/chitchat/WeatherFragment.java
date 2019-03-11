@@ -3,6 +3,7 @@ package edu.uw.chitchat;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
@@ -218,13 +219,13 @@ public class WeatherFragment extends Fragment {
     public void onResume() {
         super.onResume();
         startLocationUpdates();
-//        if (getActivity().getIntent().hasExtra("latitude")) {
-//            String lat = getActivity().getIntent().getExtras().getString("latitude");
-//            String lng = getActivity().getIntent().getExtras().getString("longtitude");
-//            mCurrentLocation.setLatitude(Double.valueOf(lat));
-//            mCurrentLocation.setLongitude(Double.valueOf(lng));
-//            Log.wtf("world", lat);
-//        }
+        if (getSharedPreference("latitude") != null) {
+            String lat = getSharedPreference("latitude");
+            String lng = getSharedPreference("longtitude");
+            mCurrentLocation.setLatitude(Double.valueOf(lat));
+            mCurrentLocation.setLongitude(Double.valueOf(lng));
+            Log.wtf("world", lat);
+        }
 
 
     }
@@ -268,6 +269,12 @@ public class WeatherFragment extends Fragment {
     }
 
 
+
+    private String getSharedPreference (String key) {
+        SharedPreferences sharedPref =
+                getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);
+        return sharedPref.getString(key, null);
+    }
 
     public class getWeatherButtonClick implements View.OnClickListener {
 
