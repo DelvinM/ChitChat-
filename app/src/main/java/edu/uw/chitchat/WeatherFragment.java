@@ -33,6 +33,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -142,7 +147,7 @@ public class WeatherFragment extends Fragment {
         mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
         mGetWeather = view.findViewById(R.id.button_fragment_weather_getWeather);
         mGetHistory = view.findViewById(R.id.button_fragment_weather_getHistory);
-
+        mGetWeather.setOnClickListener(new getWeatherButtonClick());
         return view;
     }
 
@@ -261,24 +266,81 @@ public class WeatherFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
-            Uri uri = new Uri.Builder()
-                    .scheme("https")
-                    .appendPath(getString(R.string.ep_base_url))
-                    .appendPath(getString(R.string.ep_weather))
-                    .appendPath(getString(R.string.ep_getWeather))
-                    .build();
 
-            JSONObject jsonSend = new JSONObject();
+            if(!mZIPCode.getText().toString().equals("")) {
+                Uri uri = new Uri.Builder()
+                        .scheme("https")
+                        .appendPath(getString(R.string.ep_base_url))
+                        .appendPath(getString(R.string.ep_weather))
+                        .appendPath(getString(R.string.ep_getLatlong))
+                        .build();
+
+                JSONObject jsonSend = new JSONObject();
+                try {
+                    jsonSend.put("zip", mZIPCode.getText().toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                        .onPostExecute(this::handleGetWeatherWithZipPostExecute)
+                        .build().execute();
+            } else {
+                Uri uri = new Uri.Builder()
+                        .scheme("https")
+                        .appendPath(getString(R.string.ep_base_url))
+                        .appendPath(getString(R.string.ep_weather))
+                        .appendPath(getString(R.string.ep_getWeather))
+                        .build();
+
+                JSONObject jsonSend = new JSONObject();
+                try {
+                    jsonSend.put("latitude", mCurrentLocation.getLatitude());
+                    jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                        .onPostExecute(this::handleGetWeatherPostExecute)
+                        .build().execute();
+            }
+        }
+
+        private void handleGetWeatherWithZipPostExecute(String result) {
             try {
-                jsonSend.put("latitude", mCurrentLocation.getLatitude());
-                jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+                JSONObject root = new JSONObject(result);
+                if (root.has("results")) {
+                    JSONArray results = root.getJSONArray("results");
+                    Log.wtf("result test", result);
+                    JSONObject containsAll = results.getJSONObject(0);
+                    JSONObject geometry = containsAll.getJSONObject("geometry");
+                    JSONObject location = geometry.getJSONObject("location");
+                    mCurrentLocation.setLatitude(Double.valueOf(location.getString("lat")));
+                    mCurrentLocation.setLongitude(Double.valueOf(location.getString("lng")));
+
+                    Uri uri = new Uri.Builder()
+                            .scheme("https")
+                            .appendPath(getString(R.string.ep_base_url))
+                            .appendPath(getString(R.string.ep_weather))
+                            .appendPath(getString(R.string.ep_getWeather))
+                            .build();
+
+                    JSONObject jsonSend = new JSONObject();
+                    try {
+                        jsonSend.put("latitude", mCurrentLocation.getLatitude());
+                        jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                            .onPostExecute(this::handleGetWeatherPostExecute)
+                            .build().execute();
+
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
+                Log.e("ERROR!", e.getMessage());
             }
-
-            new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
-                    .onPostExecute(this::handleGetWeatherPostExecute)
-                    .build().execute();
         }
 
         /**
