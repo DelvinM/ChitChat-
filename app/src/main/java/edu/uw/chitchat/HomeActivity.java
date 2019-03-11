@@ -725,8 +725,8 @@ public class HomeActivity extends AppCompatActivity implements
                 String chatId = intent.getStringExtra("CHATID");
                 String sender = intent.getStringExtra("SENDER");
 
-                if (Patterns.EMAIL_ADDRESS.matcher(chatId).matches()) { // increase connection request global counter
-                    if(chatId.equals(mEmail) && !sender.equals(mEmail)) {
+                if (Patterns.EMAIL_ADDRESS.matcher(chatId).matches() && !sender.equals(mEmail)) { // increase connection request global counter
+                    if(chatId.equals(mEmail)) {
 
                         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.VISIBLE);
 
@@ -735,7 +735,7 @@ public class HomeActivity extends AppCompatActivity implements
 
                         //TODO: make icon light up or something
                     }
-                } else { // increase chat room global counter
+                } else if (!sender.equals(mEmail)) { // increase chat room global counter
 
                     findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
 
