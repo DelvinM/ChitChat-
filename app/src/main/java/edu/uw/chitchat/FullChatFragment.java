@@ -108,7 +108,7 @@ public class FullChatFragment extends Fragment {
             mEmail = getArguments().getString("email");
             mJwToken = getArguments().getString("jwt");
             CHAT_ID = getArguments().getString("chatId");
-            if(!getArguments().getString("memberToAdd").equals("")) {
+            if(getArguments().getString("memberToAdd") != null && !getArguments().getString("memberToAdd").equals("")) {
                 handleAddMember(getArguments().getString("memberToAdd"));
             }
         }
@@ -303,9 +303,7 @@ public class FullChatFragment extends Fragment {
         new SendPostAsyncTask.Builder(addMemberUrl, getJson)
                 .onPostExecute(result -> {
                     Log.e("LOGAN", result);
-                    mMessageOutputTextView.append(email + " Was Added!");
-                    mMessageOutputTextView.append(System.lineSeparator());
-                    mMessageOutputTextView.append(System.lineSeparator());
+                    sendMsg("Added " + email.split("@")[0] + " To The Chat.");
                 } )
                 .onCancelled(error -> Log.e("LOADASYNC", "Problem"))
                 .addHeaderField("authorization", mJwToken)
@@ -313,8 +311,11 @@ public class FullChatFragment extends Fragment {
     }
 
     private void handleSendClick(final View theButton) {
+        sendMsg(mMessageInputEditText.getText().toString());
+    }
+
+    private void sendMsg(String msg) {
         scrollDown();
-        String msg = mMessageInputEditText.getText().toString();
         JSONObject messageJson = new JSONObject();
         try {
             messageJson.put("email", mEmail);
@@ -329,6 +330,7 @@ public class FullChatFragment extends Fragment {
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }
+
     private void endOfSendMsgTask(final String result) {
 
 

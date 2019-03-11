@@ -307,6 +307,10 @@ public class HomeActivity extends AppCompatActivity implements
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
+
+        ArrayList<String> arr = new ArrayList<String>();
+        args.putStringArrayList("contents", arr);
+
         args.putString("email", mCredentials.getEmail());
         args.putString("jwt", mJwToken);
         fullChatFragment.setArguments(args);
@@ -644,6 +648,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onMemberAdded(String email, Chat item) {
+        goToChat(false, false);
         onChatFragmentInteraction(item, email);
     }
 
