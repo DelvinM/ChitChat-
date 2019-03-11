@@ -409,7 +409,6 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
 
-
     @Override
     public void onConnectionRequestListClicked() {
 

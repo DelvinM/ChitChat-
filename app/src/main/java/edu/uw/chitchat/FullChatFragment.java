@@ -6,10 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.text.Layout;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.AlignmentSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -287,7 +292,7 @@ public class FullChatFragment extends Fragment {
         new SendPostAsyncTask.Builder(addMemberUrl, getJson)
                 .onPostExecute(result -> {
                     Log.e("LOGAN", result);
-                    mMessageOutputTextView.append("delvin Was Added!");
+                    mMessageOutputTextView.append(email + " Was Added!");
                     mMessageOutputTextView.append(System.lineSeparator());
                     mMessageOutputTextView.append(System.lineSeparator());
                 } )
