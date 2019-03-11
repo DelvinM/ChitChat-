@@ -25,6 +25,7 @@
         app:layout_constraintStart_toEndOf="@+id/fab_weather"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!--
     <Button
         android:id="@+id/button_fragment_weather_getHistory"
         style="@android:style/Widget.Material.Light.Button.Borderless.Colored"
@@ -42,6 +43,7 @@
         app:layout_constraintHorizontal_bias="0.968"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_fragment_weather_getWeather" />
+     -->
 
     <EditText
         android:id="@+id/editText_fragment_weather_zipcode"
