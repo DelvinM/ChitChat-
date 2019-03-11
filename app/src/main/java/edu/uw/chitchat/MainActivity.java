@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import java.io.Serializable;
 
 import edu.uw.chitchat.Credentials.Credentials;
+import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.contactlist.ContactList;
 import me.pushy.sdk.Pushy;
 
@@ -117,6 +118,10 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onContactListFragmentInteraction(ContactList mItem) {
 
+    }
+
+    @Override
+    public void onMemberAdded(String email, Chat item) {
     }
 
     @Override

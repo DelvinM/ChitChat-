@@ -148,7 +148,7 @@ public class ChatFragment extends Fragment {
     }
 
     public interface OnChatFragmentInteractionListener {
-        void onChatFragmentInteraction(Chat item);
+        void onChatFragmentInteraction(Chat item, String memberToAdd);
         void onReloadChatFragment(MyChatRecyclerViewAdapter adapter);
     }
 

@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import edu.uw.chitchat.Credentials.Credentials;
+import edu.uw.chitchat.chat.Chat;
 
 
 /**
@@ -67,7 +68,7 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
                     mListener.onAddContactClicked();
                     break;
                 case R.id.button_show_contactlist:
-                    mListener.onContactListClicked();
+                    mListener.onContactListClicked(false, null);
                     break;
                 case R.id.button_show_receive_requestList:
                     Log.wtf("test the first receive if", "thest the first receive if");
@@ -82,7 +83,7 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
         }
     }
     public interface OnFragmentInteractionListener {
-        void onContactListClicked();
+        void onContactListClicked(Boolean addMember, Chat item);
         void onConnectionRequestListClicked();
         void onAddContactClicked();
         void onConnectionReceiveRequestListClicked();
