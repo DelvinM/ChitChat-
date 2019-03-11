@@ -39,7 +39,7 @@ public class MyChatRecyclerViewAdapter extends RecyclerView.Adapter<edu.uw.chitc
             @Override
             public void onClick(View v) {
                 if (null != mListener) {
-                    mListener.onChatFragmentInteraction(holder.mItem);
+                    mListener.onChatFragmentInteraction(holder.mItem, "");
                 }
             }
         });

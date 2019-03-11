@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import java.util.List;
 
 import edu.uw.chitchat.ContactListFragment.OnListFragmentInteractionListener;
+import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
@@ -34,10 +35,14 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
 
     private final List<ContactList> mValues;
     private final OnListFragmentInteractionListener mListener;
+    private final boolean mAddMember;
+    private final Chat mItem;
 
-    public MyContactRecyclerViewAdapter(List<ContactList> items, OnListFragmentInteractionListener listener) {
+    public MyContactRecyclerViewAdapter(List<ContactList> items, OnListFragmentInteractionListener listener, Boolean addMember, Chat item) {
         mValues = items;
         mListener = listener;
+        mAddMember = addMember;
+        mItem = item;
     }
 
     @Override
@@ -51,61 +56,69 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mUserNameView.setText(mValues.get(position).getUsername());
-        holder.deleteButton.setOnClickListener(new View.OnClickListener()
 
-        {
-            @Override
-            public void onClick(View v)
+        if(mAddMember && mItem != null) {
+            holder.deleteButton.setText("Add");
+            holder.deleteButton.setOnClickListener(a -> {
+                mListener.onMemberAdded(holder.mItem.getEmailAddress(), mItem);
+            });
+
+        } else {
+            holder.deleteButton.setOnClickListener(new View.OnClickListener()
             {
-                String myEmail = mListener.getEmail();
-                String friendEmail = mValues.get(position).getEmailAddress();
+                @Override
+                public void onClick(View v)
+                {
+                    String myEmail = mListener.getEmail();
+                    String friendEmail = mValues.get(position).getEmailAddress();
 
-                Uri uri = new Uri.Builder()
-                        .scheme("https")
-                        .appendPath("tcss450-app.herokuapp.com")
-                        .appendPath("connection")
-                        .appendPath("deleteFriend")
-                        .build();
+                    Uri uri = new Uri.Builder()
+                            .scheme("https")
+                            .appendPath("tcss450-app.herokuapp.com")
+                            .appendPath("connection")
+                            .appendPath("deleteFriend")
+                            .build();
 
-                JSONObject test = new JSONObject();
-                try {
-                    test.put("email_A", myEmail);
-                    test.put("email_B", friendEmail);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    JSONObject test = new JSONObject();
+                    try {
+                        test.put("email_A", myEmail);
+                        test.put("email_B", friendEmail);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    Log.i("Delete contact Button Clicked","Delete the contact!");
+                    new AlertDialog.Builder(v.getContext())
+                            .setTitle("Delete the Contact")
+                            .setMessage("Are you sure you want to delete this contact?")
+
+                            // Specifying a listener allows you to take an action before dismissing the dialog.
+                            // The dialog is automatically dismissed when a dialog button is clicked.
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    new SendPostAsyncTask.Builder(uri.toString(), test)
+                                            .build().execute();
+                                    mValues.remove(position);
+                                    Toast.makeText(v.getContext(), "You deleted the contct",
+                                            Toast.LENGTH_LONG).show();
+                                    notifyDataSetChanged();
+                                    Log.i("Delete contact Button Clicked","Delete the contact!");
+                                    //Toast.makeText(context, "Delete button Clicked", Toast.LENGTH_LONG).show();
+                                }
+                            })
+                            .show();
                 }
-                Log.i("Delete contact Button Clicked","Delete the contact!");
-                new AlertDialog.Builder(v.getContext())
-                        .setTitle("Delete the Contact")
-                        .setMessage("Are you sure you want to delete this contact?")
-
-                        // Specifying a listener allows you to take an action before dismissing the dialog.
-                        // The dialog is automatically dismissed when a dialog button is clicked.
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                new SendPostAsyncTask.Builder(uri.toString(), test)
-                                        .build().execute();
-                                mValues.remove(position);
-                                Toast.makeText(v.getContext(), "You deleted the contct",
-                                        Toast.LENGTH_LONG).show();
-                                notifyDataSetChanged();
-                                Log.i("Delete contact Button Clicked","Delete the contact!");
-                                //Toast.makeText(context, "Delete button Clicked", Toast.LENGTH_LONG).show();
-                            }
-                        })
-                        .show();
-            }
-        });
-        holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onContactListFragmentInteraction(holder.mItem);
+            });
+            holder.mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != mListener) {
+                        // Notify the active callbacks interface (the activity, if the
+                        // fragment is attached to one) that an item has been selected.
+                        mListener.onContactListFragmentInteraction(holder.mItem);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
 

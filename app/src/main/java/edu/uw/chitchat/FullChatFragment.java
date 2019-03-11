@@ -46,6 +46,7 @@ public class FullChatFragment extends Fragment {
     private String mSendUrl;
     private String mGetUrl;
     private ArrayList<String> mContents;
+    private OnFullChatFragmentInteractionListener mListener;
     private PushMessageReceiver mPushMessageReciever;
     private NestedScrollView mScrollView;
 
@@ -64,7 +65,7 @@ public class FullChatFragment extends Fragment {
         mMessageOutputTextView = v.findViewById(R.id.text_chat_message_display);
         mScrollView = v.findViewById(R.id.scrollview_chat);
         ((ImageButton) v.findViewById(R.id.button_chat_send)).setOnClickListener(this::handleSendClick);
-        ((ImageButton) v.findViewById(R.id.button_chat_addmember)).setOnClickListener(this::handleAddMember);
+        ((ImageButton) v.findViewById(R.id.button_chat_addmember)).setOnClickListener(this::selectMember);
 
         if (getArguments() != null) {
             mContents = getArguments().getStringArrayList("contents");
@@ -82,6 +83,23 @@ public class FullChatFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFullChatFragmentInteractionListener) {
+            mListener = (OnFullChatFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnListFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         if (getArguments() != null) {
@@ -89,6 +107,9 @@ public class FullChatFragment extends Fragment {
             mEmail = getArguments().getString("email");
             mJwToken = getArguments().getString("jwt");
             CHAT_ID = getArguments().getString("chatId");
+            if(!getArguments().getString("memberToAdd").equals("")) {
+                handleAddMember(getArguments().getString("memberToAdd"));
+            }
         }
 
         //set notification count for current chat to 0, in shared pref
@@ -131,11 +152,6 @@ public class FullChatFragment extends Fragment {
                         mMessageOutputTextView.append(System.lineSeparator());
                         mMessageOutputTextView.append(System.lineSeparator());
                     }
-                } else {
-                    mMessageOutputTextView.setText("");
-                    mMessageOutputTextView.append("ChitChat: Add members to start chatting!");
-                    mMessageOutputTextView.append(System.lineSeparator());
-                    mMessageOutputTextView.append(System.lineSeparator());
                 }
             })
             .onCancelled(error -> Log.e("UPDATEMESSAGES", "Problem"))
@@ -265,8 +281,12 @@ public class FullChatFragment extends Fragment {
         }
     }
 
-    private void handleAddMember(View view) {
-//Yohei03
+    private void selectMember(View view) {
+        mListener.onAddMember((Chat) getArguments().getSerializable("item"));
+    }
+
+    public void handleAddMember(String email) {
+        Log.e("LOGAN", email);
         String addMemberUrl = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -277,10 +297,11 @@ public class FullChatFragment extends Fragment {
         JSONObject getJson = new JSONObject();
         try {
             getJson.put("chatId", CHAT_ID);
-            getJson.put("email", "delvin@uw.edu");
+            getJson.put("email", email);
         } catch (JSONException e) {e.printStackTrace();}
         new SendPostAsyncTask.Builder(addMemberUrl, getJson)
                 .onPostExecute(result -> {
+                    Log.e("LOGAN", result);
                     mMessageOutputTextView.append("delvin Was Added!");
                     mMessageOutputTextView.append(System.lineSeparator());
                     mMessageOutputTextView.append(System.lineSeparator());
@@ -367,6 +388,10 @@ public class FullChatFragment extends Fragment {
                 }
             }
         }
+    }
+
+    public interface OnFullChatFragmentInteractionListener {
+        void onAddMember(Chat item);
     }
 
 

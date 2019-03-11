@@ -9,7 +9,7 @@ public class Chat implements Serializable {
     private final String mDate;
     private final String mTeaser;
     private final String mChatId;
-    private final String mNotification;
+    private String mNotification;
     private final ArrayList<String> mContents;
 
     public Chat(String name, String date, String teaser, String id, String notification, ArrayList contents) {
@@ -26,5 +26,6 @@ public class Chat implements Serializable {
     public String getTeaser() { return mTeaser; }
     public String getChatId() { return mChatId; }
     public String getNotification() { return mNotification; }
+    public void setNotification(String value) {mNotification = value;}
     public ArrayList<String> getContents() { return mContents; }
 }

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.contactlist.ContactListGenerator;
 
@@ -29,6 +30,8 @@ public class ContactListFragment extends Fragment {
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
+    private boolean mAddMember = false;
+    private Chat mItem;
     private OnListFragmentInteractionListener mListener;
     private static final String ARG_CONTACT_LIST = "contact lists";
     private List<ContactList> mContactlist;
@@ -66,6 +69,8 @@ public class ContactListFragment extends Fragment {
                 Log.d("joe", temp.getEmailAddress());
             }
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
+            mAddMember = getArguments().getBoolean("add member");
+            mItem = (Chat) getArguments().getSerializable("item");
         } else {
             mContactlist = Arrays.asList( ContactListGenerator.mContacts);
         }
@@ -87,7 +92,7 @@ public class ContactListFragment extends Fragment {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
 
-            recyclerView.setAdapter(new MyContactRecyclerViewAdapter(mContactlist, mListener));
+            recyclerView.setAdapter(new MyContactRecyclerViewAdapter(mContactlist, mListener, mAddMember, mItem));
         }
         return view;
     }
@@ -129,6 +134,7 @@ public class ContactListFragment extends Fragment {
         // TODO: Update argument type and name
 
         void onContactListFragmentInteraction(ContactList contact);
+        void onMemberAdded(String email, Chat item);
         String getEmail();
     }
 
