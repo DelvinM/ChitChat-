@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -76,6 +77,8 @@ public class MyConnectionSendRequestsRecyclerViewAdapter extends RecyclerView.Ad
                 new SendPostAsyncTask.Builder(uri.toString(), test)
                         .build().execute();
                 mValues.remove(position);
+                Toast.makeText(v.getContext(), "You canceled the request",
+                        Toast.LENGTH_LONG).show();
                 notifyDataSetChanged();
                 Log.i("Delete Button Clicked","Delete!");
                 //Toast.makeText(context, "Delete button Clicked", Toast.LENGTH_LONG).show();

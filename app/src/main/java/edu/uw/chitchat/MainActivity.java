@@ -120,6 +120,11 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public String getEmail() {
+        return mCredentials.getEmail();
+    }
+
+    @Override
     public void onRegisterSuccess(Credentials a) {
 
         //add all credentials to shared preferences
