@@ -17,6 +17,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -67,6 +69,9 @@ public class WeatherFragment extends Fragment {
 
     private RecyclerView m24hrRecyclerView;
     private RecyclerView mWeekRecyclerView;
+    private EditText mZIPCode;
+    private Button mGetWeather;
+    private Button mGetHistory;
 
     public WeatherFragment() {
         // Required empty public constructor
@@ -92,15 +97,6 @@ public class WeatherFragment extends Fragment {
                 }
             }
         }));
-
-        mLocationTextView = view.findViewById(R.id.tv_weather_location);
-        mTemperature = view.findViewById(R.id.tv_weather_temperature);
-        mHumidity = view.findViewById(R.id.tv_weather_humidity);
-        mDescription = view.findViewById(R.id.tv_weather_description);
-        m24hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
-        mWeekRecyclerView = view.findViewById(R.id.recycleView_weather_7days);
-
-
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
 
@@ -137,6 +133,15 @@ public class WeatherFragment extends Fragment {
 
         createLocationRequest();
 
+        mLocationTextView = view.findViewById(R.id.tv_weather_location);
+        mTemperature = view.findViewById(R.id.tv_weather_temperature);
+        mHumidity = view.findViewById(R.id.tv_weather_humidity);
+        mDescription = view.findViewById(R.id.tv_weather_description);
+        m24hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
+        mWeekRecyclerView = view.findViewById(R.id.recycleView_weather_7days);
+        mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
+        mGetWeather = view.findViewById(R.id.button_fragment_weather_getWeather);
+        mGetHistory = view.findViewById(R.id.button_fragment_weather_getHistory);
 
         return view;
     }
