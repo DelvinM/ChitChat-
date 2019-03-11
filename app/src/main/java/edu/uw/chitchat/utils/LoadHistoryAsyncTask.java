@@ -174,7 +174,7 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
                                 currMember = currString.split(":")[0];
                                 if(!memberSet.contains(currMember)) {
                                     memberSet.add(currMember);
-                                    members += currMember + " ";
+                                    members += currMember + ", ";
                                 }
                                 formattedMessages.add(currString);
                                 mostRecentRecorded = true;
@@ -189,6 +189,7 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        members = members.substring(0,members.length()-2);
         formattedMessages.add(members);
         formattedMessages.add(mostRecent.split(" ")[0]);
         return formattedMessages;
