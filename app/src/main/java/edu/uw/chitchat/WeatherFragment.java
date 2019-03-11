@@ -74,7 +74,7 @@ public class WeatherFragment extends Fragment {
     private RecyclerView mWeekRecyclerView;
     private EditText mZIPCode;
     private Button mGetWeather;
-    private Button mGetHistory;
+
 
     public WeatherFragment() {
         // Required empty public constructor
@@ -118,6 +118,7 @@ public class WeatherFragment extends Fragment {
         }
 
 
+
         mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -143,8 +144,9 @@ public class WeatherFragment extends Fragment {
         mWeekRecyclerView = view.findViewById(R.id.recycleView_weather_7days);
         mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
         mGetWeather = view.findViewById(R.id.button_fragment_weather_getWeather);
-        mGetHistory = view.findViewById(R.id.button_fragment_weather_getHistory);
-//        mGetWeather.setOnClickListener(new getWeatherButtonClick());
+
+        startLocationUpdates();
+
         return view;
     }
 
@@ -218,8 +220,8 @@ public class WeatherFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        startLocationUpdates();
-        if (getSharedPreference("latitude") != null) {
+        //startLocationUpdates();
+        if (getSharedPreference("latitude") != null && mCurrentLocation != null) {
             String lat = getSharedPreference("latitude");
             String lng = getSharedPreference("longtitude");
             mCurrentLocation.setLatitude(Double.valueOf(lat));
@@ -309,6 +311,7 @@ public class WeatherFragment extends Fragment {
 
                 JSONObject jsonSend = new JSONObject();
                 try {
+                    Log.wtf("world1", mCurrentLocation.getLatitude()+"");
                     jsonSend.put("latitude", mCurrentLocation.getLatitude());
                     jsonSend.put("longtitude", mCurrentLocation.getLongitude());
                 } catch (JSONException e) {
