@@ -143,7 +143,7 @@ public class WeatherFragment extends Fragment {
         mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
         mGetWeather = view.findViewById(R.id.button_fragment_weather_getWeather);
         mGetHistory = view.findViewById(R.id.button_fragment_weather_getHistory);
-        mGetWeather.setOnClickListener(new getWeatherButtonClick());
+//        mGetWeather.setOnClickListener(new getWeatherButtonClick());
         return view;
     }
 
@@ -218,13 +218,13 @@ public class WeatherFragment extends Fragment {
     public void onResume() {
         super.onResume();
         startLocationUpdates();
-        if (getActivity().getIntent().hasExtra("latitude")) {
-            String lat = getActivity().getIntent().getExtras().getString("latitude");
-            String lng = getActivity().getIntent().getExtras().getString("longtitude");
-            mCurrentLocation.setLatitude(Double.valueOf(lat));
-            mCurrentLocation.setLongitude(Double.valueOf(lng));
-            Log.wtf("world", lat);
-        }
+//        if (getActivity().getIntent().hasExtra("latitude")) {
+//            String lat = getActivity().getIntent().getExtras().getString("latitude");
+//            String lng = getActivity().getIntent().getExtras().getString("longtitude");
+//            mCurrentLocation.setLatitude(Double.valueOf(lat));
+//            mCurrentLocation.setLongitude(Double.valueOf(lng));
+//            Log.wtf("world", lat);
+//        }
 
 
     }
@@ -264,6 +264,7 @@ public class WeatherFragment extends Fragment {
 
     private void setLocation(final Location location) {
         mCurrentLocation = location;
+        mGetWeather.setOnClickListener(new getWeatherButtonClick());
     }
 
 
