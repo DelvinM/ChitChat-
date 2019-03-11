@@ -23,7 +23,7 @@ import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
  *
  */
 
-public class ConnectionSendRequestListFragment extends Fragment {
+public class ConnectionSendRequestListFragment extends Fragment implements View.OnClickListener{
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -93,6 +93,9 @@ public class ConnectionSendRequestListFragment extends Fragment {
         return view;
     }
 
+    public String getEmail(){
+        return getArguments().getString("email");
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -111,6 +114,11 @@ public class ConnectionSendRequestListFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onClick(View v) {
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -124,5 +132,7 @@ public class ConnectionSendRequestListFragment extends Fragment {
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onConnectionSendRequestListFragmentInteraction(ConnectionRequestList item);
+
+        String getEmail();
     }
 }

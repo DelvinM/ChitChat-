@@ -24,9 +24,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
-import edu.uw.chitchat.ConnectionRequestList.ConnectionRequestList;
 import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
 import edu.uw.chitchat.utils.PushReceiver;
@@ -379,6 +379,8 @@ public class HomeActivity extends AppCompatActivity implements
 
     }
 
+
+
     @Override
     public void onConnectionRequestListClicked() {
 
@@ -429,6 +431,34 @@ public class HomeActivity extends AppCompatActivity implements
 
     private void handleErrorsInTask(String result) {
             Log.e("ASYNC_TASK_ERROR", result);
+    }
+
+    private void handleAcceptGetOnPostExecute(String result){
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has(getString(R.string.keys_json_contactlist_response))) {
+                JSONArray response = root.getJSONArray(getString(R.string.keys_json_contactlist_response));
+                List<ContactList> contacts = new ArrayList<>();
+                for(int i = 0; i < response.length(); i++) {
+                    JSONObject jsonContact = response.getJSONObject(i);
+                    contacts.add(new ContactList.Builder(
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_username)),
+                            jsonContact.getString(getString(R.string.keys_json_contactlist_email)))
+                            .build());
+                }
+
+            } else {
+                Log.e("ERROR!", "No response");
+                //notify user
+                onWaitFragmentInteractionHide();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            //onWaitFragmentInteractionHide();
+        }
+
     }
 
     private void handleContactlistGetOnPostExecute(String result) {
@@ -546,6 +576,12 @@ public class HomeActivity extends AppCompatActivity implements
         }
     }
 
+
+    public String getMyEmail(){
+        return mCredentials.getEmail();
+    }
+
+
     @Override
     public void onAddContactClicked() {
         AddContactFragment addContactFragment = new AddContactFragment();
@@ -580,6 +616,11 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     public void onConnectionReceiveRequestListFragmentInteraction(ConnectionRequestList item) {
 
+    }
+
+    @Override
+    public String getEmail() {
+        return mCredentials.getEmail();
     }
 
     // Deleting the Pushy device token must be done asynchronously. Good thing

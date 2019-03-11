@@ -1,17 +1,12 @@
 package edu.uw.chitchat;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Window;
-import android.view.WindowManager;
 
 import java.io.Serializable;
 
@@ -122,6 +117,11 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onContactListFragmentInteraction(ContactList mItem) {
 
+    }
+
+    @Override
+    public String getEmail() {
+        return mCredentials.getEmail();
     }
 
     @Override
@@ -257,5 +257,6 @@ public class MainActivity extends AppCompatActivity implements
                 .replace(R.id.frame_main_container, loginfragment);
         transaction.commit();
     }
+
 
 }
