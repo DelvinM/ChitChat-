@@ -42,7 +42,8 @@ public class HomeActivity extends AppCompatActivity implements
         ContactListFragment.OnListFragmentInteractionListener,
         AddContactFragment.OnAddContactFragmentInteractionListener,
         ConnectionSendRequestListFragment.OnListFragmentInteractionListener,
-        ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener{
+        ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener,
+        FullChatFragment.OnFullChatFragmentInteractionListener {
 
     private Credentials mCredentials;
     private String mJwToken;
@@ -277,6 +278,8 @@ public class HomeActivity extends AppCompatActivity implements
         if(frag != null && frag.isVisible()) {
             findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
             goToChat(true, true);
+        } else {
+            goToHome();
         }
     }
 
@@ -347,13 +350,20 @@ public class HomeActivity extends AppCompatActivity implements
     public void onTabReselected(TabLayout.Tab tab) { onTabSelected(tab); }
 
     @Override
-    public void onChatFragmentInteraction(Chat item) {
+    public void onChatFragmentInteraction(Chat item, String memberToAdd) {
+        for(Chat c : mChats) {
+            if(c.equals(item)) {
+                c.setNotification("0");
+            }
+        }
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", item.getChatId());
         args.putStringArrayList("contents", item.getContents());
         args.putString("email", mCredentials.getEmail());
+        args.putString("memberToAdd", memberToAdd);
         args.putString("jwt", mJwToken);
+        args.putSerializable("item", item);
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
         changeTab(fullChatFragment, "FULL_CHAT").addToBackStack(null).commit();
@@ -367,8 +377,7 @@ public class HomeActivity extends AppCompatActivity implements
 
 
     @Override
-    public void onContactListClicked() {
-
+    public void onContactListClicked(Boolean addMember, Chat item) {
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -386,10 +395,17 @@ public class HomeActivity extends AppCompatActivity implements
 
 
         new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
-                .onPostExecute(this::handleContactlistGetOnPostExecute)
+                .onPostExecute(result -> {
+                    handleContactlistGetOnPostExecute(result, addMember, item);
+                })
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
 
+    }
+
+    @Override
+    public void onAddMember(Chat item) {
+        onContactListClicked(true, item);
     }
 
 
@@ -474,7 +490,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     }
 
-    private void handleContactlistGetOnPostExecute(String result) {
+    private void handleContactlistGetOnPostExecute(String result, Boolean addMember, Chat item) {
         try {
             JSONObject root = new JSONObject(result);
             if (root.has(getString(R.string.keys_json_contactlist_response))) {
@@ -492,6 +508,8 @@ public class HomeActivity extends AppCompatActivity implements
                 contactsAsArray = contacts.toArray(contactsAsArray);
                 Bundle args = new Bundle();
                 args.putSerializable("contact lists", contactsAsArray);
+                args.putBoolean("add member", addMember);
+                args.putSerializable("item", item);
                 ContactListFragment frag = new ContactListFragment();
                 frag.setArguments(args);
                 onWaitFragmentInteractionHide();
@@ -619,6 +637,11 @@ public class HomeActivity extends AppCompatActivity implements
     @Override
     public void onContactListFragmentInteraction(ContactList contact) {
 
+    }
+
+    @Override
+    public void onMemberAdded(String email, Chat item) {
+        onChatFragmentInteraction(item, email);
     }
 
     @Override
