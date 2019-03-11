@@ -1,7 +1,6 @@
 package edu.uw.chitchat;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -11,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -104,6 +104,10 @@ public class ContactListFragment extends Fragment {
         }
     }
 
+    public String getEmail(){
+        return getArguments().getString("email");
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
@@ -125,7 +129,7 @@ public class ContactListFragment extends Fragment {
         // TODO: Update argument type and name
 
         void onContactListFragmentInteraction(ContactList contact);
+        String getEmail();
     }
-
 
 }
