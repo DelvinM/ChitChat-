@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -77,6 +78,8 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
                 new SendPostAsyncTask.Builder(uri.toString(), test)
                         .build().execute();
                 mValues.remove(position);
+                Toast.makeText(v.getContext(), "You declined the request",
+                        Toast.LENGTH_LONG).show();
                 notifyDataSetChanged();
                 Log.i("Delete Button Clicked","Delete!");
                 //Toast.makeText(context, "Delete button Clicked", Toast.LENGTH_LONG).show();
@@ -127,6 +130,8 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
 //                        .build().execute();
 
                 mValues.remove(position);
+                Toast.makeText(v.getContext(), "You accepted the friend request!",
+                        Toast.LENGTH_LONG).show();
                 notifyDataSetChanged();
                 Log.i("accept Button Clicked","Accept!");
                 //Toast.makeText(context, "Delete button Clicked", Toast.LENGTH_LONG).show();
