@@ -64,6 +64,9 @@ public class HomeActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        //uncomment to clear shared pref!
+        //putIntPreference(getString(R.string.keys_global_chat_count), 0);
+
         if (getIntPreference(getString(R.string.keys_global_chat_count)) == 0) {
             findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
         }
