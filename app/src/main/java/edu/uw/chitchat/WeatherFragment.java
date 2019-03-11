@@ -254,99 +254,104 @@ public class WeatherFragment extends Fragment {
         mCurrentLocation = location;
         mLocationTextView.setText(mCurrentLocation.getLatitude() + " " +
                 mCurrentLocation.getLongitude());
-
-
-        Uri uri = new Uri.Builder()
-                .scheme("https")
-                .appendPath(getString(R.string.ep_base_url))
-                .appendPath(getString(R.string.ep_weather))
-                .appendPath(getString(R.string.ep_getWeather))
-                .build();
-
-        JSONObject jsonSend = new JSONObject();
-        try {
-            jsonSend.put("latitude", mCurrentLocation.getLatitude());
-            jsonSend.put("longtitude", mCurrentLocation.getLongitude());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
-                .onPostExecute(this::handleGetWeatherPostExecute)
-                .build().execute();
     }
 
-    /**
-     * handle the post execute method
-     * @param result the json result from the web service api
-     */
-    private void handleGetWeatherPostExecute(String result) {
 
-        try {
-            JSONObject root = new JSONObject(result);
-            if (root.has(getString(R.string.keys_weather_currently))) {
-                JSONObject currently = root.getJSONObject(getString(R.string.keys_weather_currently));
-                StringBuilder sb = new StringBuilder("Temperature: " + currently.getString(getString(R.string.keys_weather_temperature)) + "\u00b0F");
-                mTemperature.setText(sb.toString());
-                sb = new StringBuilder("Humidity: " + currently.getString(getString(R.string.keys_weather_humidity)) + "%");
-                mHumidity.setText(sb.toString());
-                sb = new StringBuilder("Summary: " + currently.getString(getString(R.string.keys_weather_summary)));
-                mDescription.setText(sb.toString());
-            } else {
-                Log.e("ERROR!", "No response");
+    public class getWeatherButtonClick implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            Uri uri = new Uri.Builder()
+                    .scheme("https")
+                    .appendPath(getString(R.string.ep_base_url))
+                    .appendPath(getString(R.string.ep_weather))
+                    .appendPath(getString(R.string.ep_getWeather))
+                    .build();
+
+            JSONObject jsonSend = new JSONObject();
+            try {
+                jsonSend.put("latitude", mCurrentLocation.getLatitude());
+                jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                    .onPostExecute(this::handleGetWeatherPostExecute)
+                    .build().execute();
+        }
+
+        /**
+         * handle the post execute method
+         * @param result the json result from the web service api
+         */
+        private void handleGetWeatherPostExecute(String result) {
+
+            try {
+                JSONObject root = new JSONObject(result);
+                if (root.has(getString(R.string.keys_weather_currently))) {
+                    JSONObject currently = root.getJSONObject(getString(R.string.keys_weather_currently));
+                    StringBuilder sb = new StringBuilder("Temperature: " + currently.getString(getString(R.string.keys_weather_temperature)) + "\u00b0F");
+                    mTemperature.setText(sb.toString());
+                    sb = new StringBuilder("Humidity: " + currently.getString(getString(R.string.keys_weather_humidity)) + "%");
+                    mHumidity.setText(sb.toString());
+                    sb = new StringBuilder("Summary: " + currently.getString(getString(R.string.keys_weather_summary)));
+                    mDescription.setText(sb.toString());
+                } else {
+                    Log.e("ERROR!", "No response");
+                    //notify user
+                }
+
+                if (root.has(getString(R.string.keys_weather_hourly))) {
+                    JSONObject hourly = root.getJSONObject(getString(R.string.keys_weather_hourly));
+                    if (hourly.has(getString(R.string.keys_weather_data))) {
+                        JSONArray data = hourly.getJSONArray(getString(R.string.keys_weather_data));
+                        List<Broadcast> broadcasts = new LinkedList<>();
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject broadcast = data.getJSONObject(i);
+                            broadcasts.add(new Broadcast(
+                                    broadcast.getString(getString(R.string.keys_weather_temperature)),
+                                    broadcast.getString(getString(R.string.keys_weather_time)),
+                                    broadcast.getString(getString(R.string.keys_weather_summary)),
+                                    broadcast.getString(getString(R.string.keys_weather_humidity)),
+                                    broadcast.getString(getString(R.string.keys_weather_icon))));
+                        }
+
+                        Context context = m24hrRecyclerView.getContext();
+                        m24hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                        m24hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
+                    }
+                }
+
+                if (root.has(getString(R.string.keys_weather_daily))) {
+                    JSONObject daily = root.getJSONObject(getString(R.string.keys_weather_daily));
+                    if (daily.has(getString(R.string.keys_weather_data))){
+                        JSONArray data = daily.getJSONArray(getString(R.string.keys_weather_data));
+                        List<Broadcast> broadcasts = new LinkedList<>();
+                        for (int i = 0; i < data.length(); i++) {
+                            JSONObject broadcast = data.getJSONObject(i);
+                            broadcasts.add(new Broadcast(
+                                    broadcast.getString(getString(R.string.keys_weather_temperatureLow)),
+                                    broadcast.getString(getString(R.string.keys_weather_time)),
+                                    broadcast.getString(getString(R.string.keys_weather_summary)),
+                                    broadcast.getString(getString(R.string.keys_weather_humidity)),
+                                    broadcast.getString(getString(R.string.keys_weather_icon))));
+                        }
+
+                        Context context = mWeekRecyclerView.getContext();
+                        mWeekRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+                        mWeekRecyclerView.setAdapter(new MyWeekBroadcastRecycleViewAdapter(broadcasts));
+                    }
+                }
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e("ERROR!", e.getMessage());
                 //notify user
+                //onWaitFragmentInteractionHide();
             }
 
-            if (root.has(getString(R.string.keys_weather_hourly))) {
-                JSONObject hourly = root.getJSONObject(getString(R.string.keys_weather_hourly));
-                if (hourly.has(getString(R.string.keys_weather_data))) {
-                    JSONArray data = hourly.getJSONArray(getString(R.string.keys_weather_data));
-                    List<Broadcast> broadcasts = new LinkedList<>();
-                    for (int i = 0; i < data.length(); i++) {
-                        JSONObject broadcast = data.getJSONObject(i);
-                        broadcasts.add(new Broadcast(
-                                broadcast.getString(getString(R.string.keys_weather_temperature)),
-                                broadcast.getString(getString(R.string.keys_weather_time)),
-                                broadcast.getString(getString(R.string.keys_weather_summary)),
-                                broadcast.getString(getString(R.string.keys_weather_humidity)),
-                                broadcast.getString(getString(R.string.keys_weather_icon))));
-                    }
-
-                    Context context = m24hrRecyclerView.getContext();
-                    m24hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-                    m24hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
-                }
-            }
-
-            if (root.has(getString(R.string.keys_weather_daily))) {
-                JSONObject daily = root.getJSONObject(getString(R.string.keys_weather_daily));
-                if (daily.has(getString(R.string.keys_weather_data))){
-                    JSONArray data = daily.getJSONArray(getString(R.string.keys_weather_data));
-                    List<Broadcast> broadcasts = new LinkedList<>();
-                    for (int i = 0; i < data.length(); i++) {
-                        JSONObject broadcast = data.getJSONObject(i);
-                        broadcasts.add(new Broadcast(
-                                broadcast.getString(getString(R.string.keys_weather_temperatureLow)),
-                                broadcast.getString(getString(R.string.keys_weather_time)),
-                                broadcast.getString(getString(R.string.keys_weather_summary)),
-                                broadcast.getString(getString(R.string.keys_weather_humidity)),
-                                broadcast.getString(getString(R.string.keys_weather_icon))));
-                    }
-
-                    Context context = mWeekRecyclerView.getContext();
-                    mWeekRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-                    mWeekRecyclerView.setAdapter(new MyWeekBroadcastRecycleViewAdapter(broadcasts));
-                }
-            }
-
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.e("ERROR!", e.getMessage());
-            //notify user
-            //onWaitFragmentInteractionHide();
         }
-
     }
-
 }
