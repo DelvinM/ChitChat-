@@ -65,9 +65,6 @@ public class WeatherFragment extends Fragment {
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationCallback mLocationCallback;
 
-
-    private TextView mLocationTextView;
-
     private TextView mTemperature;
     private TextView mHumidity;
     private TextView mDescription;
@@ -138,7 +135,6 @@ public class WeatherFragment extends Fragment {
 
         createLocationRequest();
 
-        mLocationTextView = view.findViewById(R.id.tv_weather_location);
         mTemperature = view.findViewById(R.id.tv_weather_temperature);
         mHumidity = view.findViewById(R.id.tv_weather_humidity);
         mDescription = view.findViewById(R.id.tv_weather_description);
@@ -219,10 +215,21 @@ public class WeatherFragment extends Fragment {
 
 
     @Override
-    public  void onResume() {
+    public void onResume() {
         super.onResume();
         startLocationUpdates();
+        if (getActivity().getIntent().hasExtra("latitude")) {
+            String lat = getActivity().getIntent().getExtras().getString("latitude");
+            String lng = getActivity().getIntent().getExtras().getString("longtitude");
+            mCurrentLocation.setLatitude(Double.valueOf(lat));
+            mCurrentLocation.setLongitude(Double.valueOf(lng));
+            Log.wtf("world", lat);
+        }
+
+
     }
+
+
     @Override
     public void onPause() {
         super.onPause();
@@ -257,9 +264,8 @@ public class WeatherFragment extends Fragment {
 
     private void setLocation(final Location location) {
         mCurrentLocation = location;
-        mLocationTextView.setText(mCurrentLocation.getLatitude() + " " +
-                mCurrentLocation.getLongitude());
     }
+
 
 
     public class getWeatherButtonClick implements View.OnClickListener {
