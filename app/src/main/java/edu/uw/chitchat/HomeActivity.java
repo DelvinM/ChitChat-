@@ -246,6 +246,7 @@ public class HomeActivity extends AppCompatActivity implements
         ChatFragment chatFragment = new ChatFragment();
         Bundle args = new Bundle();
         if(manualAccess && mChats != null && reloadFlag == false) {
+            Log.e("LOGAN", "showing Persistent Data");
             args.putSerializable(ChatFragment.ARG_CHAT_LIST, mChats);
             args.putSerializable("credentials", mCredentials);
             chatFragment.setArguments(args);
@@ -254,7 +255,9 @@ public class HomeActivity extends AppCompatActivity implements
         }
         new LoadHistoryAsyncTask.Builder(getAllUrl, getMembersUrl, mChatIds, mChatAdapter, this.getBaseContext())
                 .onPostExecute( result -> {
+                    Fragment frag = getSupportFragmentManager().findFragmentByTag("CHAT");
                     if(manualAccess) {
+                        Log.e("LOGAN", "Updated Data!");
                         args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
                         args.putSerializable("credentials", mCredentials);
                         chatFragment.setArguments(args);
@@ -265,6 +268,16 @@ public class HomeActivity extends AppCompatActivity implements
                 })
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Fragment frag = getSupportFragmentManager().findFragmentByTag("CHAT");
+        if(frag != null && frag.isVisible()) {
+            findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
+            goToChat(true, true);
+        }
     }
 
     public void goToNotificationList () {
@@ -322,7 +335,7 @@ public class HomeActivity extends AppCompatActivity implements
                 changeTab(new ConnectFragment(), "CONNECT").commit();
                 break;
             case 3: //Weather
-                changeTab(new WeatherFragment(), "CONNECT").commit();
+                changeTab(new WeatherFragment(), "WEATHER").commit();
                 break;
         }
     }

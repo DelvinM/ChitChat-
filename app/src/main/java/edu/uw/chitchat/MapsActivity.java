@@ -1,5 +1,7 @@
 package edu.uw.chitchat;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -61,5 +63,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         .position(latLng)
         .title("New Marker"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
+        putSharedPreference("latitude", latLng.latitude + "");
+        putSharedPreference("longtitude", latLng.longitude + "");
+    }
+
+    //adds single value to shared preferences
+    //refactor later make this a class
+    private void putSharedPreference (String key, String value) {
+        SharedPreferences sharedPref = getSharedPreferences(
+                key, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(key, value);
+        editor.commit();
     }
 }

@@ -22,7 +22,7 @@
 
             <TextView
                 android:id="@+id/textView_ConnectionReceiveRequestname"
-                android:layout_width="300dp"
+                android:layout_width="169dp"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"
                 android:textAppearance="?attr/textAppearanceListItem"
@@ -35,8 +35,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@color/colorLighterAccent"
                 android:alpha="0.50"
+                android:background="@color/colorLighterAccent"
                 android:text="@string/accept_request_button" />
 
             <TextView
@@ -50,8 +50,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@color/colorLighterAccent"
                 android:alpha="0.50"
+                android:background="@color/colorLighterAccent"
                 android:text="@string/delete_request_button" />
 
         </LinearLayout>

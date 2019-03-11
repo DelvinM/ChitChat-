@@ -7,7 +7,7 @@
     android:layout_height="80dp"
     android:background="@color/colorPrimary"
     android:orientation="horizontal"
-    android:paddingTop="40dp">
+    android:paddingTop="20dp">
 
     <TextView
         android:id="@+id/fragment_7daysbroadcast_single_time"
