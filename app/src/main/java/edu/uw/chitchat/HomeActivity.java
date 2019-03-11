@@ -65,7 +65,8 @@ public class HomeActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_home);
 
         //uncomment to clear shared pref!
-        //putIntPreference(getString(R.string.keys_global_chat_count), 0);
+        putIntPreference(getString(R.string.keys_global_chat_count), 0);
+        putIntPreference(getString(R.string.keys_global_connection_count), 0);
 
         if (getIntPreference(getString(R.string.keys_global_chat_count)) == 0) {
             findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
@@ -767,7 +768,10 @@ public class HomeActivity extends AppCompatActivity implements
                     //TODO: REMOVE THIS NO NEED FOR COUNT HERE
                 } else if (!sender.equals(mEmail)) { // increase chat room global counter
 
-                    findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
+                    Fragment frag = getSupportFragmentManager().findFragmentByTag("FULL_CHAT");
+                    if(frag == null || !frag.isVisible()) {
+                        findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
+                    }
 
                     int global_count = getIntPreference(getString(R.string.keys_global_chat_count));
                     putIntPreference(getString(R.string.keys_global_chat_count), global_count + 1);
