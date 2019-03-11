@@ -23,6 +23,8 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.utils.PushReceiver;
@@ -40,6 +42,7 @@ public class FullChatFragment extends Fragment {
     private TextView mMessageOutputTextView;
     private EditText mMessageInputEditText;
     private String mSendUrl;
+    private String mGetUrl;
     private ArrayList<String> mContents;
     private PushMessageReceiver mPushMessageReciever;
 
@@ -61,6 +64,7 @@ public class FullChatFragment extends Fragment {
 
         if (getArguments() != null) {
             mContents = getArguments().getStringArrayList("contents");
+            Log.e("LOGAN", "Showing Persistent Messages!");
             for (int j = mContents.size() - 1; j >= 0; j--) {
                 mMessageOutputTextView.append(mContents.get(j));
                 mMessageOutputTextView.append(System.lineSeparator());
@@ -93,6 +97,108 @@ public class FullChatFragment extends Fragment {
                 .appendPath(getString(R.string.ep_messaging_send))
                 .build()
                 .toString();
+        mGetUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_chatroom_base))
+                .appendPath(getString(R.string.ep_chatroom_getall_messages))
+                .build()
+                .toString();
+
+        updateMessages();
+    }
+
+    private void updateMessages() {
+        JSONObject getJson = new JSONObject();
+        try {getJson.put("chatId", CHAT_ID);
+        } catch (JSONException e) {e.printStackTrace();}
+        new SendPostAsyncTask.Builder(mGetUrl, getJson)
+            .onPostExecute(result -> {
+                final ArrayList<String> contents = endOfDoGetAll(result);
+                if(contents.size() > 2) {
+                    Log.e("LOGAN", "Updated Messages!");
+                    contents.remove(contents.size() - 1);
+                    contents.remove(contents.size() - 1);
+                    mMessageOutputTextView.setText("");
+                    for (int j = contents.size() - 1; j >= 0; j--) {
+                        mMessageOutputTextView.append(contents.get(j));
+                        mMessageOutputTextView.append(System.lineSeparator());
+                        mMessageOutputTextView.append(System.lineSeparator());
+                    }
+                } else {
+                    mMessageOutputTextView.setText("");
+                    mMessageOutputTextView.append("ChitChat: Add members to start chatting!");
+                    mMessageOutputTextView.append(System.lineSeparator());
+                    mMessageOutputTextView.append(System.lineSeparator());
+                }
+            })
+            .onCancelled(error -> Log.e("UPDATEMESSAGES", "Problem"))
+            .addHeaderField("authorization", mJwToken)
+            .build().execute();
+    }
+
+    private ArrayList<String> endOfDoGetAll(final String result) {
+        ArrayList<String> formattedMessages = new ArrayList<String>();
+        String mostRecent = "";
+        String members = "";
+        Set<String> memberSet = new HashSet<String>();
+        boolean mostRecentRecorded = false;
+        try {
+            JSONObject res = new JSONObject(result);
+            if(res.has("messages")) {
+                String messages = res.getString("messages");
+                String currString = "";
+                String currMember = "";
+                int count = 1;
+                int quoteCount = 0;
+                for (int i = 0; i < messages.length(); i++) {
+                    if (count == 1) {
+                        if (messages.charAt(i) == '@') {
+                            count++;
+                            quoteCount = 0;
+                            currString += ": ";
+                        } else if (messages.charAt(i) == '"') {
+                            quoteCount++;
+                        } else if (quoteCount == 3) {
+                            currString += messages.charAt(i);
+                        }
+                    } else if (count == 2) {
+                        if (messages.charAt(i) == '"') {
+                            quoteCount++;
+                            if (quoteCount == 5) {
+                                count++;
+                                quoteCount = 0;
+                            }
+                        } else if (quoteCount == 4) {
+                            currString += messages.charAt(i);
+                        }
+                    } else if (count == 3) {
+                        if (messages.charAt(i) == '"') {
+                            quoteCount++;
+                            if (quoteCount == 4) {
+                                count = 1;
+                                quoteCount = 0;
+                                currMember = currString.split(":")[0];
+                                if(!memberSet.contains(currMember)) {
+                                    memberSet.add(currMember);
+                                    members += currMember + " ";
+                                }
+                                formattedMessages.add(currString);
+                                mostRecentRecorded = true;
+                                currString = "";
+                            }
+                        } else if (quoteCount == 3 && !mostRecentRecorded) {
+                            mostRecent += messages.charAt(i);
+                        }
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        formattedMessages.add(members);
+        formattedMessages.add(mostRecent.split(" ")[0]);
+        return formattedMessages;
     }
 
     private void removeChatNotificationCount () {
@@ -145,10 +251,28 @@ public class FullChatFragment extends Fragment {
     }
 
     private void handleAddMember(View view) {
-        Log.e("LOGAN", "add a member");
-        mMessageOutputTextView.append("Member Added!");
-        mMessageOutputTextView.append(System.lineSeparator());
-        mMessageOutputTextView.append(System.lineSeparator());
+//Yohei03
+        String addMemberUrl = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_chatroom_base))
+                .appendPath(getString(R.string.ep_chatroom_addmember))
+                .build()
+                .toString();
+        JSONObject getJson = new JSONObject();
+        try {
+            getJson.put("chatId", CHAT_ID);
+            getJson.put("email", "delvin@uw.edu");
+        } catch (JSONException e) {e.printStackTrace();}
+        new SendPostAsyncTask.Builder(addMemberUrl, getJson)
+                .onPostExecute(result -> {
+                    mMessageOutputTextView.append("delvin Was Added!");
+                    mMessageOutputTextView.append(System.lineSeparator());
+                    mMessageOutputTextView.append(System.lineSeparator());
+                } )
+                .onCancelled(error -> Log.e("LOADASYNC", "Problem"))
+                .addHeaderField("authorization", mJwToken)
+                .build().execute();
     }
 
     private void handleSendClick(final View theButton) {
