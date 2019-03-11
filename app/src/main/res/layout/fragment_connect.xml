@@ -13,7 +13,7 @@
         android:layout_width="220dp"
         android:layout_height="92dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="250dp"
+        android:layout_marginTop="64dp"
         android:layout_marginEnd="8dp"
         android:background="@android:color/background_light"
         android:text="@string/fragment_connect_contact"
@@ -65,14 +65,18 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="68dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
         android:background="@android:color/background_light"
         android:text="@string/fragment_show_send_requestlist"
         android:textColor="@color/colorAccent"
         android:textSize="24sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_show_receive_requestList" />
+        app:layout_constraintTop_toBottomOf="@+id/button_show_receive_requestList"
+        app:layout_constraintVertical_bias="0.0" />
 
         />
 </android.support.constraint.ConstraintLayout>

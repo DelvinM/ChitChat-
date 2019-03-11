@@ -274,7 +274,7 @@ public class HomeActivity extends AppCompatActivity implements
         putIntPreference(getString(R.string.keys_global_connection_count), 0);
 
         //TODO: once yohei creates notification's list, call it from here
-        UserProfileFragment userProfileFragment = new UserProfileFragment();
+        ConnectionReceiveRequestListFragment userProfileFragment = new ConnectionReceiveRequestListFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
         args.putString("email", mEmail);
