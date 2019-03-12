@@ -287,7 +287,6 @@ public class HomeActivity extends AppCompatActivity implements
         //reset global connection count since user is viewing requests now
         PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
 
-        //TODO: once yohei creates notification's list, call it from here
         ConnectFragment userProfileFragment = new ConnectFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
@@ -301,7 +300,6 @@ public class HomeActivity extends AppCompatActivity implements
 
 
     public void goToFullChat() {
-        //TODO: update to enter correct chat... currently static so doesn't matter
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
@@ -314,7 +312,6 @@ public class HomeActivity extends AppCompatActivity implements
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
 
-        //TODO:CHANGE TAB TO CHAT SO LOOKS VISUALLY BETTER
         changeTab(fullChatFragment, "FULL_CHAT").addToBackStack(null).commit();
     }
 
@@ -737,9 +734,7 @@ public class HomeActivity extends AppCompatActivity implements
                         int global_count = PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), context);
                         PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1, context);
 
-                        //TODO: make icon light up or something
                     }
-                    //TODO: REMOVE THIS NO NEED FOR COUNT HERE
                 } else if (!sender.equals(mEmail)) { // increase chat room global counter
 
                     Fragment frag = getSupportFragmentManager().findFragmentByTag("FULL_CHAT");
@@ -755,7 +750,6 @@ public class HomeActivity extends AppCompatActivity implements
                     int chat_count = PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), context);
                     PrefHelper.putIntPreference(prefString, chat_count + 1, context);
 
-                    //TODO: make icon light up or something
                 }
             }
         }
