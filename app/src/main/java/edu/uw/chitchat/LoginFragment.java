@@ -176,13 +176,6 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    //refactor later make this a class
-    private String getSharedPreference (String key) {
-        SharedPreferences sharedPref =
-                getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);
-        return sharedPref.getString(key, null);
-    }
-
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

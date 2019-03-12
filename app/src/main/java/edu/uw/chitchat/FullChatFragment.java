@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.uw.chitchat.chat.Chat;
+import edu.uw.chitchat.utils.PrefHelper;
 import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
@@ -240,30 +241,13 @@ public class FullChatFragment extends Fragment {
         String prefString = "chat room " + CHAT_ID + " count";
 
         //compute new global count
-        int notification_count_chat = getSharedPreference(prefString);
-        int notification_count_global = getSharedPreference(getString(R.string.keys_global_chat_count));
+        int notification_count_chat = PrefHelper.getIntPreference(prefString, this.getActivity());
+        int notification_count_global = PrefHelper.getIntPreference(getString(R.string.keys_global_chat_count), this.getActivity());
         int global_count = notification_count_global - notification_count_chat;
 
-        putSharedPreference(prefString, 0);
-        putSharedPreference(getString(R.string.keys_global_chat_count), global_count);
+        PrefHelper.putIntPreference(prefString, 0, this.getActivity());
+        PrefHelper.putIntPreference(getString(R.string.keys_global_chat_count), global_count, this.getActivity());
     }
-
-    //TODO: REFACTOR
-    //adds single value to shared preferences
-    //refactor later make this a class
-    private void putSharedPreference (String key, int value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(key, value);
-        editor.commit();
-    }
-
-    private int getSharedPreference (String key) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-        return preferences.getInt(key, 0);
-    }
-
 
     @Override
     public void onResume() {

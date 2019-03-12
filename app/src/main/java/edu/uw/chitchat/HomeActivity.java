@@ -31,6 +31,7 @@ import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
 import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
+import edu.uw.chitchat.utils.PrefHelper;
 import me.pushy.sdk.Pushy;
 
 public class HomeActivity extends AppCompatActivity implements
@@ -65,14 +66,14 @@ public class HomeActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_home);
 
         //uncomment to clear shared pref!
-        putIntPreference(getString(R.string.keys_global_chat_count), 0);
-        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_chat_count), 0, this);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
 
-        if (getIntPreference(getString(R.string.keys_global_chat_count)) == 0) {
+        if (PrefHelper.getIntPreference(getString(R.string.keys_global_chat_count), this) == 0) {
             findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
         }
 
-        if (getIntPreference(getString(R.string.keys_global_connection_count)) == 0) {
+        if (PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), this) == 0) {
             findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
         }
 
@@ -114,7 +115,7 @@ public class HomeActivity extends AppCompatActivity implements
         prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
         prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
 
-        putSharedPreference(getString(R.string.keys_persistent_login), "false");
+        PrefHelper.putStringPreference(getString(R.string.keys_persistent_login), "false", this);
         //putSharedPreference(getString(R.string.keys_persistent_login), "false");
         new DeleteTokenAsyncTask().execute();
         Intent i = new Intent(this, MainActivity.class);
@@ -122,15 +123,7 @@ public class HomeActivity extends AppCompatActivity implements
         finish();
     }
 
-    //adds single value to shared preferences
-    //refactor later make this a class
-    private void putSharedPreference (String key, String value) {
-        SharedPreferences sharedPref = getSharedPreferences(
-                key, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(key, value);
-        editor.commit();
-    }
+
 
     @Override
     public void onResetClicked() {
@@ -292,7 +285,7 @@ public class HomeActivity extends AppCompatActivity implements
 
         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
         //reset global connection count since user is viewing requests now
-        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
 
         //TODO: once yohei creates notification's list, call it from here
         ConnectFragment userProfileFragment = new ConnectFragment();
@@ -420,7 +413,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionRequestListClicked() {
-        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -444,7 +437,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionReceiveRequestListClicked() {
-        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
 
 
@@ -639,11 +632,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     }
 
-    private String getSharedPreference (String key) {
-        SharedPreferences sharedPref =
-                getSharedPreferences(key, Context.MODE_PRIVATE);
-        return sharedPref.getString(key, null);
-    }
+
 
 
     @Override
@@ -725,23 +714,6 @@ public class HomeActivity extends AppCompatActivity implements
         }
     }
 
-    //TODO:REFACTOR
-    private int getIntPreference (String key) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        return preferences.getInt(key, 0);
-    }
-
-    //TODO: REFACTOR
-    //adds single value to shared preferences
-    //refactor later make this a class
-    private void putIntPreference (String key, int value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(key, value);
-        editor.commit();
-    }
-
     /**
      * A BroadcastReceiver that listens for messages sent from PushReceiver
      */
@@ -762,8 +734,8 @@ public class HomeActivity extends AppCompatActivity implements
 
                         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.VISIBLE);
 
-                        int global_count = getIntPreference(getString(R.string.keys_global_connection_count));
-                        putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1);
+                        int global_count = PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), context);
+                        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1, context);
 
                         //TODO: make icon light up or something
                     }
@@ -775,13 +747,13 @@ public class HomeActivity extends AppCompatActivity implements
                         findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
                     }
 
-                    int global_count = getIntPreference(getString(R.string.keys_global_chat_count));
-                    putIntPreference(getString(R.string.keys_global_chat_count), global_count + 1);
+                    int global_count = PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), context);
+                    PrefHelper.putIntPreference(getString(R.string.keys_global_chat_count), global_count + 1, context);
 
                     //keep counter for individual chatroom
                     String prefString = "chat room " + chatId + " count";
-                    int chat_count = getIntPreference(prefString);
-                    putIntPreference(prefString, chat_count + 1);
+                    int chat_count = PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), context);
+                    PrefHelper.putIntPreference(prefString, chat_count + 1, context);
 
                     //TODO: make icon light up or something
                 }

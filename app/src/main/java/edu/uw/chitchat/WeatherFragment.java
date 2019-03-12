@@ -43,6 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import edu.uw.chitchat.broadcast.Broadcast;
+import edu.uw.chitchat.utils.PrefHelper;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 
@@ -221,9 +222,9 @@ public class WeatherFragment extends Fragment {
     public void onResume() {
         super.onResume();
         //startLocationUpdates();
-        if (getSharedPreference("latitude") != null && mCurrentLocation != null) {
-            String lat = getSharedPreference("latitude");
-            String lng = getSharedPreference("longtitude");
+        if (PrefHelper.getStringPreference("latitude", getActivity()) != null && mCurrentLocation != null) {
+            String lat = PrefHelper.getStringPreference("latitude", getActivity());
+            String lng = PrefHelper.getStringPreference("longtitude", getActivity());
             mCurrentLocation.setLatitude(Double.valueOf(lat));
             mCurrentLocation.setLongitude(Double.valueOf(lng));
             Log.wtf("world", lat);
@@ -268,14 +269,6 @@ public class WeatherFragment extends Fragment {
     private void setLocation(final Location location) {
         mCurrentLocation = location;
         mGetWeather.setOnClickListener(new getWeatherButtonClick());
-    }
-
-
-
-    private String getSharedPreference (String key) {
-        SharedPreferences sharedPref =
-                getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);
-        return sharedPref.getString(key, null);
     }
 
     public class getWeatherButtonClick implements View.OnClickListener {

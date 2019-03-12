@@ -15,6 +15,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import edu.uw.chitchat.utils.PrefHelper;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private GoogleMap mMap;
@@ -63,17 +65,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         .position(latLng)
         .title("New Marker"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
-        putSharedPreference("latitude", latLng.latitude + "");
-        putSharedPreference("longtitude", latLng.longitude + "");
-    }
-
-    //adds single value to shared preferences
-    //refactor later make this a class
-    private void putSharedPreference (String key, String value) {
-        SharedPreferences sharedPref = getSharedPreferences(
-                key, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(key, value);
-        editor.commit();
+        PrefHelper.putStringPreference("latitude", latLng.latitude + "", this);
+        PrefHelper.putStringPreference("longtitude", latLng.longitude + "", this);
     }
 }
