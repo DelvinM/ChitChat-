@@ -1,7 +1,4 @@
 # Tcss450App
-Our App! It's gonna be pretty cool.
+This is Chit Chat, a messaging app for Android devices.
 
-i add stuff zhou lu
-hello test 2
-
-Logan branch test 1
+It was built in Android Studio using Java, and uses Heroku and Pushy on the backend.
