@@ -259,8 +259,8 @@ public class HomeActivity extends AppCompatActivity implements
         }
         new LoadHistoryAsyncTask.Builder(getAllUrl, getMembersUrl, mChatIds, mChatAdapter, this.getBaseContext())
                 .onPostExecute( result -> {
-                    Fragment frag = getSupportFragmentManager().findFragmentByTag("CHAT");
                     if(manualAccess) {
+                        Fragment frag = getSupportFragmentManager().findFragmentByTag("CHAT");
                         if(frag != null && frag.isVisible()) {
                             Log.e("LOGAN", "Updated Data!");
                             args.putSerializable(ChatFragment.ARG_CHAT_LIST, result);
@@ -282,7 +282,7 @@ public class HomeActivity extends AppCompatActivity implements
         Fragment frag = getSupportFragmentManager().findFragmentByTag("CHAT");
         if(frag != null && frag.isVisible()) {
             findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
-            goToChat(true, true);
+            getIds(true, true);
         } else {
             goToHome();
         }
@@ -773,6 +773,12 @@ public class HomeActivity extends AppCompatActivity implements
                     Fragment frag = getSupportFragmentManager().findFragmentByTag("FULL_CHAT");
                     if(frag == null || !frag.isVisible()) {
                         findViewById(R.id.imageView_home_chatNotification).setVisibility(View.VISIBLE);
+                    }
+                    Fragment frag2 = getSupportFragmentManager().findFragmentByTag("CHAT");
+                    if(frag2 != null && frag2.isVisible()) {
+                        getIds(true, true);
+                    } else {
+                        getIds(false, true);
                     }
 
                     int global_count = getIntPreference(getString(R.string.keys_global_chat_count));
