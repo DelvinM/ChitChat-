@@ -120,23 +120,23 @@ public class WeatherFragment extends Fragment {
 
 
 
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                    // Update UI with location data
-                    // ...
-                    setLocation(location);
+//        mLocationCallback = new LocationCallback() {
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//                if (locationResult == null) {
+//                    return;
+//                }
+//                for (Location location : locationResult.getLocations()) {
+//                    // Update UI with location data
+//                    // ...
+//                    setLocation(location);
+//
+//                    Log.d("LOCATION UPDATE!", location.toString());
+//                }
+//            };
+//        };
 
-                    Log.d("LOCATION UPDATE!", location.toString());
-                }
-            };
-        };
-
-        createLocationRequest();
+//        createLocationRequest();
 
         mTemperature = view.findViewById(R.id.tv_weather_temperature);
         mHumidity = view.findViewById(R.id.tv_weather_humidity);
@@ -146,31 +146,31 @@ public class WeatherFragment extends Fragment {
         mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
         mGetWeather = view.findViewById(R.id.button_fragment_weather_getWeather);
 
-        startLocationUpdates();
+//        startLocationUpdates();
 
         return view;
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_LOCATIONS: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // locations-related task you need to do.
-                    requestLocation();
-                } else {
-                    Log.d("PERMISSION DENIED", "Nothing to see or do here.");
-                    getActivity().finishAndRemoveTask();
-                }
-
-                return;
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           String permissions[], int[] grantResults) {
+//        switch (requestCode) {
+//            case MY_PERMISSIONS_LOCATIONS: {
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//                    // permission was granted, yay! Do the
+//                    // locations-related task you need to do.
+//                    requestLocation();
+//                } else {
+//                    Log.d("PERMISSION DENIED", "Nothing to see or do here.");
+//                    getActivity().finishAndRemoveTask();
+//                }
+//
+//                return;
+//            }
+//        }
+//    }
 
 
     private void requestLocation() {
@@ -182,7 +182,7 @@ public class WeatherFragment extends Fragment {
             Log.d("REQUEST LOCATION", "User did NOT allow permission to request location!");
         } else {
             Log.d("Joe test","it reaches here1");
-            Task<Location> location = mFusedLocationClient.getLastLocation()
+            mFusedLocationClient.getLastLocation()
                     .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
@@ -198,24 +198,24 @@ public class WeatherFragment extends Fragment {
     }
 
 
-    /**
-     * Create and configure a Location Request used when retrieving location updates
-     */
-    protected void createLocationRequest() {
-        mLocationRequest = LocationRequest.create();
-
-        // Sets the desired interval for active location updates. This interval is
-        // inexact. You may not receive updates at all if no location sources are available, or
-        // you may receive them slower than requested. You may also receive updates faster than
-        // requested if other applications are requesting location at a faster interval.
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        // Sets the fastest rate for active location updates. This interval is exact, and your
-        // application will never receive updates faster than this value.
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
+//    /**
+//     * Create and configure a Location Request used when retrieving location updates
+//     */
+//    protected void createLocationRequest() {
+//        mLocationRequest = LocationRequest.create();
+//
+//        // Sets the desired interval for active location updates. This interval is
+//        // inexact. You may not receive updates at all if no location sources are available, or
+//        // you may receive them slower than requested. You may also receive updates faster than
+//        // requested if other applications are requesting location at a faster interval.
+//        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+//
+//        // Sets the fastest rate for active location updates. This interval is exact, and your
+//        // application will never receive updates faster than this value.
+//        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+//
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//    }
 
 
     @Override
@@ -237,34 +237,34 @@ public class WeatherFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        stopLocationUpdates();
+//        stopLocationUpdates();
     }
 
+//
+//    /**
+//     * Requests location updates from the FusedLocationApi.
+//     */
+//    protected void startLocationUpdates() {
+//        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+//                == PackageManager.PERMISSION_GRANTED
+//                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+//                == PackageManager.PERMISSION_GRANTED) {
+//            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
+//                    mLocationCallback,
+//                    null /* Looper */);
+//        }
+//    }
 
-    /**
-     * Requests location updates from the FusedLocationApi.
-     */
-    protected void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                    mLocationCallback,
-                    null /* Looper */);
-        }
-    }
 
-
-    /**
-     * Removes location updates from the FusedLocationApi.
-     */
-    protected void stopLocationUpdates() {
-        // It is a good practice to remove location requests when the activity is in a paused or
-        // stopped state. Doing so helps battery performance and is especially
-        // recommended in applications that request frequent location updates.
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-    }
+//    /**
+//     * Removes location updates from the FusedLocationApi.
+//     */
+//    protected void stopLocationUpdates() {
+//        // It is a good practice to remove location requests when the activity is in a paused or
+//        // stopped state. Doing so helps battery performance and is especially
+//        // recommended in applications that request frequent location updates.
+//        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+//    }
 
     private void setLocation(final Location location) {
         mCurrentLocation = location;

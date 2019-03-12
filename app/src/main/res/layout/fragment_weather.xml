@@ -57,7 +57,7 @@
         android:backgroundTint="@android:color/white"
         android:ems="10"
         android:hint="ZIP Code"
-        android:inputType="text"
+        android:inputType="number"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:shadowRadius="@android:integer/config_longAnimTime"
