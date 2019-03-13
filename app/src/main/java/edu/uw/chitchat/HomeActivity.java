@@ -1,21 +1,32 @@
 package edu.uw.chitchat;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -46,6 +57,12 @@ public class HomeActivity extends AppCompatActivity implements
         ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener,
         FullChatFragment.OnFullChatFragmentInteractionListener {
 
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
+
+    private static final int MY_PERMISSIONS_LOCATIONS = 8414;
+
     private Credentials mCredentials;
     private String mJwToken;
     private String mChatId;
@@ -57,14 +74,16 @@ public class HomeActivity extends AppCompatActivity implements
     private String mSender;
     private MyChatRecyclerViewAdapter mChatAdapter;
     private String mEmail;
-
     private PushMessageReceiver mPushMessageReciever;
+    private Location mCurrentLocation;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationCallback mLocationCallback;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
         //uncomment to clear shared pref!
         PrefHelper.putIntPreference(getString(R.string.keys_global_chat_count), 0, this);
         PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
@@ -102,7 +121,49 @@ public class HomeActivity extends AppCompatActivity implements
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.addOnTabSelectedListener(this);
+
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+
+        if (ActivityCompat.checkSelfPermission(this,  Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,  Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_LOCATIONS);
+        } else {
+            requestLocation();
+        }
+
     }
+
+    private void requestLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,  Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            Log.d("REQUEST LOCATION", "User did NOT allow permission to request location!");
+        } else {
+            Log.d("Joe test","it reaches here1");
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                Log.d("Joe test","it never reaches here");
+                                mCurrentLocation = location;
+                                Log.d("LOCATION", location.toString());
+                            }
+                        }
+                    });
+        }
+    }
+
 
     @Override
     public void onLogOut() {
@@ -337,7 +398,13 @@ public class HomeActivity extends AppCompatActivity implements
                 changeTab(new ConnectFragment(), "CONNECT").commit();
                 break;
             case 3: //Weather
-                changeTab(new WeatherFragment(), "WEATHER").commit();
+                Bundle bundle = new Bundle();
+                WeatherFragment weatherFragment = new WeatherFragment();
+
+                bundle.putSerializable(getString(R.string.keys_weather_latitude), mCurrentLocation.getLatitude());
+                bundle.putSerializable(getString(R.string.keys_weather_longtitude), mCurrentLocation.getLongitude());
+                weatherFragment.setArguments(bundle);
+                changeTab(weatherFragment, "WEATHER").commit();
                 break;
         }
     }

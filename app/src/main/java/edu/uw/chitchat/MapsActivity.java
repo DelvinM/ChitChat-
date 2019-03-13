@@ -67,5 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
         PrefHelper.putStringPreference("latitude", latLng.latitude + "", this);
         PrefHelper.putStringPreference("longtitude", latLng.longitude + "", this);
+        PrefHelper.putStringPreference("FromWhere", "map", this);
+        finish();
     }
 }

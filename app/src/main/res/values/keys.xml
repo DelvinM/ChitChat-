@@ -65,7 +65,8 @@
 
     <string name="keys_weather_daily">daily</string>
     <string name="keys_weather_temperatureLow">temperatureLow</string>
-
+    <string name="keys_weather_latitude">LATITUDE</string>
+    <string name="keys_weather_longtitude">LONGTITUDE</string>
 
 
 </resources>
