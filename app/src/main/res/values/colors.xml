@@ -5,4 +5,6 @@
     <color name="colorAccent">#FF4444</color>
     <color name="colorPrimaryAlpha">#FF4444</color>
     <color name="colorLighterAccent">#FFFFFF</color>
+    <color name="colorConnectBackground">#F9CACA</color>
+    <color name="white">#FFFFFF</color>
 </resources>

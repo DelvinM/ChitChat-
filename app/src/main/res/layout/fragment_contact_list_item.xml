@@ -12,7 +12,9 @@
         android:layout_height="match_parent"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        app:cardBackgroundColor="@color/colorPrimaryDark"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        app:cardBackgroundColor="@color/colorLighterAccent"
         app:cardCornerRadius="5dp">
 
         <LinearLayout
@@ -22,11 +24,12 @@
 
             <TextView
                 android:id="@+id/textView_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingLeft="8dp"
+                android:layout_weight="1"
                 android:textAppearance="?attr/textAppearanceListItem"
-                android:textColor="@android:color/white"
+                android:textColor="@android:color/holo_red_light"
                 android:textSize="30sp"
                 android:textStyle="bold" />
 
@@ -38,12 +41,14 @@
 
             <Button
                 android:id="@+id/delete_contact_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@color/colorLighterAccent"
-                android:alpha="0.50"
-                android:text="@string/delete_contact_button" />
+                android:layout_margin="10dp"
+                android:background="@color/common_google_signin_btn_text_light_pressed"
+                android:text="@string/delete_contact_button"
+                android:textColor="@color/colorLighterAccent"
+                />
 
         </LinearLayout>
     </android.support.v7.widget.CardView>
