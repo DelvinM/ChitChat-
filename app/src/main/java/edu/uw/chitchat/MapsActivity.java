@@ -19,8 +19,10 @@ import edu.uw.chitchat.utils.PrefHelper;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
+    /** a field to refer to the Google map objedt.*/
     private GoogleMap mMap;
 
+    /** a field to refer to the location object.*/
     private Location mCurrentLocation;
 
     @Override
@@ -58,6 +60,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapClickListener(this);
     }
 
+    /**
+     * this will end the map activity and pass the lat lng to the weather fragment.
+     * @param latLng the lat lng where user click
+     */
     @Override
     public void onMapClick(LatLng latLng) {
         Log.wtf("LAT/LONG", latLng.toString());
