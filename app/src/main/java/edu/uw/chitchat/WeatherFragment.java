@@ -74,7 +74,7 @@ public class WeatherFragment extends Fragment {
     private RecyclerView m24hrRecyclerView;
     private RecyclerView mWeekRecyclerView;
     private EditText mZIPCode;
-    //private Button mGetWeather;
+    private TextView mCurrentCity;
 
 
     public WeatherFragment() {
@@ -117,8 +117,8 @@ public class WeatherFragment extends Fragment {
         m24hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
         mWeekRecyclerView = view.findViewById(R.id.recycleView_weather_7days);
         mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
-//        mGetWeather = view.findViewById(R.id.button_fragment_weather_getWeather);
-//        mGetWeather.setOnClickListener(new getWeatherButtonClick());
+        mCurrentCity = view.findViewById(R.id.tv_weather_Current);
+
         setZipCodeListener();
 
         Uri uri = new Uri.Builder()
@@ -139,9 +139,32 @@ public class WeatherFragment extends Fragment {
         new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
                 .onPostExecute(this::handleGetWeatherPostExecute)
                 .build().execute();
+
         return view;
 
     }
+
+
+    protected void getCityName() {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_getCity))
+                .build();
+
+        JSONObject jsonSend = new JSONObject();
+        try {
+            jsonSend.put("latitude", mCurrentLocation.getLatitude());
+            jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleGetCityPostExecute)
+                .build().execute();
+    }
+
 
     public void setZipCodeListener() {
         mZIPCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -268,13 +291,52 @@ public class WeatherFragment extends Fragment {
                         }
                     }
 
-
+                    getCityName();
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e("ERROR!", e.getMessage());
 
                 }
 
+            }
+
+            protected void getCityName() {
+                Uri uri = new Uri.Builder()
+                        .scheme("https")
+                        .appendPath(getString(R.string.ep_base_url))
+                        .appendPath(getString(R.string.ep_weather))
+                        .appendPath(getString(R.string.ep_getCity))
+                        .build();
+
+                JSONObject jsonSend = new JSONObject();
+                try {
+                    jsonSend.put("latitude", mCurrentLocation.getLatitude());
+                    jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                        .onPostExecute(this::handleGetCityPostExecute)
+                        .build().execute();
+            }
+
+            private void handleGetCityPostExecute(String result) {
+                try {
+                    JSONObject root = new JSONObject(result);
+                    if (root.has("results")) {
+                        JSONArray results = root.getJSONArray("results");
+
+                        JSONObject address_components = results.getJSONObject(0);
+
+                        String formatted_address = address_components.getString(getString(R.string.keys_formatted_address));
+                        String city = parseLocation(formatted_address);
+                        mCurrentCity.setText(city);
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e("ERROR!", e.getMessage());
+                }
             }
         });
     }
@@ -304,7 +366,6 @@ public class WeatherFragment extends Fragment {
 
         JSONObject jsonSend = new JSONObject();
         try {
-            Log.wtf("world1", mCurrentLocation.getLatitude()+"");
             jsonSend.put("latitude", mCurrentLocation.getLatitude());
             jsonSend.put("longtitude", mCurrentLocation.getLongitude());
         } catch (JSONException e) {
@@ -383,7 +444,7 @@ public class WeatherFragment extends Fragment {
                 }
             }
 
-
+            getCityName();
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("ERROR!", e.getMessage());
@@ -391,5 +452,32 @@ public class WeatherFragment extends Fragment {
             //onWaitFragmentInteractionHide();
         }
 
+    }
+
+    private void handleGetCityPostExecute(String result) {
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has("results")) {
+                JSONArray results = root.getJSONArray("results");
+
+                JSONObject address_components = results.getJSONObject(0);
+
+                String formatted_address = address_components.getString(getString(R.string.keys_formatted_address));
+                String city = parseLocation(formatted_address);
+                mCurrentCity.setText(city);
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+        }
+    }
+
+
+    private String parseLocation(String address) {
+       StringBuilder sb = new StringBuilder();
+       String[] arr = address.split(",");
+       sb.append(arr[1]);
+       return sb.toString();
     }
 }

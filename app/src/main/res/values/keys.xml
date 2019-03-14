@@ -67,6 +67,6 @@
     <string name="keys_weather_temperatureLow">temperatureLow</string>
     <string name="keys_weather_latitude">LATITUDE</string>
     <string name="keys_weather_longtitude">LONGTITUDE</string>
-
+    <string name="keys_formatted_address">formatted_address</string>
 
 </resources>
