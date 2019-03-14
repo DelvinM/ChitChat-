@@ -56,4 +56,5 @@
     <string name="fragment_weather_description">Description</string>
     <string name="fragment_weather_24hr">48hr broadcast</string>
     <string name="fragment_weather_7days">7 days broadcast</string>
+    <string name="fragment_weather_location">LOCATION</string>
 </resources>
