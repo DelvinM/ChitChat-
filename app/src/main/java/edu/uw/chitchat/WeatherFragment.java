@@ -1,16 +1,12 @@
 package edu.uw.chitchat;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,27 +14,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -57,35 +39,52 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 public class WeatherFragment extends Fragment {
 
-//    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
-//
-//    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
-//
-//    private static final int MY_PERMISSIONS_LOCATIONS = 8414;
-//    private LocationRequest mLocationRequest;
 
-//    private FusedLocationProviderClient mFusedLocationClient;
-//    private LocationCallback mLocationCallback;
-
+    /**a field for the textView to display temperature*/
     private TextView mTemperature;
+
+    /**a field for the textView to display humidity*/
     private TextView mHumidity;
+
+    /**a field for the textView to display summary about the weather*/
     private TextView mDescription;
+
+    /**a field to store the location*/
     Location mCurrentLocation;
-    private RecyclerView m24hrRecyclerView;
+
+    /**a class field to referrence the recycle view about 48hr*/
+    private RecyclerView m48hrRecyclerView;
+
+    /**a class field to referrence the recycle view for the week broadcast*/
     private RecyclerView mWeekRecyclerView;
+
+    /**a class field to display the EditText for zip code*/
     private EditText mZIPCode;
+
+    /**a class field to display the city from the current location*/
     private TextView mCurrentCity;
 
 
+    /**
+     * Required empty public constructor
+     */
     public WeatherFragment() {
         // Required empty public constructor
     }
 
+    /**
+     * some async task happen here, so user no need to do anything, when switch into the weather fragment.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_weather , container, false);
         if (getArguments() != null) {
+            // get the bundle pass from the home activity
             Bundle bundle = getArguments();
             Double lat = (Double) bundle.getSerializable(getString(R.string.keys_weather_latitude));
             Double lng = (Double) bundle.getSerializable(getString(R.string.keys_weather_longtitude));
@@ -94,6 +93,7 @@ public class WeatherFragment extends Fragment {
             mCurrentLocation.setLongitude(lng);
             Log.wtf("world", "afaschv,");
         }
+
         FloatingActionButton fab = view.findViewById(R.id.fab_weather);
         fab.setOnClickListener((new View.OnClickListener() {
             @Override
@@ -114,12 +114,14 @@ public class WeatherFragment extends Fragment {
         mTemperature = view.findViewById(R.id.tv_weather_temperature);
         mHumidity = view.findViewById(R.id.tv_weather_humidity);
         mDescription = view.findViewById(R.id.tv_weather_description);
-        m24hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
+        m48hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
         mWeekRecyclerView = view.findViewById(R.id.recycleView_weather_7days);
         mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
         mCurrentCity = view.findViewById(R.id.tv_weather_Current);
 
+        //this method is set the zip code edit text listner for event when edit text lost focus
         setZipCodeListener();
+
 
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -144,7 +146,9 @@ public class WeatherFragment extends Fragment {
 
     }
 
-
+    /**
+     * this method will create async task to get the city name and set the city name.
+     */
     protected void getCityName() {
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -166,6 +170,9 @@ public class WeatherFragment extends Fragment {
     }
 
 
+    /**
+     * this method is to set up the listener for zip code edit text.
+     */
     public void setZipCodeListener() {
         mZIPCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
@@ -190,12 +197,17 @@ public class WeatherFragment extends Fragment {
                 }
 
                 new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
-                        .onPostExecute(this::handleGetWeatherWithZipPostExecute)
+                        .onPostExecute(this::handleGetLatLngFromZipPostExecute)
                         .build().execute();
                 }
             }
 
-            private void handleGetWeatherWithZipPostExecute(String result) {
+            /**
+             * this will handle for async task to get the lat long from a zip code and
+             * make an get weather async call.
+             * @param result json string contains lat long
+             */
+            private void handleGetLatLngFromZipPostExecute(String result) {
                 try {
                     JSONObject root = new JSONObject(result);
                     if (root.has("results")) {
@@ -232,6 +244,10 @@ public class WeatherFragment extends Fragment {
                 }
             }
 
+            /**
+             * this will make get async call to get weather from lat long.
+             * @param result json string contains weather info.
+             */
             private void handleGetWeatherPostExecute(String result) {
 
                 try {
@@ -264,9 +280,9 @@ public class WeatherFragment extends Fragment {
                                         broadcast.getString(getString(R.string.keys_weather_icon))));
                             }
 
-                            Context context = m24hrRecyclerView.getContext();
-                            m24hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-                            m24hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
+                            Context context = m48hrRecyclerView.getContext();
+                            m48hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                            m48hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
                         }
                     }
 
@@ -300,6 +316,9 @@ public class WeatherFragment extends Fragment {
 
             }
 
+            /**
+             * this is a method to get the city name from lat lng.
+             */
             protected void getCityName() {
                 Uri uri = new Uri.Builder()
                         .scheme("https")
@@ -320,6 +339,10 @@ public class WeatherFragment extends Fragment {
                         .build().execute();
             }
 
+            /**
+             * this will handle the result from async task to get city name.
+             * @param result json string contain address
+             */
             private void handleGetCityPostExecute(String result) {
                 try {
                     JSONObject root = new JSONObject(result);
@@ -341,6 +364,9 @@ public class WeatherFragment extends Fragment {
         });
     }
 
+    /**
+     * the on resume will check does user come from map activity
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -356,6 +382,9 @@ public class WeatherFragment extends Fragment {
         }
     }
 
+    /**
+     * method to make async call to get weather info
+     */
     public void getWeatherFromMap() {
         Uri uri = new Uri.Builder()
                 .scheme("https")
@@ -376,10 +405,6 @@ public class WeatherFragment extends Fragment {
                 .build().execute();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
 
     /**
      * handle the post execute method
@@ -417,9 +442,9 @@ public class WeatherFragment extends Fragment {
                                 broadcast.getString(getString(R.string.keys_weather_icon))));
                     }
 
-                    Context context = m24hrRecyclerView.getContext();
-                    m24hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-                    m24hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
+                    Context context = m48hrRecyclerView.getContext();
+                    m48hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                    m48hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
                 }
             }
 
@@ -454,6 +479,10 @@ public class WeatherFragment extends Fragment {
 
     }
 
+    /**
+     * this handle when get result from getting address info.
+     * @param result json string ocntains address info.
+     */
     private void handleGetCityPostExecute(String result) {
         try {
             JSONObject root = new JSONObject(result);
@@ -474,6 +503,11 @@ public class WeatherFragment extends Fragment {
     }
 
 
+    /**
+     * parse the address to return a city name
+     * @param address contains full address
+     * @return city name
+     */
     private String parseLocation(String address) {
        StringBuilder sb = new StringBuilder();
        String[] arr = address.split(",");
