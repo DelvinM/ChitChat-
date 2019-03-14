@@ -57,9 +57,12 @@ public class HomeActivity extends AppCompatActivity implements
         ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener,
         FullChatFragment.OnFullChatFragmentInteractionListener {
 
+    /**The desired interval for location updates. Inexact. Updates may be more or less frequent.*/
     public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
 
+    /**The fastest rate for active location updates. Exact. Updates will never be more frequent than this value.  */
     public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
+
 
     private static final int MY_PERMISSIONS_LOCATIONS = 8414;
 
@@ -75,8 +78,10 @@ public class HomeActivity extends AppCompatActivity implements
     private MyChatRecyclerViewAdapter mChatAdapter;
     private String mEmail;
     private PushMessageReceiver mPushMessageReciever;
+
     private Location mCurrentLocation;
     private FusedLocationProviderClient mFusedLocationClient;
+    private LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
 
 
@@ -139,7 +144,80 @@ public class HomeActivity extends AppCompatActivity implements
             requestLocation();
         }
 
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // Update UI with location data
+                    // ...
+                    Log.d("LOCATION UPDATE!", location.toString());
+                    mCurrentLocation = location;
+                }
+            };
+        };
+
+        createLocationRequest();
+
     }
+
+    /**
+     * Create and configure a Location Request used when retrieving location updates
+     */
+    protected void createLocationRequest() {
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+
+    /**
+     * request location updates from the FusedLocationApi.
+     */
+    protected  void startLocationUpdate() {
+        if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                &&  ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,null /* Looper */);
+        }
+    }
+
+    /**
+     * remove the location updates from the FusedLocation Api.
+     */
+    protected void stopLocationUpdates() {
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_LOCATIONS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // locations-related task you need to do.
+                    requestLocation();
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.d("PERMISSION DENIED", "Nothing to see or do here.");
+                    // Shut down the app. In production release, you would let the user
+                    // know why the app is shutting down...maybe ask for permission again?
+                    finishAndRemoveTask();
+                }
+                 return;
+            }
+
+        }
+    }
+
 
     private void requestLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
@@ -149,13 +227,11 @@ public class HomeActivity extends AppCompatActivity implements
 
             Log.d("REQUEST LOCATION", "User did NOT allow permission to request location!");
         } else {
-            Log.d("Joe test","it reaches here1");
             mFusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
                             if (location != null) {
-                                Log.d("Joe test","it never reaches here");
                                 mCurrentLocation = location;
                                 Log.d("LOCATION", location.toString());
                             }
@@ -252,6 +328,8 @@ public class HomeActivity extends AppCompatActivity implements
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }
+
+
     private ArrayList<String> endOfDoGetIds(final String result) {
         ArrayList<String> formattedChatIds = new ArrayList<>();
         try {
@@ -311,6 +389,7 @@ public class HomeActivity extends AppCompatActivity implements
             changeTab(chatFragment, "CHAT").commit();
             findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
         }
+
         new LoadHistoryAsyncTask.Builder(getAllUrl, getMembersUrl, mChatIds, mChatAdapter, this.getBaseContext())
                 .onPostExecute( result -> {
                     if(manualAccess) {
@@ -528,7 +607,7 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     private void handleErrorsInTask(String result) {
-            Log.e("ASYNC_TASK_ERROR", result);
+        Log.e("ASYNC_TASK_ERROR", result);
     }
 
     private void handleAcceptGetOnPostExecute(String result){
@@ -553,8 +632,7 @@ public class HomeActivity extends AppCompatActivity implements
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("ERROR!", e.getMessage());
-            //notify user
-            //onWaitFragmentInteractionHide();
+
         }
 
     }
@@ -591,8 +669,7 @@ public class HomeActivity extends AppCompatActivity implements
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("ERROR!", e.getMessage());
-            //notify user
-            //onWaitFragmentInteractionHide();
+
         }
     }
 
@@ -754,12 +831,13 @@ public class HomeActivity extends AppCompatActivity implements
             //close the app
             finishAndRemoveTask();
             //or close this activity and bring back the Login
-        // Intent i = new Intent(this, MainActivity.class);
-        // startActivity(i);
-        // //Ends this Activity and removes it from the Activity back stack.
-        // finish();
+            // Intent i = new Intent(this, MainActivity.class);
+            // startActivity(i);
+            // //Ends this Activity and removes it from the Activity back stack.
+            // finish();
         }
     }
+
 
     @Override
     public void onResume() {
@@ -769,13 +847,17 @@ public class HomeActivity extends AppCompatActivity implements
         }
         IntentFilter iFilter = new IntentFilter(PushReceiver.RECEIVED_NEW_MESSAGE);
         this.registerReceiver(mPushMessageReciever, iFilter);
+        startLocationUpdate();
     }
+
+
     @Override
     public void onPause() {
         super.onPause();
         if (mPushMessageReciever != null){
             this.unregisterReceiver(mPushMessageReciever);
         }
+        stopLocationUpdates();
     }
 
     /**
@@ -829,3 +911,4 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
 }
+
