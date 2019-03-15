@@ -267,25 +267,6 @@ public class FullChatFragment extends Fragment {
         PrefHelper.putIntPreference(getString(R.string.keys_global_chat_count), global_count, this.getActivity());
     }
 
-    //TODO: REFACTOR
-    //adds single value to shared preferences
-    //refactor later make this a class
-    //
-    //
-    //I left these in when merging, delete putSharedPreference and getSharedPreference if this crashes - Logan
-    //
-    private void putSharedPreference (String key, int value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(key, value);
-        editor.commit();
-    }
-    private int getSharedPreference (String key) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this.getActivity());
-        return preferences.getInt(key, 0);
-    }
-
     @Override
     public void onResume() {
         super.onResume();
