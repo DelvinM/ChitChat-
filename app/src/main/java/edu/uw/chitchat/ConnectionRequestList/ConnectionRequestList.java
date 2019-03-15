@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 /**
  * Class to encapsulate a https://tcss450-app contact. Building an Object requires username and email.
+ * This class is necessary for receving connection list and sending one.
  *
  * @author Charles Bryan
  * @author Yohei Sato
@@ -11,8 +12,13 @@ import java.io.Serializable;
  */
 public class ConnectionRequestList implements Serializable {
 
-
+    /**
+     * users name
+     */
     private final String mUsername;
+    /**
+     * users E-maill address
+     */
     private final String mEmailAddress;
 
     /**
@@ -43,11 +49,19 @@ public class ConnectionRequestList implements Serializable {
         this.mEmailAddress = builder.mEmailAddress;
     }
 
-
+    /**
+     *
+     *
+     * @return getting username
+     */
     public String getUsername() {
         return mUsername;
     }
 
+    /**
+     *
+     * @return getting user's email address
+     */
     public String getEmailAddress() {
         return mEmailAddress;
     }

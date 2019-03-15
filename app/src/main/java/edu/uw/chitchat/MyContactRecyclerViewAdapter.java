@@ -22,6 +22,9 @@ import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 /**
+ *
+ * The class is adapter for each contat's list information.
+ *
  * @author Yohei Sato
  *
  */
@@ -32,10 +35,21 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContactRecyclerViewAdapter.ViewHolder> {
-
+    /**
+     * this list is for contact request list
+     */
     private final List<ContactList> mValues;
+    /**
+     * This is the interface variable
+     */
     private final OnListFragmentInteractionListener mListener;
+    /**
+     * this is boolean checks if the contact is added.
+     */
     private final boolean mAddMember;
+    /**
+     * this is chat infor one.
+     */
     private final Chat mItem;
 
     public MyContactRecyclerViewAdapter(List<ContactList> items, OnListFragmentInteractionListener listener, Boolean addMember, Chat item) {
@@ -122,9 +136,11 @@ public class MyContactRecyclerViewAdapter extends RecyclerView.Adapter<MyContact
     }
 
 
-
-
-
+    /**
+     * this method is getting the number of item's count
+     *
+     * @return list's size
+     */
     @Override
     public int getItemCount() {
             return mValues.size();
