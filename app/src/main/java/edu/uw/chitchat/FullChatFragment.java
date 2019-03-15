@@ -137,6 +137,10 @@ public class FullChatFragment extends Fragment {
         updateMessages();
     }
 
+    /**
+     * Runs an asyncTask to retrieve all message data for the given chat and update it
+     * @author Logan Jenny
+     */
     private void updateMessages() {
         JSONObject getJson = new JSONObject();
         try {getJson.put("chatId", CHAT_ID);
@@ -161,6 +165,12 @@ public class FullChatFragment extends Fragment {
             .build().execute();
     }
 
+    /**
+     * Parses the result string returned by the backend and breaks it into messages
+     * @author Logan Jenny
+     * @param result the result string to be parsed
+     * @return the ArrayList of messages in a given result string
+     */
     private ArrayList<String> endOfDoGetAll(final String result) {
         ArrayList<String> formattedMessages = new ArrayList<String>();
         String mostRecent = "";
@@ -225,6 +235,10 @@ public class FullChatFragment extends Fragment {
         return formattedMessages;
     }
 
+    /**
+     * Auto-scrolls the messages to the bottom
+     * @author Logan Jenny
+     */
     private void scrollDown() {
         mScrollView.post(new Runnable() {
             @Override
@@ -234,6 +248,10 @@ public class FullChatFragment extends Fragment {
         });
     }
 
+    /**
+     * Removes the chat notification count
+     * @author Logan Jenny
+     */
     private void removeChatNotificationCount () {
         //accesses shared pref and removes chat notification count
         //TODO: this could use a local database. refactor? (delvin)
@@ -247,6 +265,25 @@ public class FullChatFragment extends Fragment {
 
         PrefHelper.putIntPreference(prefString, 0, this.getActivity());
         PrefHelper.putIntPreference(getString(R.string.keys_global_chat_count), global_count, this.getActivity());
+    }
+
+    //TODO: REFACTOR
+    //adds single value to shared preferences
+    //refactor later make this a class
+    //
+    //
+    //I left these in when merging, delete putSharedPreference and getSharedPreference if this crashes - Logan
+    //
+    private void putSharedPreference (String key, int value) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(key, value);
+        editor.commit();
+    }
+    private int getSharedPreference (String key) {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+        return preferences.getInt(key, 0);
     }
 
     @Override
@@ -266,10 +303,21 @@ public class FullChatFragment extends Fragment {
         }
     }
 
+    /**
+     * Tells the homeActivity to return to the chat fragment having added the member
+     * @author Logan Jenny
+     * @param view is the 'add' button of a given member
+     */
     private void selectMember(View view) {
         mListener.onAddMember((Chat) getArguments().getSerializable("item"));
     }
 
+    /**
+     * handles a request to add member by accepting their email and communicating with the backend
+     * to do so
+     * @author Logan Jenny
+     * @param email is the email of the member to be added
+     */
     public void handleAddMember(String email) {
         Log.e("LOGAN", email);
         String addMemberUrl = new Uri.Builder()
@@ -287,22 +335,33 @@ public class FullChatFragment extends Fragment {
         new SendPostAsyncTask.Builder(addMemberUrl, getJson)
                 .onPostExecute(result -> {
                     Log.e("LOGAN", result);
-                    sendMsg("Added " + email.split("@")[0] + " To The Chat.");
+                    sendMsg("JOINED THE CHAT", email);
                 } )
                 .onCancelled(error -> Log.e("LOADASYNC", "Problem"))
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }
 
+    /**
+     * calls a helper method to send your message
+     * @author Logan Jenny
+     * @param theButton is the view of the send button
+     */
     private void handleSendClick(final View theButton) {
-        sendMsg(mMessageInputEditText.getText().toString());
+        sendMsg(mMessageInputEditText.getText().toString(), mEmail);
     }
 
-    private void sendMsg(String msg) {
+    /**
+     * handles the functionality of sending a message to the chatroom
+     * @author Logan Jenny
+     * @param msg the string of the message to be sent
+     * @param email the email of the sender of the message
+     */
+    private void sendMsg(String msg, String email) {
         scrollDown();
         JSONObject messageJson = new JSONObject();
         try {
-            messageJson.put("email", mEmail);
+            messageJson.put("email", email);
             messageJson.put("message", msg);
             messageJson.put("chatId", CHAT_ID);
         } catch (JSONException e) {
@@ -315,9 +374,12 @@ public class FullChatFragment extends Fragment {
                 .build().execute();
     }
 
+    /**
+     * sets the 'enter a message' edittext to empty on message sent
+     * @author Logan Jenny
+     * @param result is the response from the server as a string
+     */
     private void endOfSendMsgTask(final String result) {
-
-
         try {
             //This is the result from the web service
             JSONObject res = new JSONObject(result);

@@ -19,6 +19,10 @@ import java.util.function.Consumer;
 import edu.uw.chitchat.MyChatRecyclerViewAdapter;
 import edu.uw.chitchat.chat.Chat;
 
+/**
+ * This is a catch-all async task for loading the all chat data associated with a user
+ * @author Logan Jenny
+ */
 public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
 
     private final String mUrl;
@@ -31,6 +35,10 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
     private final Consumer<Chat[]> mOnPost;
     private final Map<String, String> mHeaders;
 
+    /**
+     * Builds the async task
+     * @author Logan Jenny
+     */
     public static class Builder {
         private final String mUrl;
         private final String mGetMembersUrl;
@@ -112,10 +120,11 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
         }
     }
 
-    private void preTest() {
-        Log.e("LOGAN", "TEST");
-    }
-
+    /**
+     * calls the super preExecute and user defined preExecute functions. This is done here so they
+     * can be called when a sub-async task finishes.
+     * @author Logan Jenny
+     */
     private void preHelper() {
         if(mChats.size() == mChatIds.size()) {
             super.onPreExecute();
@@ -130,6 +139,12 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
         return mChats.toArray(arr);
     }
 
+    /**
+     * Parses the result string returned by the backend and breaks it into messages
+     * @author Logan Jenny
+     * @param result the result string to be parsed
+     * @return the ArrayList of messages in a given result string
+     */
     private ArrayList<String> endOfDoGetAll(final String result) {
         ArrayList<String> formattedMessages = new ArrayList<String>();
         String mostRecent = "";
@@ -197,6 +212,12 @@ public class LoadHistoryAsyncTask extends AsyncTask<Void, Void, Chat[]> {
         return formattedMessages;
     }
 
+    /**
+     * pulls an int from shared preferences
+     * @author Logan Jenny
+     * @param key to be searched for in shared preferences
+     * @return the value stored in shared preferences at the given key
+     */
     private int getPrefInt (String key) {
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(mContext);

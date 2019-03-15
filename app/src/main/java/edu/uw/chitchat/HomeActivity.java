@@ -288,6 +288,10 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
 
+    /**
+     * Displays the appbar, showing the tabs
+     * @author Logan Jenny
+     */
     public void showTabs() {
         ((TabLayout) findViewById(R.id.tabs)).getTabAt(0).select();
         findViewById(R.id.appbar).setVisibility(View.VISIBLE);
@@ -308,6 +312,13 @@ public class HomeActivity extends AppCompatActivity implements
                 .replace(R.id.activity_home, f, tag);
     }
 
+    /**
+     * Calls an asyncTask to get all chatroom ids the user is in from the server and uses them to
+     * initiate the loading of their message history
+     * @author Logan Jenny
+     * @param manualSelected is a flag of whether or not this process was initiated by the user
+     * @param reloadFlag is a flag of whether or not to reload the visuals of chatFragment
+     */
     public void getIds(Boolean manualSelected, Boolean reloadFlag) {
         String getAllIdsUrl = new Uri.Builder()
                 .scheme("https")
@@ -329,7 +340,12 @@ public class HomeActivity extends AppCompatActivity implements
                 .build().execute();
     }
 
-
+    /**
+     * formats the returned ids as clean individual strings
+     * @author Logan Jenny
+     * @param result is the string result from the server
+     * @return an ArrayList of chatroom ids
+     */
     private ArrayList<String> endOfDoGetIds(final String result) {
         ArrayList<String> formattedChatIds = new ArrayList<>();
         try {
@@ -359,6 +375,13 @@ public class HomeActivity extends AppCompatActivity implements
         return formattedChatIds;
     }
 
+    /**
+     * loads the chatFragment and displays the persistent local data instantly, then replaces it
+     * a few seconds later with updated info from the server
+     * @author Logan Jenny
+     * @param manualAccess is a flag of whether or not this process was initiated by the user
+     * @param reloadFlag is a flag of whether or not to reload the visuals of chatFragment
+     */
     public void goToChat(Boolean manualAccess, Boolean reloadFlag) {
 
         findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
@@ -455,6 +478,10 @@ public class HomeActivity extends AppCompatActivity implements
         changeTab(fullChatFragment, "FULL_CHAT").addToBackStack(null).commit();
     }
 
+    /**
+     * Loads the home fragment
+     * @author Logan Jenny
+     */
     public void goToHome() {
         HomeFragment homeFragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -552,7 +579,6 @@ public class HomeActivity extends AppCompatActivity implements
     public void onAddMember(Chat item) {
         onContactListClicked(true, item);
     }
-
 
     @Override
     public void onConnectionRequestListClicked() {
