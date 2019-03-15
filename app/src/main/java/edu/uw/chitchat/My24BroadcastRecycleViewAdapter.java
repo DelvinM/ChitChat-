@@ -11,8 +11,12 @@ import java.util.List;
 
 import edu.uw.chitchat.broadcast.Broadcast;
 
+
+
+
 /**
  * this class is a adapter for the 48 hr recycle view on the weather fragment
+ * @author Zhou Lu
  */
 public class My24BroadcastRecycleViewAdapter extends RecyclerView.Adapter<My24BroadcastRecycleViewAdapter.ViewHolder> {
 
