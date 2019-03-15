@@ -43,6 +43,11 @@ public class ResetFragment extends Fragment implements View.OnClickListener{
         return v;
     }
 
+    /**
+     * This method handles resetting the user's password when the reset button is clicked
+     * @author Logan Jenny
+     * @param view is the view of the update button
+     */
     public void updatePassword(View view) {
         EditText passwordText = getActivity().findViewById(R.id.editText_fragment_reset_password);
         EditText repasswordText = getActivity().findViewById(R.id.editText_fragment_register_email_verification);
@@ -116,6 +121,12 @@ public class ResetFragment extends Fragment implements View.OnClickListener{
         }
     }
 
+    /**
+     * This gets a value from shared preferences based on a key.
+     * @author Logan Jenny
+     * @param key is the key to retrieve the value stored in shared preferences
+     * @return the value stored in the shared preferences at the given key
+     */
     private String getSharedPreference (String key) {
         SharedPreferences sharedPref =
                 getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);

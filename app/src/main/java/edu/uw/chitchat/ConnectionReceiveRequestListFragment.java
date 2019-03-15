@@ -29,7 +29,13 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
     private static final String ARG_COLUMN_COUNT = "column-count";
     // TODO: Customize parameters
     private int mColumnCount = 1;
+    /**
+     * inerface variavle for using interface
+     */
     private OnListFragmentInteractionListener mListener;
+    /**
+     * The list is saving connection information for showing recevi
+     */
     private List<ConnectionRequestList> mConnectionRequestList;
     private static final String ARG_RECEIVE_LIST = "receiving requests lists";
     //private static final String ARG_RECIEVE_LIST = "receiving requests lists";
@@ -41,7 +47,13 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
     }
 
     // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
+
+    /**
+     * This method is for going to connection sending request list page
+     *
+     * @param columnCount that's the number of column
+     * @return fragment that's fragment information
+     */
     public static ConnectionSendRequestListFragment newInstance(int columnCount) {
         ConnectionSendRequestListFragment fragment = new ConnectionSendRequestListFragment();
         Bundle args = new Bundle();
@@ -50,6 +62,11 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
         return fragment;
     }
 
+    /**
+     * The method is necessary for creating the fragment class
+     *
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
@@ -74,6 +91,14 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
 //        }
     }
 
+    /**
+     * This method is necessary for making visible of fragment
+     *
+     * @param inflater   is used in the java class of the corresponding layout(xml) file.
+     * @param container  this is the container for the view function
+     * @param savedInstanceState that's a bundle information
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -109,11 +134,22 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
     }
 
 
+    /**
+     *
+     * This method is for when need to get the current users E-mail address
+     *
+     * @return current users emaild address
+     */
     public String getEmail(){
         return getArguments().getString("email");
     }
 
 
+    /**
+     * This method is the method connecting between fragment and activity.
+     *
+     * @param context that can be connected to activity.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach( context );
@@ -125,12 +161,22 @@ public class ConnectionReceiveRequestListFragment extends Fragment implements Vi
         }
     }
 
+    /**
+     * The method must be called immediately prior to
+     * the fragment no longer being associated with its activity.
+     *
+     */
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
+    /**
+     * This method is click action method.
+     *
+     * @param v
+     */
     @Override
     public void onClick(View v) {
 
