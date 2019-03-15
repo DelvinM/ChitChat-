@@ -23,14 +23,32 @@ import edu.uw.chitchat.chat.Chat;
  */
 
 
+/**
+ *
+ */
 public class ConnectFragment extends Fragment implements View.OnClickListener{
 
+    /**
+     * This variavle saves for a credential information
+     */
     private Credentials mCredentials;
+    /**
+     * This is interface field.
+     */
     private OnFragmentInteractionListener  mListener;
+
+    /**
+     * This is a constructor
+     */
     public ConnectFragment() {
         // Required empty public constructor
     }
 
+    /**
+     * This method is the method connecting between fragment and activity.
+     *
+     * @param context that can be connected to activity.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -42,7 +60,14 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-
+    /**
+     * This method is necessary for making visible of fragment
+     *
+     * @param inflater   is used in the java class of the corresponding layout(xml) file.
+     * @param container  this is the container for the view function
+     * @param savedInstanceState that's a bundle information
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,6 +84,11 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
         return view;
     }
 
+    /**
+     * This method will be happened when a certain buttton gets cliecked
+     *
+     * @param view view information
+     */
     @Override
     public void onClick(View view) {
         if (mListener != null) {
@@ -82,6 +112,10 @@ public class ConnectFragment extends Fragment implements View.OnClickListener{
         }
         }
     }
+
+    /**
+     * This is the interface
+     */
     public interface OnFragmentInteractionListener {
         void onContactListClicked(Boolean addMember, Chat item);
         void onConnectionRequestListClicked();

@@ -1,9 +1,10 @@
 package edu.uw.chitchat.Credentials;
 
-import android.text.Editable;
 import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.Serializable;
 
 /**
@@ -17,13 +18,29 @@ import java.io.Serializable;
  */
 public class Credentials implements Serializable {
     private static final long serialVersionUID = -1634677417576883013L;
-
+    /**
+     * the user's name
+     */
     private final String mUsername;
+    /**
+     * the passowrd
+     */
     private final String mPassword;
+    /**
+     * the pass reentured pass word
+     */
     private final String mRePassword;
-
+    /**
+     * it's user's first name
+     */
     private String mFirstName;
+    /**
+     * it's user's last name
+     */
     private String mLastName;
+    /**
+     * it's user's email address
+     */
     private String mEmail;
 
     /**
@@ -47,14 +64,24 @@ public class Credentials implements Serializable {
          * No validation is performed. Ensure that the argument is a
          * valid email before adding here if you wish to perform validation.
          *
-         * @param email the email
-         * @param password the password
+         * @param email the email address
+         * @param password the password for users
          */
         public Builder(String email, String password) {
             mEmail = email;
             mPassword = password;
             mRePassword = null;
         }
+
+        /**
+         *
+         * @param email the email address
+         * @param password the password for users
+         * @param repassword the retyped for users
+         * @param username the user's name
+         * @param firstname the user's first name
+         * @param lastname the user's last name
+         */
         public Builder(String email, String password, String repassword, String username,
                        String firstname, String lastname) {
             mEmail = email;
