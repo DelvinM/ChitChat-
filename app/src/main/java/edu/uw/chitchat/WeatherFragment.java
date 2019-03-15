@@ -33,8 +33,8 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
  * to handle interaction events.
- * @author Logan Jenny
- * @2/9/2018
+ * @author Zhou Lu
+ * @2/9/2019
  */
 
 public class WeatherFragment extends Fragment {

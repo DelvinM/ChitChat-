@@ -9,6 +9,10 @@ import java.util.Date;
 import java.util.List;
 import edu.uw.chitchat.broadcast.Broadcast;
 
+/**
+ * @author Zhou Lu
+ */
+
 public class MyWeekBroadcastRecycleViewAdapter extends RecyclerView.Adapter<MyWeekBroadcastRecycleViewAdapter.ViewHolder>{
 
     /** field to hold the list of broadcast object*/
