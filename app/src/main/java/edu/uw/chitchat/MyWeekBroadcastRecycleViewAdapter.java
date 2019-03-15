@@ -11,12 +11,17 @@ import edu.uw.chitchat.broadcast.Broadcast;
 
 public class MyWeekBroadcastRecycleViewAdapter extends RecyclerView.Adapter<MyWeekBroadcastRecycleViewAdapter.ViewHolder>{
 
+    /** field to hold the list of broadcast object*/
     private final List<Broadcast> mValues;
 
-
+    /**
+     * contructor
+     * @param items refer to broadcast object
+     */
     public MyWeekBroadcastRecycleViewAdapter(List<Broadcast> items) {
         mValues = items;
     }
+
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -25,6 +30,12 @@ public class MyWeekBroadcastRecycleViewAdapter extends RecyclerView.Adapter<MyWe
         return new ViewHolder(view);
     }
 
+
+    /**
+     * bind the holder which will has broadcast info
+     * @param holder holder object to manipulate on the recycle view.
+     * @param position index of the broadcast list
+     */
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
@@ -43,21 +54,44 @@ public class MyWeekBroadcastRecycleViewAdapter extends RecyclerView.Adapter<MyWe
         holder.mHumidity.setText(sb.toString());
     }
 
+
+    /**
+     * get method for the list size.
+     * @return size of the list object.
+     */
     @Override
     public int getItemCount() {
         return mValues.size();
     }
 
 
+
+    /**
+     *  view holder class for the 48 hr recycle view
+     */
     public class ViewHolder extends RecyclerView.ViewHolder {
+        /** View for one broadcast object */
         public final View mView;
+
+        /** temperature text view for the holder object */
         public final TextView mTemperature;
+
+        /** time text view for the holder object */
         public final TextView mTime;
+
+        /** summary text view for the holder object */
         public final TextView mSummary;
+
+        /** humidity text view for the holder object */
         public final TextView mHumidity;
+
+        /** broad cast object for holder object */
         public Broadcast mItem;
 
-
+        /**
+         * contructor for the view holder.
+         * @param view
+         */
         public ViewHolder(View view) {
             super(view);
             mView = view;
@@ -68,6 +102,11 @@ public class MyWeekBroadcastRecycleViewAdapter extends RecyclerView.Adapter<MyWe
         }
     }
 
+    /**
+     * this will parse the date object to more manipulatable string.
+     * @param str date object in string
+     * @return return string array for easy manipulation.
+     */
     //Sat Mar 09 18:00:00 PST 2019
     private String[] parseDate(String str) {
         String[] result = str.split(" ");

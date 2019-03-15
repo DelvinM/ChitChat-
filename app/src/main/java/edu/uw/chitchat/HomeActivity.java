@@ -1,21 +1,32 @@
 package edu.uw.chitchat;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +42,7 @@ import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.LoadHistoryAsyncTask;
 import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
+import edu.uw.chitchat.utils.PrefHelper;
 import me.pushy.sdk.Pushy;
 
 public class HomeActivity extends AppCompatActivity implements
@@ -45,6 +57,15 @@ public class HomeActivity extends AppCompatActivity implements
         ConnectionReceiveRequestListFragment.OnListFragmentInteractionListener,
         FullChatFragment.OnFullChatFragmentInteractionListener {
 
+    /**The desired interval for location updates. Inexact. Updates may be more or less frequent.*/
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+
+    /**The fastest rate for active location updates. Exact. Updates will never be more frequent than this value.  */
+    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
+
+
+    private static final int MY_PERMISSIONS_LOCATIONS = 8414;
+
     private Credentials mCredentials;
     private String mJwToken;
     private String mChatId;
@@ -56,23 +77,27 @@ public class HomeActivity extends AppCompatActivity implements
     private String mSender;
     private MyChatRecyclerViewAdapter mChatAdapter;
     private String mEmail;
-
     private PushMessageReceiver mPushMessageReciever;
+
+    private Location mCurrentLocation;
+    private FusedLocationProviderClient mFusedLocationClient;
+    private LocationRequest mLocationRequest;
+    private LocationCallback mLocationCallback;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
         //uncomment to clear shared pref!
-        putIntPreference(getString(R.string.keys_global_chat_count), 0);
-        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_chat_count), 0, this);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
 
-        if (getIntPreference(getString(R.string.keys_global_chat_count)) == 0) {
+        if (PrefHelper.getIntPreference(getString(R.string.keys_global_chat_count), this) == 0) {
             findViewById(R.id.imageView_home_chatNotification).setVisibility(View.GONE);
         }
 
-        if (getIntPreference(getString(R.string.keys_global_connection_count)) == 0) {
+        if (PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), this) == 0) {
             findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
         }
 
@@ -101,7 +126,120 @@ public class HomeActivity extends AppCompatActivity implements
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.addOnTabSelectedListener(this);
+
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+
+        if (ActivityCompat.checkSelfPermission(this,  Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,  Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_LOCATIONS);
+        } else {
+            requestLocation();
+        }
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // Update UI with location data
+                    // ...
+                    Log.d("LOCATION UPDATE!", location.toString());
+                    mCurrentLocation = location;
+                }
+            };
+        };
+
+        createLocationRequest();
+
     }
+
+    /**
+     * Create and configure a Location Request used when retrieving location updates
+     */
+    protected void createLocationRequest() {
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+
+        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+
+    /**
+     * request location updates from the FusedLocationApi.
+     */
+    protected  void startLocationUpdate() {
+        if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                &&  ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,null /* Looper */);
+        }
+    }
+
+    /**
+     * remove the location updates from the FusedLocation Api.
+     */
+    protected void stopLocationUpdates() {
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_LOCATIONS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // locations-related task you need to do.
+                    requestLocation();
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Log.d("PERMISSION DENIED", "Nothing to see or do here.");
+                    // Shut down the app. In production release, you would let the user
+                    // know why the app is shutting down...maybe ask for permission again?
+                    finishAndRemoveTask();
+                }
+                 return;
+            }
+
+        }
+    }
+
+
+    private void requestLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this,  Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            Log.d("REQUEST LOCATION", "User did NOT allow permission to request location!");
+        } else {
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                mCurrentLocation = location;
+                                Log.d("LOCATION", location.toString());
+                            }
+                        }
+                    });
+        }
+    }
+
 
     @Override
     public void onLogOut() {
@@ -114,7 +252,7 @@ public class HomeActivity extends AppCompatActivity implements
         prefs.edit().remove(getString(R.string.keys_prefs_password)).apply();
         prefs.edit().remove(getString(R.string.keys_prefs_email)).apply();
 
-        putSharedPreference(getString(R.string.keys_persistent_login), "false");
+        PrefHelper.putStringPreference(getString(R.string.keys_persistent_login), "false", this);
         //putSharedPreference(getString(R.string.keys_persistent_login), "false");
         new DeleteTokenAsyncTask().execute();
         Intent i = new Intent(this, MainActivity.class);
@@ -122,15 +260,7 @@ public class HomeActivity extends AppCompatActivity implements
         finish();
     }
 
-    //adds single value to shared preferences
-    //refactor later make this a class
-    private void putSharedPreference (String key, String value) {
-        SharedPreferences sharedPref = getSharedPreferences(
-                key, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(key, value);
-        editor.commit();
-    }
+
 
     @Override
     public void onResetClicked() {
@@ -209,6 +339,7 @@ public class HomeActivity extends AppCompatActivity implements
                 .addHeaderField("authorization", mJwToken)
                 .build().execute();
     }
+
     /**
      * formats the returned ids as clean individual strings
      * @author Logan Jenny
@@ -281,6 +412,7 @@ public class HomeActivity extends AppCompatActivity implements
             changeTab(chatFragment, "CHAT").commit();
             findViewById(R.id.floatingActionButton_newChat).setVisibility(View.VISIBLE);
         }
+
         new LoadHistoryAsyncTask.Builder(getAllUrl, getMembersUrl, mChatIds, mChatAdapter, this.getBaseContext())
                 .onPostExecute( result -> {
                     if(manualAccess) {
@@ -316,9 +448,8 @@ public class HomeActivity extends AppCompatActivity implements
 
         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
         //reset global connection count since user is viewing requests now
-        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
 
-        //TODO: once yohei creates notification's list, call it from here
         ConnectFragment userProfileFragment = new ConnectFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
@@ -332,7 +463,6 @@ public class HomeActivity extends AppCompatActivity implements
 
 
     public void goToFullChat() {
-        //TODO: update to enter correct chat... currently static so doesn't matter
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
         args.putString("chatId", mChatId);
@@ -345,7 +475,6 @@ public class HomeActivity extends AppCompatActivity implements
         fullChatFragment.setArguments(args);
         //findViewById(R.id.appbar).setVisibility(View.GONE);
 
-        //TODO:CHANGE TAB TO CHAT SO LOOKS VISUALLY BETTER
         changeTab(fullChatFragment, "FULL_CHAT").addToBackStack(null).commit();
     }
 
@@ -375,7 +504,13 @@ public class HomeActivity extends AppCompatActivity implements
                 changeTab(new ConnectFragment(), "CONNECT").commit();
                 break;
             case 3: //Weather
-                changeTab(new WeatherFragment(), "WEATHER").commit();
+                Bundle bundle = new Bundle();
+                WeatherFragment weatherFragment = new WeatherFragment();
+
+                bundle.putSerializable(getString(R.string.keys_weather_latitude), mCurrentLocation.getLatitude());
+                bundle.putSerializable(getString(R.string.keys_weather_longtitude), mCurrentLocation.getLongitude());
+                weatherFragment.setArguments(bundle);
+                changeTab(weatherFragment, "WEATHER").commit();
                 break;
         }
     }
@@ -447,7 +582,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionRequestListClicked() {
-        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
         Uri uri = new Uri.Builder()
                 .scheme("https")
                 .appendPath(getString(R.string.ep_base_url))
@@ -471,7 +606,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     @Override
     public void onConnectionReceiveRequestListClicked() {
-        putIntPreference(getString(R.string.keys_global_connection_count), 0);
+        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), 0, this);
         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.GONE);
 
 
@@ -498,7 +633,7 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
     private void handleErrorsInTask(String result) {
-            Log.e("ASYNC_TASK_ERROR", result);
+        Log.e("ASYNC_TASK_ERROR", result);
     }
 
     private void handleAcceptGetOnPostExecute(String result){
@@ -523,8 +658,7 @@ public class HomeActivity extends AppCompatActivity implements
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("ERROR!", e.getMessage());
-            //notify user
-            //onWaitFragmentInteractionHide();
+
         }
 
     }
@@ -561,8 +695,7 @@ public class HomeActivity extends AppCompatActivity implements
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e("ERROR!", e.getMessage());
-            //notify user
-            //onWaitFragmentInteractionHide();
+
         }
     }
 
@@ -666,11 +799,7 @@ public class HomeActivity extends AppCompatActivity implements
 
     }
 
-    private String getSharedPreference (String key) {
-        SharedPreferences sharedPref =
-                getSharedPreferences(key, Context.MODE_PRIVATE);
-        return sharedPref.getString(key, null);
-    }
+
 
 
     @Override
@@ -728,12 +857,13 @@ public class HomeActivity extends AppCompatActivity implements
             //close the app
             finishAndRemoveTask();
             //or close this activity and bring back the Login
-        // Intent i = new Intent(this, MainActivity.class);
-        // startActivity(i);
-        // //Ends this Activity and removes it from the Activity back stack.
-        // finish();
+            // Intent i = new Intent(this, MainActivity.class);
+            // startActivity(i);
+            // //Ends this Activity and removes it from the Activity back stack.
+            // finish();
         }
     }
+
 
     @Override
     public void onResume() {
@@ -743,30 +873,17 @@ public class HomeActivity extends AppCompatActivity implements
         }
         IntentFilter iFilter = new IntentFilter(PushReceiver.RECEIVED_NEW_MESSAGE);
         this.registerReceiver(mPushMessageReciever, iFilter);
+        startLocationUpdate();
     }
+
+
     @Override
     public void onPause() {
         super.onPause();
         if (mPushMessageReciever != null){
             this.unregisterReceiver(mPushMessageReciever);
         }
-    }
-
-    //TODO:REFACTOR
-    private int getIntPreference (String key) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        return preferences.getInt(key, 0);
-    }
-
-    //TODO: REFACTOR
-    //adds single value to shared preferences
-    //refactor later make this a class
-    private void putIntPreference (String key, int value) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(key, value);
-        editor.commit();
+        stopLocationUpdates();
     }
 
     /**
@@ -789,12 +906,10 @@ public class HomeActivity extends AppCompatActivity implements
 
                         findViewById(R.id.imageView_home_connectNotification).setVisibility(View.VISIBLE);
 
-                        int global_count = getIntPreference(getString(R.string.keys_global_connection_count));
-                        putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1);
+                        int global_count = PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), context);
+                        PrefHelper.putIntPreference(getString(R.string.keys_global_connection_count), global_count + 1, context);
 
-                        //TODO: make icon light up or something
                     }
-                    //TODO: REMOVE THIS NO NEED FOR COUNT HERE
                 } else if (!sender.equals(mEmail)) { // increase chat room global counter
 
                     Fragment frag = getSupportFragmentManager().findFragmentByTag("FULL_CHAT");
@@ -808,18 +923,18 @@ public class HomeActivity extends AppCompatActivity implements
                         getIds(false, true);
                     }
 
-                    int global_count = getIntPreference(getString(R.string.keys_global_chat_count));
-                    putIntPreference(getString(R.string.keys_global_chat_count), global_count + 1);
+                    int global_count = PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), context);
+                    PrefHelper.putIntPreference(getString(R.string.keys_global_chat_count), global_count + 1, context);
 
                     //keep counter for individual chatroom
                     String prefString = "chat room " + chatId + " count";
-                    int chat_count = getIntPreference(prefString);
-                    putIntPreference(prefString, chat_count + 1);
+                    int chat_count = PrefHelper.getIntPreference(getString(R.string.keys_global_connection_count), context);
+                    PrefHelper.putIntPreference(prefString, chat_count + 1, context);
 
-                    //TODO: make icon light up or something
                 }
             }
         }
     }
 
 }
+

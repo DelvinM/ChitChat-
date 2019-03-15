@@ -160,11 +160,6 @@ public class AddContactFragment extends Fragment implements View.OnClickListener
     public void onClick(View v) {
 
     }
-    private String getSharedPreference (String key) {
-        SharedPreferences sharedPref =
-                getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);
-        return sharedPref.getString(key, null);
-    }
 
     /**
      * This interface must be implemented by activities that contain this

@@ -1,16 +1,12 @@
 package edu.uw.chitchat;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,31 +14,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
 import edu.uw.chitchat.broadcast.Broadcast;
+import edu.uw.chitchat.utils.PrefHelper;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 
@@ -56,34 +39,60 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 public class WeatherFragment extends Fragment {
 
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
 
-    public static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2;
-
-    private static final int MY_PERMISSIONS_LOCATIONS = 8414;
-    private LocationRequest mLocationRequest;
-    private Location mCurrentLocation;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private LocationCallback mLocationCallback;
-
+    /**a field for the textView to display temperature*/
     private TextView mTemperature;
+
+    /**a field for the textView to display humidity*/
     private TextView mHumidity;
+
+    /**a field for the textView to display summary about the weather*/
     private TextView mDescription;
 
-    private RecyclerView m24hrRecyclerView;
+    /**a field to store the location*/
+    Location mCurrentLocation;
+
+    /**a class field to referrence the recycle view about 48hr*/
+    private RecyclerView m48hrRecyclerView;
+
+    /**a class field to referrence the recycle view for the week broadcast*/
     private RecyclerView mWeekRecyclerView;
+
+    /**a class field to display the EditText for zip code*/
     private EditText mZIPCode;
-    private Button mGetWeather;
+
+    /**a class field to display the city from the current location*/
+    private TextView mCurrentCity;
 
 
+    /**
+     * Required empty public constructor
+     */
     public WeatherFragment() {
         // Required empty public constructor
     }
 
+    /**
+     * some async task happen here, so user no need to do anything, when switch into the weather fragment.
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_weather , container, false);
+        if (getArguments() != null) {
+            // get the bundle pass from the home activity
+            Bundle bundle = getArguments();
+            Double lat = (Double) bundle.getSerializable(getString(R.string.keys_weather_latitude));
+            Double lng = (Double) bundle.getSerializable(getString(R.string.keys_weather_longtitude));
+            mCurrentLocation = new Location("");
+            mCurrentLocation.setLatitude(lat);
+            mCurrentLocation.setLongitude(lng);
+            Log.wtf("world", "afaschv,");
+        }
 
         FloatingActionButton fab = view.findViewById(R.id.fab_weather);
         fab.setOnClickListener((new View.OnClickListener() {
@@ -101,190 +110,79 @@ public class WeatherFragment extends Fragment {
             }
         }));
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
-
-
-        if (ActivityCompat.checkSelfPermission(getActivity(),  Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(getActivity(),  Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(getActivity(),
-                    new String[] {Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_LOCATIONS);
-        } else {
-            requestLocation();
-        }
-
-
-
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                    // Update UI with location data
-                    // ...
-                    setLocation(location);
-
-                    Log.d("LOCATION UPDATE!", location.toString());
-                }
-            };
-        };
-
-        createLocationRequest();
 
         mTemperature = view.findViewById(R.id.tv_weather_temperature);
         mHumidity = view.findViewById(R.id.tv_weather_humidity);
         mDescription = view.findViewById(R.id.tv_weather_description);
-        m24hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
+        m48hrRecyclerView = view.findViewById(R.id.recyclerView_weather_24hr);
         mWeekRecyclerView = view.findViewById(R.id.recycleView_weather_7days);
         mZIPCode = view.findViewById(R.id.editText_fragment_weather_zipcode);
-        mGetWeather = view.findViewById(R.id.button_fragment_weather_getWeather);
+        mCurrentCity = view.findViewById(R.id.tv_weather_Current);
 
-        startLocationUpdates();
+        //this method is set the zip code edit text listner for event when edit text lost focus
+        setZipCodeListener();
+
+
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_getWeather))
+                .build();
+
+        JSONObject jsonSend = new JSONObject();
+        try {
+            Log.wtf("world1", mCurrentLocation.getLatitude()+"");
+            jsonSend.put("latitude", mCurrentLocation.getLatitude());
+            jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleGetWeatherPostExecute)
+                .build().execute();
 
         return view;
+
     }
 
+    /**
+     * this method will create async task to get the city name and set the city name.
+     */
+    protected void getCityName() {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_getCity))
+                .build();
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_LOCATIONS: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // locations-related task you need to do.
-                    requestLocation();
-                } else {
-                    Log.d("PERMISSION DENIED", "Nothing to see or do here.");
-                    getActivity().finishAndRemoveTask();
-                }
-
-                return;
-            }
+        JSONObject jsonSend = new JSONObject();
+        try {
+            jsonSend.put("latitude", mCurrentLocation.getLatitude());
+            jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-    }
-
-
-    private void requestLocation() {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(getActivity(),  Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-
-            Log.d("REQUEST LOCATION", "User did NOT allow permission to request location!");
-        } else {
-            Log.d("Joe test","it reaches here1");
-            Task<Location> location = mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(getActivity(), new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            Log.d("Joe test","it reaches here");
-                            if (location != null) {
-                                Log.d("Joe test","it never reaches here");
-                                setLocation(location);
-                                Log.d("LOCATION", location.toString());
-                            }
-                        }
-                    });
-        }
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleGetCityPostExecute)
+                .build().execute();
     }
 
 
     /**
-     * Create and configure a Location Request used when retrieving location updates
+     * this method is to set up the listener for zip code edit text.
      */
-    protected void createLocationRequest() {
-        mLocationRequest = LocationRequest.create();
+    public void setZipCodeListener() {
+        mZIPCode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 
-        // Sets the desired interval for active location updates. This interval is
-        // inexact. You may not receive updates at all if no location sources are available, or
-        // you may receive them slower than requested. You may also receive updates faster than
-        // requested if other applications are requesting location at a faster interval.
-        mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        // Sets the fastest rate for active location updates. This interval is exact, and your
-        // application will never receive updates faster than this value.
-        mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //startLocationUpdates();
-        if (getSharedPreference("latitude") != null && mCurrentLocation != null) {
-            String lat = getSharedPreference("latitude");
-            String lng = getSharedPreference("longtitude");
-            mCurrentLocation.setLatitude(Double.valueOf(lat));
-            mCurrentLocation.setLongitude(Double.valueOf(lng));
-            Log.wtf("world", lat);
-        }
-
-
-    }
-
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        stopLocationUpdates();
-    }
-
-
-    /**
-     * Requests location updates from the FusedLocationApi.
-     */
-    protected void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest,
-                    mLocationCallback,
-                    null /* Looper */);
-        }
-    }
-
-
-    /**
-     * Removes location updates from the FusedLocationApi.
-     */
-    protected void stopLocationUpdates() {
-        // It is a good practice to remove location requests when the activity is in a paused or
-        // stopped state. Doing so helps battery performance and is especially
-        // recommended in applications that request frequent location updates.
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-    }
-
-    private void setLocation(final Location location) {
-        mCurrentLocation = location;
-        mGetWeather.setOnClickListener(new getWeatherButtonClick());
-    }
-
-
-
-    private String getSharedPreference (String key) {
-        SharedPreferences sharedPref =
-                getActivity().getSharedPreferences(key, Context.MODE_PRIVATE);
-        return sharedPref.getString(key, null);
-    }
-
-    public class getWeatherButtonClick implements View.OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-
-            if(!mZIPCode.getText().toString().equals("")) {
-                Uri uri = new Uri.Builder()
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                /* When focus is lost check that the text field
+                 * has valid values.
+                 */
+                if (!hasFocus) {
+                    Uri uri = new Uri.Builder()
                         .scheme("https")
                         .appendPath(getString(R.string.ep_base_url))
                         .appendPath(getString(R.string.ep_weather))
@@ -299,138 +197,321 @@ public class WeatherFragment extends Fragment {
                 }
 
                 new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
-                        .onPostExecute(this::handleGetWeatherWithZipPostExecute)
+                        .onPostExecute(this::handleGetLatLngFromZipPostExecute)
                         .build().execute();
-            } else {
+                }
+            }
+
+            /**
+             * this will handle for async task to get the lat long from a zip code and
+             * make an get weather async call.
+             * @param result json string contains lat long
+             */
+            private void handleGetLatLngFromZipPostExecute(String result) {
+                try {
+                    JSONObject root = new JSONObject(result);
+                    if (root.has("results")) {
+                        JSONArray results = root.getJSONArray("results");
+                        Log.wtf("result test", result);
+                        JSONObject containsAll = results.getJSONObject(0);
+                        JSONObject geometry = containsAll.getJSONObject("geometry");
+                        JSONObject location = geometry.getJSONObject("location");
+                        mCurrentLocation.setLatitude(Double.valueOf(location.getString("lat")));
+                        mCurrentLocation.setLongitude(Double.valueOf(location.getString("lng")));
+
+                        Uri uri = new Uri.Builder()
+                                .scheme("https")
+                                .appendPath(getString(R.string.ep_base_url))
+                                .appendPath(getString(R.string.ep_weather))
+                                .appendPath(getString(R.string.ep_getWeather))
+                                .build();
+
+                        JSONObject jsonSend = new JSONObject();
+                        try {
+                            jsonSend.put("latitude", mCurrentLocation.getLatitude());
+                            jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                                .onPostExecute(this::handleGetWeatherPostExecute)
+                                .build().execute();
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e("ERROR!", e.getMessage());
+                }
+            }
+
+            /**
+             * this will make get async call to get weather from lat long.
+             * @param result json string contains weather info.
+             */
+            private void handleGetWeatherPostExecute(String result) {
+
+                try {
+                    JSONObject root = new JSONObject(result);
+                    if (root.has(getString(R.string.keys_weather_currently))) {
+                        JSONObject currently = root.getJSONObject(getString(R.string.keys_weather_currently));
+                        StringBuilder sb = new StringBuilder("Temperature: " + currently.getString(getString(R.string.keys_weather_temperature)) + "\u00b0F");
+                        mTemperature.setText(sb.toString());
+                        sb = new StringBuilder("Humidity: " + currently.getString(getString(R.string.keys_weather_humidity)) + "%");
+                        mHumidity.setText(sb.toString());
+                        sb = new StringBuilder("Summary: " + currently.getString(getString(R.string.keys_weather_summary)));
+                        mDescription.setText(sb.toString());
+                    } else {
+                        Log.e("ERROR!", "No response");
+                        //notify user
+                    }
+
+                    if (root.has(getString(R.string.keys_weather_hourly))) {
+                        JSONObject hourly = root.getJSONObject(getString(R.string.keys_weather_hourly));
+                        if (hourly.has(getString(R.string.keys_weather_data))) {
+                            JSONArray data = hourly.getJSONArray(getString(R.string.keys_weather_data));
+                            List<Broadcast> broadcasts = new LinkedList<>();
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject broadcast = data.getJSONObject(i);
+                                broadcasts.add(new Broadcast(
+                                        broadcast.getString(getString(R.string.keys_weather_temperature)),
+                                        broadcast.getString(getString(R.string.keys_weather_time)),
+                                        broadcast.getString(getString(R.string.keys_weather_summary)),
+                                        broadcast.getString(getString(R.string.keys_weather_humidity)),
+                                        broadcast.getString(getString(R.string.keys_weather_icon))));
+                            }
+
+                            Context context = m48hrRecyclerView.getContext();
+                            m48hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                            m48hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
+                        }
+                    }
+
+                    if (root.has(getString(R.string.keys_weather_daily))) {
+                        JSONObject daily = root.getJSONObject(getString(R.string.keys_weather_daily));
+                        if (daily.has(getString(R.string.keys_weather_data))){
+                            JSONArray data = daily.getJSONArray(getString(R.string.keys_weather_data));
+                            List<Broadcast> broadcasts = new LinkedList<>();
+                            for (int i = 0; i < data.length(); i++) {
+                                JSONObject broadcast = data.getJSONObject(i);
+                                broadcasts.add(new Broadcast(
+                                        broadcast.getString(getString(R.string.keys_weather_temperatureLow)),
+                                        broadcast.getString(getString(R.string.keys_weather_time)),
+                                        broadcast.getString(getString(R.string.keys_weather_summary)),
+                                        broadcast.getString(getString(R.string.keys_weather_humidity)),
+                                        broadcast.getString(getString(R.string.keys_weather_icon))));
+                            }
+
+                            Context context = mWeekRecyclerView.getContext();
+                            mWeekRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+                            mWeekRecyclerView.setAdapter(new MyWeekBroadcastRecycleViewAdapter(broadcasts));
+                        }
+                    }
+
+                    getCityName();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e("ERROR!", e.getMessage());
+
+                }
+
+            }
+
+            /**
+             * this is a method to get the city name from lat lng.
+             */
+            protected void getCityName() {
                 Uri uri = new Uri.Builder()
                         .scheme("https")
                         .appendPath(getString(R.string.ep_base_url))
                         .appendPath(getString(R.string.ep_weather))
-                        .appendPath(getString(R.string.ep_getWeather))
+                        .appendPath(getString(R.string.ep_getCity))
                         .build();
 
                 JSONObject jsonSend = new JSONObject();
                 try {
-                    Log.wtf("world1", mCurrentLocation.getLatitude()+"");
                     jsonSend.put("latitude", mCurrentLocation.getLatitude());
                     jsonSend.put("longtitude", mCurrentLocation.getLongitude());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
-                        .onPostExecute(this::handleGetWeatherPostExecute)
+                        .onPostExecute(this::handleGetCityPostExecute)
                         .build().execute();
             }
-        }
 
-        private void handleGetWeatherWithZipPostExecute(String result) {
-            try {
-                JSONObject root = new JSONObject(result);
-                if (root.has("results")) {
-                    JSONArray results = root.getJSONArray("results");
-                    Log.wtf("result test", result);
-                    JSONObject containsAll = results.getJSONObject(0);
-                    JSONObject geometry = containsAll.getJSONObject("geometry");
-                    JSONObject location = geometry.getJSONObject("location");
-                    mCurrentLocation.setLatitude(Double.valueOf(location.getString("lat")));
-                    mCurrentLocation.setLongitude(Double.valueOf(location.getString("lng")));
+            /**
+             * this will handle the result from async task to get city name.
+             * @param result json string contain address
+             */
+            private void handleGetCityPostExecute(String result) {
+                try {
+                    JSONObject root = new JSONObject(result);
+                    if (root.has("results")) {
+                        JSONArray results = root.getJSONArray("results");
 
-                    Uri uri = new Uri.Builder()
-                            .scheme("https")
-                            .appendPath(getString(R.string.ep_base_url))
-                            .appendPath(getString(R.string.ep_weather))
-                            .appendPath(getString(R.string.ep_getWeather))
-                            .build();
+                        JSONObject address_components = results.getJSONObject(0);
 
-                    JSONObject jsonSend = new JSONObject();
-                    try {
-                        jsonSend.put("latitude", mCurrentLocation.getLatitude());
-                        jsonSend.put("longtitude", mCurrentLocation.getLongitude());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                        String formatted_address = address_components.getString(getString(R.string.keys_formatted_address));
+                        String city = parseLocation(formatted_address);
+                        mCurrentCity.setText(city);
+
                     }
-                    new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
-                            .onPostExecute(this::handleGetWeatherPostExecute)
-                            .build().execute();
-
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e("ERROR!", e.getMessage());
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e("ERROR!", e.getMessage());
             }
+        });
+    }
+
+    /**
+     * the on resume will check does user come from map activity
+     */
+    @Override
+    public void onResume() {
+        super.onResume();
+        //startLocationUpdates();
+        if (PrefHelper.getStringPreference("latitude", getActivity()) != null && mCurrentLocation != null && PrefHelper.getStringPreference("FromWhere", getActivity()) == "map") {
+            String lat = PrefHelper.getStringPreference("latitude", getActivity());
+            String lng = PrefHelper.getStringPreference("longtitude", getActivity());
+            mCurrentLocation.setLatitude(Double.valueOf(lat));
+            mCurrentLocation.setLongitude(Double.valueOf(lng));
+            PrefHelper.putStringPreference("FromWhere", "", getActivity());
+            getWeatherFromMap();
+            Log.wtf("world", lat);
         }
+    }
 
-        /**
-         * handle the post execute method
-         * @param result the json result from the web service api
-         */
-        private void handleGetWeatherPostExecute(String result) {
+    /**
+     * method to make async call to get weather info
+     */
+    public void getWeatherFromMap() {
+        Uri uri = new Uri.Builder()
+                .scheme("https")
+                .appendPath(getString(R.string.ep_base_url))
+                .appendPath(getString(R.string.ep_weather))
+                .appendPath(getString(R.string.ep_getWeather))
+                .build();
 
-            try {
-                JSONObject root = new JSONObject(result);
-                if (root.has(getString(R.string.keys_weather_currently))) {
-                    JSONObject currently = root.getJSONObject(getString(R.string.keys_weather_currently));
-                    StringBuilder sb = new StringBuilder("Temperature: " + currently.getString(getString(R.string.keys_weather_temperature)) + "\u00b0F");
-                    mTemperature.setText(sb.toString());
-                    sb = new StringBuilder("Humidity: " + currently.getString(getString(R.string.keys_weather_humidity)) + "%");
-                    mHumidity.setText(sb.toString());
-                    sb = new StringBuilder("Summary: " + currently.getString(getString(R.string.keys_weather_summary)));
-                    mDescription.setText(sb.toString());
-                } else {
-                    Log.e("ERROR!", "No response");
-                    //notify user
-                }
-
-                if (root.has(getString(R.string.keys_weather_hourly))) {
-                    JSONObject hourly = root.getJSONObject(getString(R.string.keys_weather_hourly));
-                    if (hourly.has(getString(R.string.keys_weather_data))) {
-                        JSONArray data = hourly.getJSONArray(getString(R.string.keys_weather_data));
-                        List<Broadcast> broadcasts = new LinkedList<>();
-                        for (int i = 0; i < data.length(); i++) {
-                            JSONObject broadcast = data.getJSONObject(i);
-                            broadcasts.add(new Broadcast(
-                                    broadcast.getString(getString(R.string.keys_weather_temperature)),
-                                    broadcast.getString(getString(R.string.keys_weather_time)),
-                                    broadcast.getString(getString(R.string.keys_weather_summary)),
-                                    broadcast.getString(getString(R.string.keys_weather_humidity)),
-                                    broadcast.getString(getString(R.string.keys_weather_icon))));
-                        }
-
-                        Context context = m24hrRecyclerView.getContext();
-                        m24hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
-                        m24hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
-                    }
-                }
-
-                if (root.has(getString(R.string.keys_weather_daily))) {
-                    JSONObject daily = root.getJSONObject(getString(R.string.keys_weather_daily));
-                    if (daily.has(getString(R.string.keys_weather_data))){
-                        JSONArray data = daily.getJSONArray(getString(R.string.keys_weather_data));
-                        List<Broadcast> broadcasts = new LinkedList<>();
-                        for (int i = 0; i < data.length(); i++) {
-                            JSONObject broadcast = data.getJSONObject(i);
-                            broadcasts.add(new Broadcast(
-                                    broadcast.getString(getString(R.string.keys_weather_temperatureLow)),
-                                    broadcast.getString(getString(R.string.keys_weather_time)),
-                                    broadcast.getString(getString(R.string.keys_weather_summary)),
-                                    broadcast.getString(getString(R.string.keys_weather_humidity)),
-                                    broadcast.getString(getString(R.string.keys_weather_icon))));
-                        }
-
-                        Context context = mWeekRecyclerView.getContext();
-                        mWeekRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-                        mWeekRecyclerView.setAdapter(new MyWeekBroadcastRecycleViewAdapter(broadcasts));
-                    }
-                }
+        JSONObject jsonSend = new JSONObject();
+        try {
+            jsonSend.put("latitude", mCurrentLocation.getLatitude());
+            jsonSend.put("longtitude", mCurrentLocation.getLongitude());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        new SendPostAsyncTask.Builder(uri.toString(), jsonSend)
+                .onPostExecute(this::handleGetWeatherPostExecute)
+                .build().execute();
+    }
 
 
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e("ERROR!", e.getMessage());
+    /**
+     * handle the post execute method
+     * @param result the json result from the web service api
+     */
+    private void handleGetWeatherPostExecute(String result) {
+
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has(getString(R.string.keys_weather_currently))) {
+                JSONObject currently = root.getJSONObject(getString(R.string.keys_weather_currently));
+                StringBuilder sb = new StringBuilder("Temperature: " + currently.getString(getString(R.string.keys_weather_temperature)) + "\u00b0F");
+                mTemperature.setText(sb.toString());
+                sb = new StringBuilder("Humidity: " + currently.getString(getString(R.string.keys_weather_humidity)) + "%");
+                mHumidity.setText(sb.toString());
+                sb = new StringBuilder("Summary: " + currently.getString(getString(R.string.keys_weather_summary)));
+                mDescription.setText(sb.toString());
+            } else {
+                Log.e("ERROR!", "No response");
                 //notify user
-                //onWaitFragmentInteractionHide();
             }
 
+            if (root.has(getString(R.string.keys_weather_hourly))) {
+                JSONObject hourly = root.getJSONObject(getString(R.string.keys_weather_hourly));
+                if (hourly.has(getString(R.string.keys_weather_data))) {
+                    JSONArray data = hourly.getJSONArray(getString(R.string.keys_weather_data));
+                    List<Broadcast> broadcasts = new LinkedList<>();
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject broadcast = data.getJSONObject(i);
+                        broadcasts.add(new Broadcast(
+                                broadcast.getString(getString(R.string.keys_weather_temperature)),
+                                broadcast.getString(getString(R.string.keys_weather_time)),
+                                broadcast.getString(getString(R.string.keys_weather_summary)),
+                                broadcast.getString(getString(R.string.keys_weather_humidity)),
+                                broadcast.getString(getString(R.string.keys_weather_icon))));
+                    }
+
+                    Context context = m48hrRecyclerView.getContext();
+                    m48hrRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+                    m48hrRecyclerView.setAdapter(new My24BroadcastRecycleViewAdapter(broadcasts));
+                }
+            }
+
+            if (root.has(getString(R.string.keys_weather_daily))) {
+                JSONObject daily = root.getJSONObject(getString(R.string.keys_weather_daily));
+                if (daily.has(getString(R.string.keys_weather_data))){
+                    JSONArray data = daily.getJSONArray(getString(R.string.keys_weather_data));
+                    List<Broadcast> broadcasts = new LinkedList<>();
+                    for (int i = 0; i < data.length(); i++) {
+                        JSONObject broadcast = data.getJSONObject(i);
+                        broadcasts.add(new Broadcast(
+                                broadcast.getString(getString(R.string.keys_weather_temperatureLow)),
+                                broadcast.getString(getString(R.string.keys_weather_time)),
+                                broadcast.getString(getString(R.string.keys_weather_summary)),
+                                broadcast.getString(getString(R.string.keys_weather_humidity)),
+                                broadcast.getString(getString(R.string.keys_weather_icon))));
+                    }
+
+                    Context context = mWeekRecyclerView.getContext();
+                    mWeekRecyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+                    mWeekRecyclerView.setAdapter(new MyWeekBroadcastRecycleViewAdapter(broadcasts));
+                }
+            }
+
+            getCityName();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+            //notify user
+            //onWaitFragmentInteractionHide();
         }
+
+    }
+
+    /**
+     * this handle when get result from getting address info.
+     * @param result json string ocntains address info.
+     */
+    private void handleGetCityPostExecute(String result) {
+        try {
+            JSONObject root = new JSONObject(result);
+            if (root.has("results")) {
+                JSONArray results = root.getJSONArray("results");
+
+                JSONObject address_components = results.getJSONObject(0);
+
+                String formatted_address = address_components.getString(getString(R.string.keys_formatted_address));
+                String city = parseLocation(formatted_address);
+                mCurrentCity.setText(city);
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.e("ERROR!", e.getMessage());
+        }
+    }
+
+
+    /**
+     * parse the address to return a city name
+     * @param address contains full address
+     * @return city name
+     */
+    private String parseLocation(String address) {
+       StringBuilder sb = new StringBuilder();
+       String[] arr = address.split(",");
+       sb.append(arr[1]);
+       return sb.toString();
     }
 }

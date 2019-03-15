@@ -31,16 +31,38 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.Adapter<MyConnectionReceiveRequestRecyclerViewAdapter.ViewHolder> {
-
+    /**
+     * this list is for connection request list
+     */
     private final List<ConnectionRequestList> mValues;
+    /**
+     * This is the interface variable
+     */
     private final OnListFragmentInteractionListener mListener;
+    /**
+     * the context variable for connecting activity
+     */
     private Context mContext;
+
+    /**
+     * This method is constructor
+     *
+     * @param items each connection data list value
+     * @param listener interface value
+     */
     public MyConnectionReceiveRequestRecyclerViewAdapter(List<ConnectionRequestList> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
 
     }
 
+    /**
+     * The method is viwer holder one for keeping view holder class work
+     *
+     * @param parent view group variable
+     * @param viewType view type variable
+     * @return
+     */
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
@@ -48,6 +70,12 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
         return new ViewHolder(view);
     }
 
+    /**
+     * The method is bind view holder one that can connect view holder and action listener
+     *
+     * @param holder view holder variable
+     * @param position the index for in the list
+     */
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
@@ -156,6 +184,9 @@ public class MyConnectionReceiveRequestRecyclerViewAdapter extends RecyclerView.
         return mValues.size();
     }
 
+    /**
+     * View holder inner class
+     */
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mUserNameView;

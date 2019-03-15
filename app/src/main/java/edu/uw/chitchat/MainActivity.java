@@ -13,6 +13,7 @@ import java.io.Serializable;
 import edu.uw.chitchat.Credentials.Credentials;
 import edu.uw.chitchat.chat.Chat;
 import edu.uw.chitchat.contactlist.ContactList;
+import edu.uw.chitchat.utils.PrefHelper;
 import me.pushy.sdk.Pushy;
 
 public class MainActivity extends AppCompatActivity implements
@@ -55,14 +56,13 @@ public class MainActivity extends AppCompatActivity implements
 
         String email = credentials.getEmail();
         String password = credentials.getPassword();
-        String jwt = getSharedPreference(getString(R.string.keys_intent_jwt));
-        String persistentLogin = getSharedPreference(getString(R.string.keys_persistent_login));
+        String jwt = PrefHelper.getStringPreference(getString(R.string.keys_intent_jwt), this);
+        String persistentLogin = PrefHelper.getStringPreference(getString(R.string.keys_persistent_login), this);
        // }
 
 
         //persistant login. If username and password are not empty
         if (email != null && password != null && jwt != null && persistentLogin != null && persistentLogin.contentEquals("true")) {
-            //TODO:remove / refactor inside "if" since this never runs. persistentLogin is always false
             Intent i = new Intent(this, HomeActivity.class);
             i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
             i.putExtra(getString(R.string.keys_intent_jwt), jwt);
@@ -142,46 +142,26 @@ public class MainActivity extends AppCompatActivity implements
                 .commit();
     }
 
-    //TODO: REFACTOR
-    //adds single value to shared preferences
-    //refactor later make this a class
-    private void putSharedPreference (String key, String value) {
-        SharedPreferences sharedPref = getSharedPreferences(
-                key, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(key, value);
-        editor.commit();
-    }
-
-    //gets shared pref from given key
-    //refactor later make this a class
-    private String getSharedPreference (String key) {
-        SharedPreferences sharedPref =
-                getSharedPreferences(key, Context.MODE_PRIVATE);
-        return sharedPref.getString(key, null);
-    }
-
     //adds all values from credentials to shared preferences
-    //refactor
     private void putAllCredentialsToPref (Credentials credentials) {
-        putSharedPreference(getString(R.string.keys_email_stored_onRegister), credentials.getEmail());
-        putSharedPreference(getString(R.string.keys_password_stored_onRegister), credentials.getPassword());
-        putSharedPreference(getString(R.string.keys_username_stored_onRegister), credentials.getUsername());
-        putSharedPreference(getString(R.string.keys_firstname_stored_onRegister), credentials.getFirstName());
-        putSharedPreference(getString(R.string.keys_lastname_stored_onRegister), credentials.getLastName());
-        putSharedPreference(getString(R.string.keys_repassword_stored_onRegister), credentials.getRePassword());
+        PrefHelper.putStringPreference(getString(R.string.keys_email_stored_onRegister), credentials.getEmail(), this);
+        PrefHelper.putStringPreference(getString(R.string.keys_password_stored_onRegister), credentials.getPassword(), this);
+        PrefHelper.putStringPreference(getString(R.string.keys_username_stored_onRegister), credentials.getUsername(), this);
+        PrefHelper.putStringPreference(getString(R.string.keys_firstname_stored_onRegister), credentials.getFirstName(), this);
+        PrefHelper.putStringPreference(getString(R.string.keys_lastname_stored_onRegister), credentials.getLastName(), this);
+        PrefHelper.putStringPreference(getString(R.string.keys_repassword_stored_onRegister), credentials.getRePassword(), this);
     }
 
     //returns credentials from shared pref
     //refactor
     private Credentials getAllCredentialsPref() {
         //retrieve values from shared pref
-        String email = getSharedPreference (getString(R.string.keys_email_stored_onRegister));
-        String password = getSharedPreference (getString(R.string.keys_password_stored_onRegister));
-        String username = getSharedPreference (getString(R.string.keys_username_stored_onRegister));
-        String first = getSharedPreference (getString(R.string.keys_firstname_stored_onRegister));
-        String last = getSharedPreference (getString(R.string.keys_lastname_stored_onRegister));
-        String repassword = getSharedPreference (getString(R.string.keys_repassword_stored_onRegister));
+        String email = PrefHelper.getStringPreference (getString(R.string.keys_email_stored_onRegister), this);
+        String password = PrefHelper.getStringPreference (getString(R.string.keys_password_stored_onRegister), this);
+        String username = PrefHelper.getStringPreference (getString(R.string.keys_username_stored_onRegister), this);
+        String first = PrefHelper.getStringPreference (getString(R.string.keys_firstname_stored_onRegister), this);
+        String last = PrefHelper.getStringPreference (getString(R.string.keys_lastname_stored_onRegister), this);
+        String repassword = PrefHelper.getStringPreference (getString(R.string.keys_repassword_stored_onRegister), this);
 
         //build credentials
         Credentials credentials =

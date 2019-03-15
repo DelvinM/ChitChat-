@@ -1,8 +1,17 @@
 package edu.uw.chitchat.contactlist;
 
+/**
+ * the class is generating the contact list
+ */
 public final class ContactListGenerator {
 
+    /**
+     * contactlist's list
+     */
     public static final ContactList[] mContacts;
+    /**
+     * the count number
+     */
     public static final int COUNT = 20;
 
 
@@ -16,7 +25,9 @@ public final class ContactListGenerator {
         }
     }
 
-
+    /**
+     * That's constroctor
+     */
     private ContactListGenerator() { }
 
 
