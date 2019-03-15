@@ -44,6 +44,11 @@ public class HomeFragment extends Fragment implements PopupMenu.OnMenuItemClickL
         return v;
     }
 
+    /**
+     * This method shows the settings dialog when the cog is tapped
+     * @author Logan Jenny
+     * @param v is the view of the settings cog
+     */
     public void showSettings(View v) {
         PopupMenu popup = new PopupMenu(getContext(), v);
         popup.setOnMenuItemClickListener(this);
@@ -62,6 +67,11 @@ public class HomeFragment extends Fragment implements PopupMenu.OnMenuItemClickL
         }
     }
 
+    /**
+     * Logs the user out
+     * @author Logan Jenny
+     * @param view is the view of the logout button
+     */
     public void logOut(View view) {
         mListener.onLogOut();
     }

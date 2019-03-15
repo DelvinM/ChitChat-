@@ -25,9 +25,6 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 
 /**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * to handle interaction events.
  * @author Logan Jenny
  * @2/9/2018
  */
@@ -92,6 +89,11 @@ public class ChatFragment extends Fragment {
         mListener = null;
     }
 
+    /**
+     * Communicates with the backed to create a new chat.
+     * @author Logan Jenny
+     * @param view is the view of the create new chat fab
+     */
     public void newChat(View view) {
         Log.e("LOGAN", "newchat");
         Uri create = new Uri.Builder()

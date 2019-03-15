@@ -10,6 +10,10 @@ import java.util.List;
 
 import edu.uw.chitchat.chat.Chat;
 
+/**
+ * This class is the recycler view for chats.
+ * @author Logan Jenny
+ */
 public class MyChatRecyclerViewAdapter extends RecyclerView.Adapter<edu.uw.chitchat.MyChatRecyclerViewAdapter.ViewHolder> {
 
     private final List<Chat> mValues;
