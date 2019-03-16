@@ -30,7 +30,7 @@ import me.pushy.sdk.Pushy;
  * to handle interaction events.
  * @author Joe Lu
  * @author Delvin Mackenzie
- * @2/5/2018
+ * @3/5/2019
  */
 public class LoginFragment extends Fragment implements View.OnClickListener {
 
@@ -101,22 +101,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                     .build());
 
         }
-//
-////
-//        EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_username);
-//        EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_login_password);
-////        if (getArguments() != null) {//loads email/password arguments from registration success
-////            email = getArguments().getString(getString(R.string.keys_email_stored_onRegister));
-////            password = getArguments().getString(getString(R.string.keys_password_stored_onRegister));
-// //       }
-////        else {//loads email/password from keys.xml
-//        String email = getSharedPreference(getString(R.string.keys_email_stored_onRegister));
-//        String password = getSharedPreference(getString(R.string.keys_password_stored_onRegister));
-////        }
-//        emailText.setText(email);
-//        passwordText.setText(password);
     }
-
+    /**
+     * does login procedure
+     * @param credentials user credentials
+     */
     private void doLogin(Credentials credentials) {
         //build the web service URL
         Uri uri = new Uri.Builder()
@@ -139,6 +128,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
                 .build().execute();
     }
 
+    /**
+     * used for password recovery
+     * @param view
+     */
     private void recover(View view) {
         Log.d("Logan", "recover password clicked");
         EditText emailEdit = getActivity().findViewById(R.id.editText_fragment_login_username);
@@ -241,6 +234,11 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    /**
+     * Checks validity of login credentials
+     * @author Delvin Mackenzie
+     * @param theButton
+     */
     private void attemptLogin(final View theButton) {
         EditText emailEdit = getActivity().findViewById(R.id.editText_fragment_login_username);
         EditText passwordEdit = getActivity().findViewById(R.id.editText_fragment_login_password);
@@ -326,8 +324,12 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    //called each time an invalid login attempt is made
-    //locks out user for 15 minutes after 6 attempts
+    /**
+     * called each time an invalid login attempt is made
+     * locks out user for 15 minutes after 6 attempts
+     * @author Delvin Mackenzie
+     *
+     */
     private void lockOutLogin() {
         mLockOutCount -= 1;
 
@@ -368,7 +370,10 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         prefs.edit().putString(getString(R.string.keys_prefs_password), credentials.getPassword()).apply();
     }
 
-
+    /**
+     * Registers for async notification from pushy service
+     *
+     */
     private class RegisterForPushNotificationsAsync extends AsyncTask<Void, String, String>
     {
         protected String doInBackground(Void... params) {

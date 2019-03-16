@@ -16,6 +16,16 @@ import edu.uw.chitchat.contactlist.ContactList;
 import edu.uw.chitchat.utils.PrefHelper;
 import me.pushy.sdk.Pushy;
 
+
+/**
+ * The main activity for Chit Chat.
+ *
+ * @author Logan Jenny
+ * @author Delvin mackenzie
+ * @author Joe Lu
+ * @author Yohei Sato
+ * @3/15/2019
+ */
 public class MainActivity extends AppCompatActivity implements
         LoginFragment.OnLoginFragmentInteractionListener,
         RegisterFragment.OnRegisterFragmentInteractionListener,
@@ -48,28 +58,18 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         Credentials credentials = getAllCredentialsPref();
-        //String email = "", password = "", jwt = "";
-
-        //Was breaking if you didn't have saved credentials in your Shared Preferences.
-        //I added null checks for email and password. @author Logan
-       //if(credentials.getEmail() != null && credentials.getPassword() != null) {
 
         String email = credentials.getEmail();
         String password = credentials.getPassword();
         String jwt = PrefHelper.getStringPreference(getString(R.string.keys_intent_jwt), this);
         String persistentLogin = PrefHelper.getStringPreference(getString(R.string.keys_persistent_login), this);
-       // }
-
 
         //persistant login. If username and password are not empty
-        if (email != null && password != null && jwt != null && persistentLogin != null && persistentLogin.contentEquals("true")) {
+        if (email != null && password != null && jwt != null &&
+                persistentLogin != null && persistentLogin.contentEquals("true")) {
             Intent i = new Intent(this, HomeActivity.class);
             i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
             i.putExtra(getString(R.string.keys_intent_jwt), jwt);
-
-            //
-            //i.putExtra(getString(R.string.keys_intent_notification_msg), mLoadFromChatNotification);
-
             startActivity(i);
             finish();
 
@@ -142,7 +142,12 @@ public class MainActivity extends AppCompatActivity implements
                 .commit();
     }
 
-    //adds all values from credentials to shared preferences
+
+    /**
+     * put all values from credentials to shared preferences
+     * @param credentials user credentials
+     * @author Delvin Mackenzie
+     */
     private void putAllCredentialsToPref (Credentials credentials) {
         PrefHelper.putStringPreference(getString(R.string.keys_email_stored_onRegister), credentials.getEmail(), this);
         PrefHelper.putStringPreference(getString(R.string.keys_password_stored_onRegister), credentials.getPassword(), this);
@@ -152,10 +157,11 @@ public class MainActivity extends AppCompatActivity implements
         PrefHelper.putStringPreference(getString(R.string.keys_repassword_stored_onRegister), credentials.getRePassword(), this);
     }
 
-    //returns credentials from shared pref
-    //refactor
+    /**
+     * gets all values pertaining to credentials from shared preferences
+     * @author Delvin Mackenzie
+     */
     private Credentials getAllCredentialsPref() {
-        //retrieve values from shared pref
         String email = PrefHelper.getStringPreference (getString(R.string.keys_email_stored_onRegister), this);
         String password = PrefHelper.getStringPreference (getString(R.string.keys_password_stored_onRegister), this);
         String username = PrefHelper.getStringPreference (getString(R.string.keys_username_stored_onRegister), this);
@@ -173,9 +179,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onLoginSuccess(Credentials credentials, String jwt) {
-
-
-
         Intent i = new Intent(this, HomeActivity.class);
         i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
         i.putExtra(getString(R.string.keys_intent_jwt), jwt);
@@ -185,28 +188,7 @@ public class MainActivity extends AppCompatActivity implements
         i.putExtra(getString(R.string.keys_intent_current_message), mMessage);
         startActivity(i);
         finish();
-//        if (findViewById(R.id.frame_main_container) != null) {
-//
-//            //add credentials for most recent user
-//            putAllCredentialsToPref(credentials);
-//            putSharedPreference(getString(R.string.keys_intent_jwt), jwt);
-//            putSharedPreference(getString(R.string.keys_persistent_login), "true");
-//
-//            //load chat screen activity from here
-//            //attach any intent(s) needed here
-//            loadActivityWithCredentials(HomeActivity.class, credentials, jwt);
-//        }
     }
-
-    //loads activity with intent
-    //refactor? class?
-//    private void loadActivityWithCredentials(Class activity, Credentials credentials, String jwt) {
-//        Intent i = new Intent(this, activity);
-//        i.putExtra(getString(R.string.keys_intent_credentials), (Serializable) credentials);
-//        i.putExtra(getString(R.string.keys_intent_jwt), jwt);
-//        startActivity(i);
-//        finish();
-//    }
 
     @Override
     public void onWaitFragmentInteractionShow() {

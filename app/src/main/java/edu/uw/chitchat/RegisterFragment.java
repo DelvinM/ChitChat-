@@ -25,6 +25,11 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 /**
  * A simple {@link Fragment} subclass.
+ * Facilitates users registration process
+ *
+ * @Yohei Sato
+ * @Delvin Mackenzie
+ * @3/1/2019
  */
 public class RegisterFragment extends Fragment implements View.OnClickListener {
 
@@ -51,7 +56,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        //System.out.println("YOHEI!!!!!!!!!!"+ getView());
         EditText emailText = (EditText) getActivity().findViewById(R.id.editText_fragment_reset_password);
         EditText passwordText = (EditText) getActivity().findViewById(R.id.editText_fragment_register_password);
         Credentials credentials = new Credentials.Builder(emailText.getText().toString(),
@@ -62,8 +66,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-
         v = inflater.inflate(R.layout.fragment_register, container, false);
         Button b = (Button) v.findViewById(R.id.actual_register_button);
         b.setOnClickListener(this);
@@ -93,11 +95,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
 
         loginFragment.setArguments(args);
         boolean hasError = false;
-        // String repassward = getArguments().getString("repasskey");
-
-
-//        String emailTextString = getArguments().getString("key");
-//        String passward = getArguments().getString("passkey");
         Credentials credentials = new Credentials.Builder(emailText.getText().toString(),
                 passwordText.getText().toString(), repasswordText.getText().toString(),
                 usernameText.getText().toString(), firstnameText.getText().toString(),
@@ -113,8 +110,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                 "^(?=.*[0-9])(?=.*[A-Z])[^.\\-][A-Z0-9a-z!()?_'~;:.\\]\\[\\-!#@$%^&*+=]{5,}$"
                 );
 
-        //TODO: refactor
-        //refactor
         if (mListener != null) {
             if (TextUtils.isEmpty(lastname)) {
                 hasError = true;
@@ -178,9 +173,6 @@ public class RegisterFragment extends Fragment implements View.OnClickListener {
                         //build the JSONObject
                         JSONObject msg = credentials.asJSONObject();
                         mCredentials = credentials;
-                        //instantiate and execute the AsyncTask.
-//                        Toast.makeText(getActivity(), "Check your email to verify account",
-//                                Toast.LENGTH_LONG).show();
                         new SendPostAsyncTask.Builder(uri.toString(), msg)
                                 .onPreExecute(this::handleLoginOnPre)
                                 .onPostExecute(this::handleLoginOnPost)

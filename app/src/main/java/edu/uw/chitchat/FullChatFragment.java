@@ -34,8 +34,10 @@ import edu.uw.chitchat.utils.PrefHelper;
 import edu.uw.chitchat.utils.PushReceiver;
 import edu.uw.chitchat.utils.SendPostAsyncTask;
 
-/*
+/**
+ * Displays full view of individual chat
  * @author Logan Jenny
+ * @author Delvin Mackenzie
  */
 public class FullChatFragment extends Fragment {
 
@@ -251,11 +253,9 @@ public class FullChatFragment extends Fragment {
     /**
      * Removes the chat notification count
      * @author Logan Jenny
+     * @author Delvin Mackenzie
      */
     private void removeChatNotificationCount () {
-        //accesses shared pref and removes chat notification count
-        //TODO: this could use a local database. refactor? (delvin)
-
         String prefString = "chat room " + CHAT_ID + " count";
 
         //compute new global count
@@ -400,20 +400,6 @@ public class FullChatFragment extends Fragment {
                     mMessageOutputTextView.append(sendArr[0] + ": " + messageText);
                     mMessageOutputTextView.append(System.lineSeparator());
                     mMessageOutputTextView.append(System.lineSeparator());
-
-                } else {
-                    //in app notification goes here
-
-                    /*//keep global counter of in app notifications
-                    int global_count = getSharedPreference(getString(R.string.keys_global_chat_count));
-                    putSharedPreference(getString(R.string.keys_global_chat_count), global_count + 1);
-
-                    //keep counter for individual chatroom
-                    String prefString = "chat room " + chatId + " count";
-                    int chat_count = getSharedPreference(prefString);
-                    putSharedPreference(prefString, chat_count + 1);*/
-
-
 
                 }
             }

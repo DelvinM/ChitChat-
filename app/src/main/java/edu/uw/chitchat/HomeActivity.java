@@ -45,6 +45,17 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
 import edu.uw.chitchat.utils.PrefHelper;
 import me.pushy.sdk.Pushy;
 
+
+/**
+ * The home activity for Chit Chat.
+ * User lands here after logging in.
+ *
+ * @author Logan Jenny
+ * @author Delvin mackenzie
+ * @author Joe Lu
+ * @author Yohei Sato
+ * @3/15/2019
+ */
 public class HomeActivity extends AppCompatActivity implements
         TabLayout.OnTabSelectedListener,
         ChatFragment.OnChatFragmentInteractionListener,
@@ -462,6 +473,10 @@ public class HomeActivity extends AppCompatActivity implements
     }
 
 
+    /**
+     * Loads fullChatFragment that displays a full chat room
+     * @author Delvin Mackenzie
+     */
     public void goToFullChat() {
         FullChatFragment fullChatFragment = new FullChatFragment();
         Bundle args = new Bundle();
@@ -699,7 +714,6 @@ public class HomeActivity extends AppCompatActivity implements
         }
     }
 
-
     public void handleConnectionSendRequestslistGetOnPostExecute(String result) {
 
         try {
@@ -798,9 +812,6 @@ public class HomeActivity extends AppCompatActivity implements
     public void onListFragmentInteraction(ContactList mItem) {
 
     }
-
-
-
 
     @Override
     public void onContactListFragmentInteraction(ContactList contact) {

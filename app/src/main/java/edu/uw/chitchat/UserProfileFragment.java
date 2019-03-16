@@ -25,6 +25,11 @@ import edu.uw.chitchat.utils.SendPostAsyncTask;
 
 /**
  * A simple {@link Fragment} subclass.
+ * Full user profile view.
+ * Not yet implemented in app
+ *
+ * @author Delvin Mackenzie
+ * @date 3/15/2019
  */
 public class UserProfileFragment extends Fragment {
 
@@ -116,7 +121,7 @@ public class UserProfileFragment extends Fragment {
                  /*   int global_count = getSharedPreference(getString(R.string.keys_global_connection_count));
                     putSharedPreference(getString(R.string.keys_global_connection_count), global_count + 1);
 */
-                    //TODO: update UI here for inapp notification
+
                     //add badge/dot to home activity tab
                     //add badges/dots to chat list
 
