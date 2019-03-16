@@ -91,7 +91,7 @@ public class WeatherFragment extends Fragment {
             mCurrentLocation = new Location("");
             mCurrentLocation.setLatitude(lat);
             mCurrentLocation.setLongitude(lng);
-            Log.wtf("world", "afaschv,");
+
         }
 
         FloatingActionButton fab = view.findViewById(R.id.fab_weather);
@@ -132,7 +132,7 @@ public class WeatherFragment extends Fragment {
 
         JSONObject jsonSend = new JSONObject();
         try {
-            Log.wtf("world1", mCurrentLocation.getLatitude()+"");
+
             jsonSend.put("latitude", mCurrentLocation.getLatitude());
             jsonSend.put("longtitude", mCurrentLocation.getLongitude());
         } catch (JSONException e) {

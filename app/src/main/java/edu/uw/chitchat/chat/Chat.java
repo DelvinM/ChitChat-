@@ -28,7 +28,7 @@ public class Chat implements Serializable {
      * @param notification is the number of unread messages
      * @param contents is the ArrayList of messages contained in the chat
      */
-    public Chat(String name, String date, String teaser, String id, String notification, ArrayList contents) {
+    public Chat(String name, String date, String teaser, String id, String notification, ArrayList<String> contents) {
         this.mName = name;
         this.mDate = date;
         this.mTeaser = teaser;
